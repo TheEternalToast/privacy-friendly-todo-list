@@ -64,29 +64,46 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_todo_list_deadline"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:drawableLeft="@android:drawable/ic_menu_my_calendar"
-            android:drawablePadding="5dp"
-            android:gravity="center_vertical"
-            android:text="@string/deadline" />
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/tv_todo_list_deadline"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:drawableStart="@android:drawable/ic_menu_my_calendar"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:text="@string/deadline" />
 
+
+            <TextView
+                android:id="@+id/tv_todo_list_recurrence"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:drawableStart="@android:drawable/ic_menu_rotate"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:text="@string/recurrence"/>
+        </LinearLayout>
         <TextView
             android:id="@+id/tv_todo_list_reminder"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:drawableLeft="@android:drawable/ic_lock_idle_alarm"
-            android:drawablePadding="5dp"
+            android:drawablePadding="10dp"
             android:gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:text="@string/reminder" />
 
     </LinearLayout>
@@ -190,9 +207,8 @@
         android:background="@color/grey" />
 
     <LinearLayout
-        android:layout_width="210dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <Button
             android:id="@+id/bt_new_task_cancel"

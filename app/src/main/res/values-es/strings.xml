@@ -165,4 +165,5 @@
     <string name="list_to_db_error">La lista de tareas no ha sido guardada en la base de datos.</string>
     <string name="task_to_db_error">La tarea no ha sido guardada en la base de datos.</string>
     <string name="subtask_to_db_error">La subtarea no ha sido guardada en la base de datos.</string>
+    <string name="recurrence">Reaparición</string>
 </resources>

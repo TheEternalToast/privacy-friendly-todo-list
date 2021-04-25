@@ -166,4 +166,5 @@
     <string name="list_to_db_error">Lista zadań nie została zapisana w bazie danych.</string>
     <string name="task_to_db_error">Zadanie nie zostało zapisane w bazie danych.</string>
     <string name="subtask_to_db_error">Podzadanie nie zostało zapisane w bazie danych.</string>
+    <string name="recurrence">Powtórzenie</string>
 </resources>

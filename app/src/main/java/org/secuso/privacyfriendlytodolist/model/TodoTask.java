@@ -24,6 +24,8 @@ import android.util.Log;
 import org.secuso.privacyfriendlytodolist.model.database.DBQueryHandler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Sebastian Lutz on 12.03.2018.
@@ -104,29 +106,29 @@ public class TodoTask extends BaseTodo implements Parcelable {
         super();
         done = false;
         inTrash = false;
+
+        recurrence = new Recurrence(Recurrence.Type.NONE, new HashSet<Integer>());
     }
 
     public TodoTask(TodoTask todoTask, CopyMode mode) {
         super(todoTask, mode);
-        this.priority = todoTask.priority;
-        this.recurrence = new Recurrence(todoTask.recurrence.type, todoTask.recurrence.selections);
+
         this.listIdForeignKey = todoTask.listIdForeignKey;
         this.listName = todoTask.listName;
         this.listPosition = todoTask.listPosition;
 
-        ArrayList<TodoSubTask> subTasks = new ArrayList<>();
-        for (TodoSubTask subTask : getSubTasks()) {
-            subTasks.add(new TodoSubTask(subTask, mode));
-        }
-        this.subTasks = subTasks;
+        this.priority = todoTask.priority;
+
         if (mode == CopyMode.CLONE) {
+            this.progress = todoTask.progress;
             this.done = todoTask.done;
             this.inTrash = todoTask.inTrash;
-            this.progress = todoTask.progress;
         } else {
             done = false;
             inTrash = false;
         }
+
+        this.recurrence = new Recurrence(todoTask.recurrence.type, todoTask.recurrence.selections);
         if (mode == CopyMode.NEXT) {
             this.deadline = todoTask.recurrence.next(todoTask.deadline);
             this.reminderTime = todoTask.recurrence.next(todoTask.reminderTime);
@@ -134,20 +136,37 @@ public class TodoTask extends BaseTodo implements Parcelable {
             this.deadline = todoTask.deadline;
             this.reminderTime = todoTask.reminderTime;
         }
+
+        ArrayList<TodoSubTask> subTasks = new ArrayList<>();
+        for (TodoSubTask subTask : getSubTasks()) {
+            subTasks.add(new TodoSubTask(subTask, mode));
+        }
+        this.subTasks = subTasks;
+
     }
 
     public TodoTask(Parcel parcel) {
         id = parcel.readInt();
-        listIdForeignKey = parcel.readInt();
         name = parcel.readString();
         description = parcel.readString();
+
+        listIdForeignKey = parcel.readInt();
+        listName = parcel.readString();
+        listPosition = parcel.readInt();
+
+        priority = Priority.fromInt(parcel.readInt());
+
+        progress = parcel.readInt();
         done = parcel.readByte() != 0;
         inTrash = parcel.readByte() != 0;
-        progress = parcel.readInt();
+
         deadline = parcel.readLong();
+        Recurrence.Type recurrenceType = Recurrence.Type.fromInt(parcel.readInt());
+        Set<Integer> recurrenceSelection = Recurrence.decodeSelection(parcel.readInt());
+        recurrence = new Recurrence(recurrenceType, recurrenceSelection);
+
         reminderTime = parcel.readLong();
-        listPosition = parcel.readInt();
-        priority = Priority.fromInt(parcel.readInt());
+
         parcel.readList(subTasks, TodoSubTask.class.getClassLoader());
     }
 
@@ -160,18 +179,25 @@ public class TodoTask extends BaseTodo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
-        dest.writeInt(listIdForeignKey);
         dest.writeString(name);
         dest.writeString(description);
+
+        dest.writeInt(listIdForeignKey);
+        dest.writeString(listName);
+        dest.writeInt(listPosition);
+
+        dest.writeInt(priority.getValue());
+
+        dest.writeInt(progress);
         dest.writeByte((byte) (done ? 1 : 0));
         dest.writeByte((byte) (inTrash ? 1 : 0));
-        dest.writeInt(progress);
+
         dest.writeLong(deadline);
-        dest.writeLong(reminderTime);
-        dest.writeInt(listPosition);
-        dest.writeInt(priority.getValue());
         dest.writeInt(getRecurrenceType());
         dest.writeInt(getEncodedRecurrenceSelection());
+
+        dest.writeLong(reminderTime);
+
         dest.writeList(subTasks);
     }
 

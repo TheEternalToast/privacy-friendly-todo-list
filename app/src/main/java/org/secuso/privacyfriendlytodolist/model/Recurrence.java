@@ -2,6 +2,7 @@ package org.secuso.privacyfriendlytodolist.model;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -117,5 +118,15 @@ public class Recurrence {
             encodedSelections = encodedSelections << 1;
         }
         return encodedSelections;
+    }
+
+    public static Set<Integer> decodeSelection(int encodedSelection){
+        Set<Integer> selection = new HashSet<>();
+        for (int i = 0; i < 31; i++) {
+            if (encodedSelection % 2 == 1)
+                selection.add(i);
+            encodedSelection = encodedSelection >> 1;
+        }
+        return selection;
     }
 }

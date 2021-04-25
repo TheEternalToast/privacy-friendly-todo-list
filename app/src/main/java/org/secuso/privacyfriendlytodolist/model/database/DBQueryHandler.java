@@ -141,13 +141,9 @@ public class DBQueryHandler {
         Recurrence.Type recType = Recurrence.Type.fromInt(
                 cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_TYPE))
         );
-        Set<Integer> recSelections = new HashSet<>();
-        int encodedSelections = cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_SELECTION));
-        for (int i = 0; i < 31; i++) {
-            if (encodedSelections % 2 == 1)
-                recSelections.add(i);
-            encodedSelections = encodedSelections >> 1;
-        }
+        Set<Integer> recSelections = Recurrence.decodeSelection(
+                cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_SELECTION))
+        );
 
         TodoTask task = new TodoTask();
         task.setName(title);
@@ -368,10 +364,10 @@ public class DBQueryHandler {
         return returnCode;
     }
 
-    public static int saveNextTodoTaskInDbIfRecurring(SQLiteDatabase db, TodoTask todoTask, Boolean newDoneStatus){
+    public static int saveNextTodoTaskInDbIfRecurring(SQLiteDatabase db, TodoTask todoTask, Boolean newDoneStatus) {
         if (todoTask.getRecurrenceType() != Recurrence.Type.NONE.getValue()
-        && newDoneStatus && !todoTask.isDone()) {
-            return saveTodoTaskInDb(db,new TodoTask(todoTask, BaseTodo.CopyMode.NEXT)
+                && newDoneStatus && !todoTask.isDone()) {
+            return saveTodoTaskInDb(db, new TodoTask(todoTask, BaseTodo.CopyMode.NEXT)
             );
         }
         return NO_CHANGES;

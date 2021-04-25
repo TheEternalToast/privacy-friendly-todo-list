@@ -36,3 +36,4 @@ Thumbs.db
 # APKs
 *.apk
 
+app/release/output-metadata.json

@@ -52,6 +52,7 @@ import static org.secuso.privacyfriendlytodolist.model.TodoList.DUMMY_LIST_ID;
 
 public class ProcessTodoTaskDialog extends FullScreenDialog {
 
+    // Instance variables
     private TextView prioritySelector;
     private TextView deadlineTextView;
     private TextView reminderTextView;
@@ -333,7 +334,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
     }
 
 
-    //change the dialogtitle from "new task" to "edit task"
+    //change the dialogue title from "new task" to "edit task"
     public void titleEdit(){
         dialogTitleNew.setVisibility(View.GONE);
         dialogTitleEdit.setVisibility(View.VISIBLE);

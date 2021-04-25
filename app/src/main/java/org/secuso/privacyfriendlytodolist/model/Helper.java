@@ -41,13 +41,13 @@ public class Helper {
     public static String getDate(long time) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(time));
-        return DateFormat.format("dd.MM.yyyy", calendar).toString();
+        return DateFormat.format(DATE_FORMAT, calendar).toString();
     }
 
     public static String getDateTime(long time) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(time));
-        return DateFormat.format("dd.MM.yyyy HH:mm", calendar).toString();
+        return DateFormat.format(DATE_FORMAT + " HH:mm", calendar).toString();
     }
 
     public static long getCurrentTimestamp() {

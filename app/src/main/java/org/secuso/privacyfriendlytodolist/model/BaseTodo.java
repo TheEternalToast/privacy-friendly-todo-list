@@ -21,20 +21,55 @@ import org.secuso.privacyfriendlytodolist.model.database.DBQueryHandler;
 
 public abstract class BaseTodo {
 
-    protected int id;
-
-    protected int progress;
-
-    public int getProgress(){
-        return progress;
     }
 
+    // Instance variables
+    protected int id;
     protected String name, description;
+    protected int progress;
+
     protected DBQueryHandler.ObjectStates dbState;
 
+    // Constructors
     public BaseTodo() {
         dbState = DBQueryHandler.ObjectStates.NO_DB_ACTION;
     }
+
+    }
+
+    // Getters & Setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+
+    public void setProgress(int progress) {
+        this.progress = progress;
+    }
+
 
     public DBQueryHandler.ObjectStates getDBState() {
         return dbState;
@@ -45,45 +80,16 @@ public abstract class BaseTodo {
     }
 
     public void setChanged() {
-        if(this.dbState == DBQueryHandler.ObjectStates.NO_DB_ACTION)
+        if (this.dbState == DBQueryHandler.ObjectStates.NO_DB_ACTION)
             this.dbState = DBQueryHandler.ObjectStates.UPDATE_DB;
     }
 
     public void setChangedFromPomodoro() {
-            this.dbState = DBQueryHandler.ObjectStates.UPDATE_FROM_POMODORO;
+        this.dbState = DBQueryHandler.ObjectStates.UPDATE_FROM_POMODORO;
     }
-
-
 
     public void setUnchanged() {
         this.dbState = DBQueryHandler.ObjectStates.NO_DB_ACTION;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setProgress(int progress) {
-        this.progress = progress;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
 }

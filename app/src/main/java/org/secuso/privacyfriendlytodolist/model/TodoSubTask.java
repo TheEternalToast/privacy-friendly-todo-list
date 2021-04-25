@@ -22,24 +22,36 @@ import android.os.Parcelable;
 
 /**
  * Created by Sebastian Lutz on 12.03.2018.
+ * Altered by Ben Westerath on 25.04.2021.
  *
  * Class to set up To-Do subtasks and its parameters.
  */
 
 public class TodoSubTask extends BaseTodo implements Parcelable {
 
+    // Class variables
+    public static final Parcelable.Creator<TodoSubTask> CREATOR =
+            new Creator<TodoSubTask>() {
+                @Override
+                public TodoSubTask createFromParcel(Parcel source) {
+                    return new TodoSubTask(source);
+                }
+
+                @Override
+                public TodoSubTask[] newArray(int size) {
+                    return new TodoSubTask[size];
+                }
+            };
+
+    // Instance variables
     private String name;
-    private boolean done;
-    private boolean inTrash;
     private long taskIdForeignKey;
 
     private int progress = -1;
+    private boolean done;
+    private boolean inTrash;
 
-    @Override
-    public int getProgress() {
-        return progress;
-    }
-
+    // Constructors
     public TodoSubTask() {
         super();
         done = false;
@@ -54,39 +66,7 @@ public class TodoSubTask extends BaseTodo implements Parcelable {
         taskIdForeignKey = parcel.readLong();
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName(){
-        return name;
-    }
-
-    public boolean getDone() {
-        return done;
-    }
-
-    public boolean isInTrash() {return inTrash; }
-
-    public void setDone(boolean d) {
-        done = d;
-    }
-
-    public void setInTrash(boolean a) { inTrash = a; }
-
-    public static final Parcelable.Creator<TodoSubTask> CREATOR =
-            new Creator<TodoSubTask>() {
-                @Override
-                public TodoSubTask createFromParcel(Parcel source) {
-                    return new TodoSubTask(source);
-                }
-
-                @Override
-                public TodoSubTask[] newArray(int size) {
-                    return new TodoSubTask[size];
-                }
-            };
-
+    // Overrides
     @Override
     public int describeContents() {
         return 0;
@@ -101,15 +81,43 @@ public class TodoSubTask extends BaseTodo implements Parcelable {
         dest.writeLong(taskIdForeignKey);
     }
 
-    public void setTaskId(long taskIdForeignKey) {
-        this.taskIdForeignKey = taskIdForeignKey;
+    // Getters & Setters
+    public String getName(){
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public long getTaskId() {
         return taskIdForeignKey;
     }
 
+    public void setTaskId(long taskIdForeignKey) {
+        this.taskIdForeignKey = taskIdForeignKey;
+    }
 
+
+    @Override
+    public int getProgress() {
+        return progress;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean d) {
+        done = d;
+    }
+
+    public boolean isInTrash() {return inTrash; }
+
+    public void setInTrash(boolean a) { inTrash = a; }
+
+
+    // Functional methods
     public boolean checkQueryMatch(String query)
     {
         // no query? always match!

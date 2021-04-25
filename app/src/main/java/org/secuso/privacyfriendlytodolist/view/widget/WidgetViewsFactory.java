@@ -17,17 +17,8 @@
 
 package org.secuso.privacyfriendlytodolist.view.widget;
 
-import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
-import android.content.ClipData.Item;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.net.Uri;
-import android.opengl.Visibility;
-import android.os.Binder;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.RemoteViews;
@@ -38,8 +29,6 @@ import org.secuso.privacyfriendlytodolist.model.TodoList;
 import org.secuso.privacyfriendlytodolist.model.TodoTask;
 import org.secuso.privacyfriendlytodolist.model.database.DBQueryHandler;
 import org.secuso.privacyfriendlytodolist.model.database.DatabaseHelper;
-import org.secuso.privacyfriendlytodolist.model.database.tables.TTodoTask;
-import org.secuso.privacyfriendlytodolist.view.MainActivity;
 
 import java.util.ArrayList;
 
@@ -118,10 +107,10 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
         TodoTask todo = listTasks.get(position);
 
         RemoteViews itemView = new RemoteViews(mContext.getPackageName(), R.layout.widget_tasks);
-        if (todo.getDone()){
+        if (todo.isDone()){
             itemView.setViewVisibility(R.id.widget_done, View.VISIBLE);
             itemView.setViewVisibility(R.id.widget_undone, View.INVISIBLE);
-        } else if (!todo.getDone()) {
+        } else if (!todo.isDone()) {
             itemView.setViewVisibility(R.id.widget_done, View.INVISIBLE);
             itemView.setViewVisibility(R.id.widget_undone, View.VISIBLE);
         }

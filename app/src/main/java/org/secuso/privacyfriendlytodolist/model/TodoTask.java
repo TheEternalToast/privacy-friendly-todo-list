@@ -22,23 +22,19 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import org.secuso.privacyfriendlytodolist.model.database.DBQueryHandler;
-import org.secuso.privacyfriendlytodolist.model.database.DatabaseHelper;
 
 import java.util.ArrayList;
 
 /**
- *
  * Created by Sebastian Lutz on 12.03.2018.
- *
+ * Altered by Ben Westerath on 25.04.2021.
+ * <p>
  * Class to set up To-Do Tasks and its parameters.
  */
 
 public class TodoTask extends BaseTodo implements Parcelable {
 
-    private static final String TAG = TodoTask.class.getSimpleName();
-    public static final String PARCELABLE_KEY = "key_for_parcels";
-
-
+    // Enums
     public enum Priority {
         HIGH(0), MEDIUM(1), LOW(2); // Priority steps must be sorted in the same way like they will be displayed
 
@@ -63,43 +59,53 @@ public class TodoTask extends BaseTodo implements Parcelable {
     }
 
     public enum DeadlineColors {
-        BLUE,
-        ORANGE,
-        RED
+        BLUE, ORANGE, RED
     }
 
-    private boolean inTrash;
-    private boolean done;
-    private int progress;
-    private Priority priority;
-    private long reminderTime = -1; // absolute timestamp
-    private int listPosition; // indicates at what position inside the list this task it placed
+    // Class variables
+    private static final String TAG = TodoTask.class.getSimpleName();
+    public static final String PARCELABLE_KEY = "key_for_parcels";
+
+    public static final Parcelable.Creator<TodoTask> CREATOR =
+            new Creator<TodoTask>() {
+                @Override
+                public TodoTask createFromParcel(Parcel source) {
+                    return new TodoTask(source);
+                }
+
+                @Override
+                public TodoTask[] newArray(int size) {
+                    return new TodoTask[size];
+                }
+            };
+
+    // Instance variables
     private int listIdForeignKey;
+    private String listName;
+    private int listPosition; // indicates at what position inside the list this task it placed
+
+    private Priority priority;
+
+    private int progress;
+    private boolean done;
+    private boolean inTrash;
+
     protected long deadline; // absolute timestamp
 
+    private long reminderTime = -1; // absolute timestamp
     private boolean reminderTimeChanged = false; // important for the reminder service
     private boolean reminderTimeWasInitialized = false;
 
-    private String listName;
-
     private ArrayList<TodoSubTask> subTasks = new ArrayList<TodoSubTask>();
 
+    // Constructors
     public TodoTask() {
         super();
         done = false;
         inTrash = false;
     }
 
-    public String getListName() {
-        return listName;
-    }
 
-    public void setListName(String listName) {
-        this.listName = listName;
-    }
-
-    public boolean hasDeadline() {
-        return deadline > 0;
     }
 
     public TodoTask(Parcel parcel) {
@@ -117,91 +123,10 @@ public class TodoTask extends BaseTodo implements Parcelable {
         parcel.readList(subTasks, TodoSubTask.class.getClassLoader());
     }
 
-    public long getDeadline() {
-        return deadline;
-    }
-
-    public void setDeadline(long deadline) {
-        this.deadline = deadline;
-    }
-
-    public void setPositionInList(int pos) {
-        this.listPosition = pos;
-    }
-
-    public void setSubTasks(ArrayList<TodoSubTask> tasks) {
-        this.subTasks = tasks;
-    }
-
-    public ArrayList<TodoSubTask> getSubTasks() {
-        return subTasks;
-    }
-
-    public boolean isInTrash () { return inTrash; }
-
-    public boolean getDone() {
-        return done;
-    }
-
-    public int getProgress() {
-        return progress;
-    }
-
-    public Priority getPriority() {
-        return priority;
-    }
-
-    public int getListPosition() {
-        return listPosition;
-    }
-
-    public void setDone(boolean done) {
-        this.done = done;
-    }
-
-    public void setInTrash(boolean inTrash) { this.inTrash = inTrash; }
-
-    // This method expects the deadline to be greater than the reminder time.
-    public DeadlineColors getDeadlineColor(long defaultReminderTime) {
-
-        // The default reminder time is a relative value in seconds (e.g. 86400s == 1 day)
-        // The user specified reminder time is an absolute timestamp
-
-        if (!done && deadline > 0) {
-
-            long currentTimeStamp = Helper.getCurrentTimestamp();
-            long remTimeToCalc = reminderTime > 0 ? deadline-reminderTime : defaultReminderTime;
-
-            if ((currentTimeStamp >= (deadline - remTimeToCalc)) && (deadline > currentTimeStamp))
-                return DeadlineColors.ORANGE;
-
-            if ((currentTimeStamp > deadline) && (deadline > 0))
-                return DeadlineColors.RED;
-        }
-
-        return DeadlineColors.BLUE;
-    }
-
-    public static final Parcelable.Creator<TodoTask> CREATOR =
-        new Creator<TodoTask>() {
-            @Override
-            public TodoTask createFromParcel(Parcel source) {
-                return new TodoTask(source);
-            }
-
-            @Override
-            public TodoTask[] newArray(int size) {
-                return new TodoTask[size];
-            }
-        };
-
+    // Overrides
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    public void setPriority(Priority prio) {
-        priority = prio;
     }
 
     @Override
@@ -211,43 +136,113 @@ public class TodoTask extends BaseTodo implements Parcelable {
         dest.writeString(name);
         dest.writeString(description);
         dest.writeByte((byte) (done ? 1 : 0));
-        dest.writeByte((byte)(inTrash ? 1 : 0));
+        dest.writeByte((byte) (inTrash ? 1 : 0));
         dest.writeInt(progress);
         dest.writeLong(deadline);
         dest.writeLong(reminderTime);
         dest.writeInt(listPosition);
         dest.writeInt(priority.getValue());
+        dest.writeInt(getRecurrenceType());
+        dest.writeInt(getEncodedRecurrenceSelection());
         dest.writeList(subTasks);
     }
 
-    public long getReminderTime() {
-        return reminderTime;
+    // Getters & Setters
+    public int getListId() {
+        return this.listIdForeignKey;
     }
 
     public void setListId(int listId) {
         this.listIdForeignKey = listId;
     }
 
-    public int getListId() {
-        return this.listIdForeignKey;
+    public String getListName() {
+        return listName;
+    }
+
+    public void setListName(String listName) {
+        this.listName = listName;
+    }
+
+    public int getListPosition() {
+        return listPosition;
+    }
+
+    public void setListPosition(int listPosition) {
+        this.listPosition = listPosition;
+    }
+
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+
+    public int getProgress() {
+        return progress;
     }
 
     public void setProgress(int progress) {
         this.progress = progress;
     }
 
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
+    public boolean isInTrash() {
+        return inTrash;
+    }
+
+    public void setInTrash(boolean inTrash) {
+        this.inTrash = inTrash;
+    }
+
+
+    public boolean hasDeadline() {
+        return deadline > 0;
+    }
+
+    public long getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(long deadline) {
+        this.deadline = deadline;
+    }
+
+    }
+
+    }
+
+    }
+
+    }
+
+
+    public long getReminderTime() {
+        return reminderTime;
+    }
+
     public void setReminderTime(long reminderTime) {
 
-        if(reminderTime > deadline && deadline > 0) {
+        if (reminderTime > deadline && deadline > 0) {
             Log.i(TAG, "Reminder time must not be greater than the deadline.");
-        }
-        else {
+        } else {
             this.reminderTime = reminderTime;
         }
 
         // check if reminder time was already set and now changed -> important for reminder service
 
-        if(reminderTimeWasInitialized)
+        if (reminderTimeWasInitialized)
             reminderTimeChanged = true;
 
         reminderTimeWasInitialized = true;
@@ -261,8 +256,40 @@ public class TodoTask extends BaseTodo implements Parcelable {
         reminderTimeChanged = false;
     }
 
+
+    public ArrayList<TodoSubTask> getSubTasks() {
+        return subTasks;
+    }
+
+    public void setSubTasks(ArrayList<TodoSubTask> tasks) {
+        this.subTasks = tasks;
+    }
+
+    // Functional methods
+
+    // This method expects the deadline to be greater than the reminder time.
+    public DeadlineColors getDeadlineColor(long defaultReminderTime) {
+
+        // The default reminder time is a relative value in seconds (e.g. 86400s == 1 day)
+        // The user specified reminder time is an absolute timestamp
+
+        if (!done && deadline > 0) {
+
+            long currentTimeStamp = Helper.getCurrentTimestamp();
+            long remTimeToCalc = reminderTime > 0 ? deadline - reminderTime : defaultReminderTime;
+
+            if ((currentTimeStamp >= (deadline - remTimeToCalc)) && (deadline > currentTimeStamp))
+                return DeadlineColors.ORANGE;
+
+            if ((currentTimeStamp > deadline) && (deadline > 0))
+                return DeadlineColors.RED;
+        }
+
+        return DeadlineColors.BLUE;
+    }
+
     public void setAllSubTasksDone(boolean doneSubTask) {
-        for(TodoSubTask subTask : subTasks) {
+        for (TodoSubTask subTask : subTasks) {
             subTask.setDone(doneSubTask);
         }
 
@@ -274,20 +301,19 @@ public class TodoTask extends BaseTodo implements Parcelable {
         boolean doneSubTasks = true;
 
         int i = 0;
-        while(doneSubTasks && i<subTasks.size()) {
-            doneSubTasks &= subTasks.get(i).getDone();
+        while (doneSubTasks && i < subTasks.size()) {
+            doneSubTasks &= subTasks.get(i).isDone();
             i++;
         }
 
 
-        if(doneSubTasks != done) {
+        if (doneSubTasks != done) {
             dbState = DBQueryHandler.ObjectStates.UPDATE_DB;
 
         }
 
         done = doneSubTasks;
     }
-
 
     public boolean checkQueryMatch(String query, boolean recursive) {
         // no query? always match!
@@ -309,5 +335,4 @@ public class TodoTask extends BaseTodo implements Parcelable {
     public boolean checkQueryMatch(String query) {
         return checkQueryMatch(query, true);
     }
-
 }

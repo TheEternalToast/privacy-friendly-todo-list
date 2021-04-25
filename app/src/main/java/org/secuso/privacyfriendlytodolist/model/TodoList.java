@@ -76,7 +76,7 @@ public class TodoList extends BaseTodo implements Parcelable{
     public int getDoneTodos() {
         int counter = 0;
         for(TodoTask task : tasks)
-            counter += task.getDone() == true ? 1 : 0;
+            counter += task.isDone() == true ? 1 : 0;
         return counter;
     }
 
@@ -112,7 +112,7 @@ public class TodoList extends BaseTodo implements Parcelable{
 
             TodoTask currentTask = tasks.get(i);
 
-            if(!currentTask.getDone()) {
+            if(!currentTask.isDone()) {
                 if (minDeadLine == -1 && currentTask.getDeadline() > 0)
                     minDeadLine = currentTask.getDeadline();
                 else {

@@ -19,6 +19,7 @@ package org.secuso.privacyfriendlytodolist.model.database.tables;
 
 /**
  * Created by Sebastian Lutz on 12.03.2018.
+ * Altered by Ben Westerath on 25.04.2021.
  *
  * This class is responsible to define sql table of To-Do tasks.
  */
@@ -37,8 +38,8 @@ public class TTodoTask {
     public static final String COLUMN_DONE = "done";
     public static final String COLUMN_PRIORITY = "priority";
     public static final String COLUMN_PROGRESS = "progress";
-    public static final String COLUMN_NUM_SUBTAKS = "num_subtasks";
-    public static final String COLUMN_DEADLINE_WARNING_TIME = "deadline_warning_time"; // absolut value in seconds
+    public static final String COLUMN_NUM_SUBTASKS = "num_subtasks";
+    public static final String COLUMN_DEADLINE_WARNING_TIME = "deadline_warning_time"; // absolute value in seconds
     public static final String COLUMN_LIST_POSITION = "position_in_todo_list";
     public static final String COLUMN_TRASH = "in_trash";
 
@@ -54,7 +55,7 @@ public class TTodoTask {
             COLUMN_DEADLINE + " DATETIME DEFAULT NULL, " +
             COLUMN_DONE + " INTEGER NOT NULL DEFAULT 0, " +
             COLUMN_PROGRESS + " INTEGER NOT NULL DEFAULT 0, " +
-            COLUMN_NUM_SUBTAKS + "INTEGER NOT NULL DEFAULT 0, " +
+            COLUMN_NUM_SUBTASKS + "INTEGER NOT NULL DEFAULT 0, " +
             COLUMN_DEADLINE_WARNING_TIME + " NUMERIC NULL DEFAULT NULL, " +
             COLUMN_TRASH + " INTEGER NOT NULL DEFAULT 0, " +
                 "FOREIGN KEY (" + COLUMN_TODO_LIST_ID + ") REFERENCES " + TTodoList.TABLE_NAME + "(" + TTodoList.COLUMN_ID + "));";

@@ -1,4 +1,4 @@
--- drop column description from todo_list
+-- include COLUMNs 'type_of_recurrence' and 'encoded_recurrence_selection' in TABLE 'todo_task'
 PRAGMA foreign_keys=off;
 BEGIN TRANSACTION;
 ALTER TABLE todo_task RENAME TO temp_table;

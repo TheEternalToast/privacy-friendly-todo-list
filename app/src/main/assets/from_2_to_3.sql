@@ -1,0 +1,1 @@
+-- this update failed and thus db version 2 was skipped

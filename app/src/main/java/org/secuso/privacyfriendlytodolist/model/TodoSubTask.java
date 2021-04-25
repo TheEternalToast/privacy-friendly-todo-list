@@ -58,6 +58,19 @@ public class TodoSubTask extends BaseTodo implements Parcelable {
         inTrash = false;
     }
 
+    public TodoSubTask(TodoSubTask todoSubTask, CopyMode mode){
+        super(todoSubTask, mode);
+        this.taskIdForeignKey = todoSubTask.taskIdForeignKey;
+        if (mode == CopyMode.CLONE){
+            this.done = todoSubTask.done;
+            this.inTrash = todoSubTask.inTrash;
+            this.progress = todoSubTask.progress;
+        } else {
+            done = false;
+            inTrash = false;
+        }
+    }
+
     public TodoSubTask(Parcel parcel) {
         id = parcel.readInt();
         name = parcel.readString();

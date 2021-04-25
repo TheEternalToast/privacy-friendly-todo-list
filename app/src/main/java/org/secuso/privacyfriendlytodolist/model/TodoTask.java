@@ -91,6 +91,7 @@ public class TodoTask extends BaseTodo implements Parcelable {
     private boolean inTrash;
 
     protected long deadline; // absolute timestamp
+    protected Recurrence recurrence;
 
     private long reminderTime = -1; // absolute timestamp
     private boolean reminderTimeChanged = false; // important for the reminder service
@@ -105,7 +106,34 @@ public class TodoTask extends BaseTodo implements Parcelable {
         inTrash = false;
     }
 
+    public TodoTask(TodoTask todoTask, CopyMode mode) {
+        super(todoTask, mode);
+        this.priority = todoTask.priority;
+        this.recurrence = new Recurrence(todoTask.recurrence.type, todoTask.recurrence.selections);
+        this.listIdForeignKey = todoTask.listIdForeignKey;
+        this.listName = todoTask.listName;
+        this.listPosition = todoTask.listPosition;
 
+        ArrayList<TodoSubTask> subTasks = new ArrayList<>();
+        for (TodoSubTask subTask : getSubTasks()) {
+            subTasks.add(new TodoSubTask(subTask, mode));
+        }
+        this.subTasks = subTasks;
+        if (mode == CopyMode.CLONE) {
+            this.done = todoTask.done;
+            this.inTrash = todoTask.inTrash;
+            this.progress = todoTask.progress;
+        } else {
+            done = false;
+            inTrash = false;
+        }
+        if (mode == CopyMode.NEXT) {
+            this.deadline = todoTask.recurrence.next(todoTask.deadline);
+            this.reminderTime = todoTask.recurrence.next(todoTask.reminderTime);
+        } else {
+            this.deadline = todoTask.deadline;
+            this.reminderTime = todoTask.reminderTime;
+        }
     }
 
     public TodoTask(Parcel parcel) {
@@ -219,12 +247,20 @@ public class TodoTask extends BaseTodo implements Parcelable {
         this.deadline = deadline;
     }
 
+    public Recurrence getRecurrence() {
+        return recurrence;
     }
 
+    public int getRecurrenceType() {
+        return recurrence.type.getValue();
     }
 
+    public int getEncodedRecurrenceSelection() {
+        return recurrence.encodeSelection();
     }
 
+    public void setRecurrence(Recurrence recurrence) {
+        this.recurrence = recurrence;
     }
 
 

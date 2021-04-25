@@ -485,6 +485,10 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                                 public void onClick(View v) {
                                     if (isChecked) {
                                         buttonView.setChecked(false);
+                                        DBQueryHandler.saveNextTodoTaskInDbIfRecurring(
+                                                DatabaseHelper.getInstance(context).getWritableDatabase(),
+                                                currentTask, buttonView.isChecked()
+                                        );
                                         currentTask.setDone(buttonView.isChecked());
                                         currentTask.setAllSubTasksDone(false);
                                         getProgressDone(currentTask, hasAutoProgress());
@@ -497,6 +501,10 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                                         }
                                     } else {
                                         buttonView.setChecked(true);
+                                        DBQueryHandler.saveNextTodoTaskInDbIfRecurring(
+                                                DatabaseHelper.getInstance(context).getWritableDatabase(),
+                                                currentTask, buttonView.isChecked()
+                                        );
                                         currentTask.setDone(buttonView.isChecked());
                                         currentTask.setAllSubTasksDone(true);
                                         getProgressDone(currentTask, hasAutoProgress());
@@ -512,6 +520,10 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                                 }
                             });
                             snackbar.show();
+                            DBQueryHandler.saveNextTodoTaskInDbIfRecurring(
+                                        DatabaseHelper.getInstance(context).getWritableDatabase(),
+                                        currentTask, buttonView.isChecked()
+                                );
                             currentTask.setDone(buttonView.isChecked());
                             currentTask.setAllSubTasksDone(buttonView.isChecked());
                             getProgressDone(currentTask, hasAutoProgress());

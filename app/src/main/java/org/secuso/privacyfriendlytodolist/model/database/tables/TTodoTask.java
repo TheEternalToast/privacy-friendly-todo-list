@@ -42,6 +42,8 @@ public class TTodoTask {
     public static final String COLUMN_DEADLINE_WARNING_TIME = "deadline_warning_time"; // absolute value in seconds
     public static final String COLUMN_LIST_POSITION = "position_in_todo_list";
     public static final String COLUMN_TRASH = "in_trash";
+    public static final String COLUMN_RECURRENCE_TYPE = "type_of_recurrence";
+    public static final String COLUMN_RECURRENCE_SELECTION = "encoded_recurrence_selection";
 
 
     // sql table creation
@@ -58,5 +60,7 @@ public class TTodoTask {
             COLUMN_NUM_SUBTASKS + "INTEGER NOT NULL DEFAULT 0, " +
             COLUMN_DEADLINE_WARNING_TIME + " NUMERIC NULL DEFAULT NULL, " +
             COLUMN_TRASH + " INTEGER NOT NULL DEFAULT 0, " +
+            COLUMN_RECURRENCE_TYPE + " INTEGER NOT NULL DEFAULT 0," +
+            COLUMN_RECURRENCE_SELECTION + " INTEGER NOT NULL DEFAULT 0," +
                 "FOREIGN KEY (" + COLUMN_TODO_LIST_ID + ") REFERENCES " + TTodoList.TABLE_NAME + "(" + TTodoList.COLUMN_ID + "));";
 }

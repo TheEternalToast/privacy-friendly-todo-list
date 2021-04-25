@@ -21,6 +21,9 @@ import org.secuso.privacyfriendlytodolist.model.database.DBQueryHandler;
 
 public abstract class BaseTodo {
 
+    // Enums
+    public enum CopyMode {
+        CLONE, RESET, NEXT
     }
 
     // Instance variables
@@ -35,6 +38,10 @@ public abstract class BaseTodo {
         dbState = DBQueryHandler.ObjectStates.NO_DB_ACTION;
     }
 
+    public BaseTodo(BaseTodo baseTodo, CopyMode mode) {
+        this.name = baseTodo.name;
+        this.description = baseTodo.description;
+        dbState = DBQueryHandler.ObjectStates.NO_DB_ACTION;
     }
 
     // Getters & Setters

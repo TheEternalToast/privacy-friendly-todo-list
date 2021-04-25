@@ -58,6 +58,7 @@ import android.widget.Toast;
 import org.secuso.privacyfriendlytodolist.R;
 import org.secuso.privacyfriendlytodolist.model.BaseTodo;
 import org.secuso.privacyfriendlytodolist.model.Helper;
+import org.secuso.privacyfriendlytodolist.model.Recurrence;
 import org.secuso.privacyfriendlytodolist.model.ReminderService;
 import org.secuso.privacyfriendlytodolist.model.TodoList;
 import org.secuso.privacyfriendlytodolist.model.TodoSubTask;
@@ -1174,6 +1175,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         todoRe.setId(getIntent().getIntExtra("todo_id", -1));
         todoRe.setProgress(getIntent().getIntExtra("todo_progress", -1));
         if (todoRe.getProgress() == 100) {
+            // Create next task according to recurrence
+            if (todoRe.getRecurrenceType() != Recurrence.Type.NONE.getValue() && !todoRe.isDone()) {
+                sendToDatabase(new TodoTask(todoRe, BaseTodo.CopyMode.NEXT));
+            }
             // Set task as done
             todoRe.setDone(true);
             //todoRe.doneStatusChanged();

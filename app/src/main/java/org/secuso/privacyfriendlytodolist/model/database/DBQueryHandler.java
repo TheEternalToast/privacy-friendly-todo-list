@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import org.secuso.privacyfriendlytodolist.model.BaseTodo;
+import org.secuso.privacyfriendlytodolist.model.Recurrence;
 import org.secuso.privacyfriendlytodolist.model.TodoList;
 import org.secuso.privacyfriendlytodolist.model.TodoSubTask;
 import org.secuso.privacyfriendlytodolist.model.TodoTask;
@@ -32,6 +33,7 @@ import org.secuso.privacyfriendlytodolist.model.database.tables.TTodoTask;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Sebastian Lutz on 13.3.2018.
@@ -136,11 +138,23 @@ public class DBQueryHandler {
         int listID = cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_TODO_LIST_ID));
         boolean inTrash = cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_TRASH)) > 0;
 
+        Recurrence.Type recType = Recurrence.Type.fromInt(
+                cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_TYPE))
+        );
+        Set<Integer> recSelections = new HashSet<>();
+        int encodedSelections = cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_SELECTION));
+        for (int i = 0; i < 31; i++) {
+            if (encodedSelections % 2 == 1)
+                recSelections.add(i);
+            encodedSelections = encodedSelections >> 1;
+        }
+
         TodoTask task = new TodoTask();
         task.setName(title);
         task.setDeadline(deadline);
         task.setDescription(description);
         task.setPriority(TodoTask.Priority.fromInt(priority));
+        task.setRecurrence(new Recurrence(recType, recSelections));
         task.setReminderTime(reminderTime);
         task.setId(id);
         task.setListPosition(listPosition);
@@ -354,6 +368,15 @@ public class DBQueryHandler {
         return returnCode;
     }
 
+    public static int saveNextTodoTaskInDbIfRecurring(SQLiteDatabase db, TodoTask todoTask, Boolean newDoneStatus){
+        if (todoTask.getRecurrenceType() != Recurrence.Type.NONE.getValue()
+        && newDoneStatus && !todoTask.isDone()) {
+            return saveTodoTaskInDb(db,new TodoTask(todoTask, BaseTodo.CopyMode.NEXT)
+            );
+        }
+        return NO_CHANGES;
+    }
+
     public static int saveTodoTaskInDb(SQLiteDatabase db, TodoTask todoTask) {
 
         int returnCode;
@@ -371,6 +394,8 @@ public class DBQueryHandler {
             values.put(TTodoTask.COLUMN_LIST_POSITION, todoTask.getListPosition());
             values.put(TTodoTask.COLUMN_DONE, todoTask.isDone());
             values.put(TTodoTask.COLUMN_TRASH, todoTask.isInTrash());
+            values.put(TTodoTask.COLUMN_RECURRENCE_TYPE, todoTask.getRecurrenceType());
+            values.put(TTodoTask.COLUMN_RECURRENCE_SELECTION, todoTask.getEncodedRecurrenceSelection());
 
             if (todoTask.getDBState() == ObjectStates.INSERT_TO_DB) {
                 returnCode = (int) db.insert(TTodoTask.TABLE_NAME, null, values);

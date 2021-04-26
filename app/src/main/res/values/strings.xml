@@ -178,12 +178,24 @@
     <string name="november">November</string>
     <string name="december">December</string>
 
+    <!-- relative Date and Time -->
+    <string name="yesterday">yesterday</string>
+    <string name="today">today</string>
+    <string name="tomorrow">tomorrow</string>
+    <string name="never">never</string>
+
+    <!-- Date Units -->
+    <string name="day">day</string>
+    <string name="week">week</string>
+    <string name="month">month</string>
+    <string name="year">year</string>
+
     <!-- Error messages -->
     <string name="error_removing_subtask">Subtask could not be removed from the database.</string>
     <string name="error_removing_task">Could not remove todo task from the database.</string>
     <string name="list_to_db_error">Error while creating new To-Do list.</string>
     <string name="task_to_db_error">Error while inserting new task into the database.</string>
-    <string name="subtask_to_db_error">An error occured while inserting new subtask to the database.</string>
+    <string name="subtask_to_db_error">An error occurred while inserting new subtask to the database.</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="tutorial">Tutorial</string>
@@ -192,13 +204,13 @@
     <string name="slide1_text">Welcome to your privacy friendly To-Do list. This app does not use any permissions.</string>
 
     <string name="slide2_heading">Lists</string>
-    <string name="slide2_text">You can manage your tasks in labled To-Do lists.</string>
+    <string name="slide2_text">You can manage your tasks in labeled To-Do lists.</string>
 
     <string name="slide3_heading">Reminder</string>
     <string name="slide3_text">You can define deadlines and reminders for your tasks.</string>
 
     <string name="slide4_heading">Everything is important</string>
-    <string name="slide4_text">You can add subtasks and the progress of their maintask. Progress can be set manually or automatically by the number of done subtasks.</string>
+    <string name="slide4_text">You can add subtasks and the progress of their main task. Progress can be set manually or automatically by the number of done subtasks.</string>
 
     <string name="slide5_heading">Secure</string>
     <string name="slide5_text">You can add a PIN-protection in the settings.</string>
@@ -246,14 +258,16 @@
     <!-- POMODORO INTEGRATION -->
     <string name="permission_todo_name">TODO Integration</string>
     <string name="permission_todo_description">Enables the TODO App to start the timer with a given TODO Item</string>
+
+    <!-- RECURRENCE -->
     <string name="recurrence">Recurrence</string>
+    <string name="no_recurrence">no recurrence</string>
     <string name="repeat_every">Repeat every</string>
     <string name="select_recurrence">Select recurrence</string>
+    <string name="weekdays">selected weekdays</string>
+    <string name="some_months">selected months</string>
     <string name="start_date">Start date</string>
     <string name="end_date">End date</string>
     <string name="default_recurrence_increment" translatable="false">1</string>
-    <string name="yesterday">yesterday</string>
-    <string name="today">today</string>
-    <string name="tomorrow">tomorrow</string>
 
 </resources>

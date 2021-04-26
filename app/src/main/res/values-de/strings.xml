@@ -247,5 +247,13 @@
     <string name="yesterday">gestern</string>
     <string name="today">heute</string>
     <string name="tomorrow">morgen</string>
+    <string name="day">Tag</string>
+    <string name="weekdays">Wochentage (Auswahl)</string>
+    <string name="week">Woche</string>
+    <string name="month">Monat</string>
+    <string name="some_months">Monate (Auswahl)</string>
+    <string name="year">Jahr</string>
+    <string name="no_recurrence">keine Wiederholung</string>
+    <string name="never">nie</string>
 
 </resources>

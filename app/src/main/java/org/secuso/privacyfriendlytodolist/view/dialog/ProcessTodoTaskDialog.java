@@ -50,6 +50,8 @@ import java.util.List;
 public class ProcessTodoTaskDialog extends FullScreenDialog {
 
     // Instance variables
+
+    // Views
     private TextView prioritySelector;
     private TextView deadlineTextView;
     private TextView reminderTextView;
@@ -65,6 +67,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
     private EditText taskName;
     private EditText taskDescription;
 
+    // Values
     private TodoTask.Priority taskPriority = null;
     private int selectedListID;
     private List<TodoList> lists = new ArrayList<>();

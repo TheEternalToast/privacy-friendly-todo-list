@@ -174,4 +174,12 @@
     <string name="tomorrow">demain</string>
     <string name="today">aujourd\'hui</string>
     <string name="yesterday">hier</string>
+    <string name="some_months">sélection du mois</string>
+    <string name="weekdays">jour de la semaine</string>
+    <string name="year">an</string>
+    <string name="month">mois</string>
+    <string name="week">semaine</string>
+    <string name="day">jour</string>
+    <string name="never">jamais</string>
+    <string name="no_recurrence">pas de récurrence</string>
 </resources>

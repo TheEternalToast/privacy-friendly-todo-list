@@ -174,4 +174,12 @@
     <string name="yesterday">gisteren</string>
     <string name="today">vandaag</string>
     <string name="tomorrow">morgen</string>
+    <string name="day">dag</string>
+    <string name="week">week</string>
+    <string name="month">maand</string>
+    <string name="year">jaar</string>
+    <string name="weekdays">weekdag selectie</string>
+    <string name="some_months">maand selectie</string>
+    <string name="never">nooit</string>
+    <string name="no_recurrence">geen herhaling</string>
 </resources>

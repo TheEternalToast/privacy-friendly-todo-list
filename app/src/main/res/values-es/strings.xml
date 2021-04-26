@@ -165,7 +165,7 @@
     <string name="list_to_db_error">La lista de tareas no ha sido guardada en la base de datos.</string>
     <string name="task_to_db_error">La tarea no ha sido guardada en la base de datos.</string>
     <string name="subtask_to_db_error">La subtarea no ha sido guardada en la base de datos.</string>
-    <string name="recurrence">Reaparición</string>
+    <string name="recurrence">Recurrencia</string>
     <string name="repeat_every">Repite cada</string>
     <string name="select_recurrence">Seleccionar repetición</string>
     <string name="start_date">Fecha de inicio</string>
@@ -173,4 +173,12 @@
     <string name="today">hoy</string>
     <string name="yesterday">ayer</string>
     <string name="tomorrow">mañana</string>
+    <string name="some_months">selección de mes</string>
+    <string name="weekdays">día de la semana</string>
+    <string name="year">año</string>
+    <string name="month">mes</string>
+    <string name="week">semana</string>
+    <string name="day">día</string>
+    <string name="never">nunca</string>
+    <string name="no_recurrence">sin recurrencia</string>
 </resources>

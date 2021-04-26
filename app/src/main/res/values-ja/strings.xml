@@ -174,4 +174,12 @@
     <string name="yesterday">昨日</string>
     <string name="today">今日</string>
     <string name="tomorrow">明日</string>
+    <string name="day">日</string>
+    <string name="week">週</string>
+    <string name="month">月</string>
+    <string name="year">年</string>
+    <string name="weekdays">曜日の選択</string>
+    <string name="some_months">月の選択</string>
+    <string name="never">いつも</string>
+    <string name="no_recurrence">反復なし</string>
 </resources>

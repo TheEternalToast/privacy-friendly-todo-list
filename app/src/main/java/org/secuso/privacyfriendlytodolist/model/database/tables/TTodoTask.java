@@ -20,7 +20,7 @@ package org.secuso.privacyfriendlytodolist.model.database.tables;
 /**
  * Created by Sebastian Lutz on 12.03.2018.
  * Altered by Ben Westerath on 25.04.2021.
- *
+ * <p>
  * This class is responsible to define sql table of To-Do tasks.
  */
 public class TTodoTask {
@@ -46,7 +46,10 @@ public class TTodoTask {
 
     public static final String COLUMN_DEADLINE = "deadline";
     public static final String COLUMN_RECURRENCE_TYPE = "type_of_recurrence";
+    public static final String COLUMN_RECURRENCE_INCREMENT = "recurrence_increment";
     public static final String COLUMN_RECURRENCE_SELECTION = "encoded_recurrence_selection";
+    public static final String COLUMN_RECURRENCE_START_DATE = "recurrence_start_date";
+    public static final String COLUMN_RECURRENCE_END_DATE = "recurrence_end_date";
 
     public static final String COLUMN_DEADLINE_WARNING_TIME = "deadline_warning_time"; // absolute value in seconds
 
@@ -70,11 +73,14 @@ public class TTodoTask {
 
             COLUMN_DEADLINE + " DATETIME DEFAULT NULL, " +
             COLUMN_RECURRENCE_TYPE + " INTEGER NOT NULL DEFAULT 0, " +
+            COLUMN_RECURRENCE_INCREMENT + "INTEGER NOT NULL DEFAULT -1, " +
             COLUMN_RECURRENCE_SELECTION + " INTEGER NOT NULL DEFAULT 0, " +
+            COLUMN_RECURRENCE_START_DATE + " SIGNED BIGINT NOT NULL DEFAULT 0, " +
+            COLUMN_RECURRENCE_END_DATE + " SIGNED BIGINT NOT NULL DEFAULT " + Long.toString(Long.MAX_VALUE).replace("L", "") + ", " +
 
             COLUMN_DEADLINE_WARNING_TIME + " NUMERIC NULL DEFAULT NULL, " +
 
             COLUMN_NUM_SUBTASKS + "INTEGER NOT NULL DEFAULT 0, " +
 
-                "FOREIGN KEY (" + COLUMN_TODO_LIST_ID + ") REFERENCES " + TTodoList.TABLE_NAME + "(" + TTodoList.COLUMN_ID + "));";
+            "FOREIGN KEY (" + COLUMN_TODO_LIST_ID + ") REFERENCES " + TTodoList.TABLE_NAME + "(" + TTodoList.COLUMN_ID + "));";
 }

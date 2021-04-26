@@ -51,7 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper mInstance = null;
     private Context context;
 
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "TodoDatabase.db";
 
     public static DatabaseHelper getInstance(Context context) {

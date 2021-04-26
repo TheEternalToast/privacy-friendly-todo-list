@@ -107,7 +107,7 @@ public class TodoTask extends BaseTodo implements Parcelable {
         done = false;
         inTrash = false;
 
-        recurrence = new Recurrence(Recurrence.Type.NONE, new HashSet<Integer>());
+        recurrence = new Recurrence();
     }
 
     public TodoTask(TodoTask todoTask, CopyMode mode) {
@@ -128,7 +128,7 @@ public class TodoTask extends BaseTodo implements Parcelable {
             inTrash = false;
         }
 
-        this.recurrence = new Recurrence(todoTask.recurrence.type, todoTask.recurrence.selections);
+        this.recurrence = new Recurrence(todoTask.recurrence);
         if (mode == CopyMode.NEXT) {
             this.deadline = todoTask.recurrence.next(todoTask.deadline);
             this.reminderTime = todoTask.recurrence.next(todoTask.reminderTime);
@@ -161,9 +161,7 @@ public class TodoTask extends BaseTodo implements Parcelable {
         inTrash = parcel.readByte() != 0;
 
         deadline = parcel.readLong();
-        Recurrence.Type recurrenceType = Recurrence.Type.fromInt(parcel.readInt());
-        Set<Integer> recurrenceSelection = Recurrence.decodeSelection(parcel.readInt());
-        recurrence = new Recurrence(recurrenceType, recurrenceSelection);
+        recurrence = parcel.readParcelable(Recurrence.class.getClassLoader());
 
         reminderTime = parcel.readLong();
 
@@ -193,8 +191,7 @@ public class TodoTask extends BaseTodo implements Parcelable {
         dest.writeByte((byte) (inTrash ? 1 : 0));
 
         dest.writeLong(deadline);
-        dest.writeInt(getRecurrenceType());
-        dest.writeInt(getEncodedRecurrenceSelection());
+        dest.writeParcelable(recurrence, flags);
 
         dest.writeLong(reminderTime);
 

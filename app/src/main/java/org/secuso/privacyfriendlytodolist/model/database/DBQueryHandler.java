@@ -141,16 +141,19 @@ public class DBQueryHandler {
         Recurrence.Type recType = Recurrence.Type.fromInt(
                 cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_TYPE))
         );
+        int recIncrement = cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_INCREMENT));
         Set<Integer> recSelections = Recurrence.decodeSelection(
                 cursor.getInt(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_SELECTION))
         );
+        long recStartDate = cursor.getLong(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_START_DATE));
+        long recEndDate = cursor.getLong(cursor.getColumnIndex(TTodoTask.COLUMN_RECURRENCE_END_DATE));
 
         TodoTask task = new TodoTask();
         task.setName(title);
         task.setDeadline(deadline);
         task.setDescription(description);
         task.setPriority(TodoTask.Priority.fromInt(priority));
-        task.setRecurrence(new Recurrence(recType, recSelections));
+        task.setRecurrence(new Recurrence(recType, recIncrement, recSelections, recStartDate, recEndDate));
         task.setReminderTime(reminderTime);
         task.setId(id);
         task.setListPosition(listPosition);

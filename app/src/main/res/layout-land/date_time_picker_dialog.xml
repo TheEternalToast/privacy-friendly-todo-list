@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent">
             <Button
-                android:id="@+id/bt_reminder_date"
+                android:id="@+id/bt_date_time_picker_date"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:minWidth="48dip"
@@ -23,7 +23,7 @@
                 android:text="@string/date"
                 style="?android:attr/buttonBarButtonStyle" />
             <Button
-                android:id="@+id/bt_reminder_time"
+                android:id="@+id/bt_date_time_picker_time"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:minWidth="48dip"
@@ -34,14 +34,14 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/ll_reminder_date"
+            android:id="@+id/ll_date_time_picker_date"
             android:visibility="visible"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <DatePicker
-                android:id="@+id/dp_reminder"
+                android:id="@+id/dp_date_time_picker"
                 android:layout_width="match_parent"
                 android:calendarViewShown="false"
                 android:spinnersShown="false"
@@ -50,14 +50,14 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/ll_reminder_time"
+            android:id="@+id/ll_date_time_picker_time"
             android:visibility="gone"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <TimePicker
-                android:id="@+id/tp_reminder"
+                android:id="@+id/tp_date_time_picker"
                 android:layout_width="match_parent"
                 android:layout_weight="1"
                 android:layout_height="0dp" />
@@ -73,7 +73,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <Button
-            android:id="@+id/bt_reminder_noreminder"
+            android:id="@+id/bt_date_time_picker_no_date_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:minHeight="48dip"
@@ -81,7 +81,7 @@
             android:text="@string/no_reminder"
             style="?android:attr/buttonBarButtonStyle" />
         <Button
-            android:id="@+id/bt_reminder_ok"
+            android:id="@+id/bt_date_time_picker_ok"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:minHeight="48dip"

@@ -31,87 +31,88 @@ import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
 
 
-public class ReminderDialog extends FullScreenDialog {
+public class DateTimePickerDialog extends FullScreenDialog {
 
-    private ReminderCallback callback;
+    private DateTimeCallback callback;
 
-    public ReminderDialog(Context context, long reminderTime, long deadline) {
-        super(context, R.layout.reminder_dialog);
+    public DateTimePickerDialog(Context context, long presetTime, long fallbackPresetTime, int cancelButtonTextID) {
+        super(context, R.layout.date_time_picker_dialog);
 
         Calendar calendar = GregorianCalendar.getInstance();
-        if(reminderTime != -1) calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(reminderTime));
-        else if(deadline != -1) calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(deadline)); //TODO subtract predefined reminder interval
+        if(presetTime != -1) calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(presetTime));
+        else if(fallbackPresetTime != -1) calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(fallbackPresetTime)); //TODO subtract predefined reminder interval
         else calendar.setTime(Calendar.getInstance().getTime());
 
-        DatePicker datePicker = (DatePicker) findViewById(R.id.dp_reminder);
+        DatePicker datePicker = (DatePicker) findViewById(R.id.dp_date_time_picker);
         //datePicker.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                LinearLayout layoutDate = (LinearLayout)findViewById(R.id.ll_reminder_date);
+                LinearLayout layoutDate = (LinearLayout)findViewById(R.id.ll_date_time_picker_date);
                 layoutDate.setVisibility(View.GONE);
-                LinearLayout layoutTime = (LinearLayout)findViewById(R.id.ll_reminder_time);
+                LinearLayout layoutTime = (LinearLayout)findViewById(R.id.ll_date_time_picker_time);
                 layoutTime.setVisibility(View.VISIBLE);
             }
         });
 
-        TimePicker timePicker = (TimePicker) findViewById(R.id.tp_reminder);
+        TimePicker timePicker = (TimePicker) findViewById(R.id.tp_date_time_picker);
         timePicker.setIs24HourView(true);
         timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
         timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE)+1);
 
-        Button buttonDate = (Button) findViewById(R.id.bt_reminder_date);
+        Button buttonDate = (Button) findViewById(R.id.bt_date_time_picker_date);
         buttonDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LinearLayout layoutDate = (LinearLayout)findViewById(R.id.ll_reminder_date);
+                LinearLayout layoutDate = (LinearLayout)findViewById(R.id.ll_date_time_picker_date);
                 layoutDate.setVisibility(View.VISIBLE);
-                LinearLayout layoutTime = (LinearLayout)findViewById(R.id.ll_reminder_time);
+                LinearLayout layoutTime = (LinearLayout)findViewById(R.id.ll_date_time_picker_time);
                 layoutTime.setVisibility(View.GONE);
             }
         });
-        Button buttonTime = (Button) findViewById(R.id.bt_reminder_time);
+        Button buttonTime = (Button) findViewById(R.id.bt_date_time_picker_time);
         buttonTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LinearLayout layoutDate = (LinearLayout)findViewById(R.id.ll_reminder_date);
+                LinearLayout layoutDate = (LinearLayout)findViewById(R.id.ll_date_time_picker_date);
                 layoutDate.setVisibility(View.GONE);
-                LinearLayout layoutTime = (LinearLayout)findViewById(R.id.ll_reminder_time);
+                LinearLayout layoutTime = (LinearLayout)findViewById(R.id.ll_date_time_picker_time);
                 layoutTime.setVisibility(View.VISIBLE);
             }
         });
 
-        Button buttonOkay = (Button) findViewById(R.id.bt_reminder_ok);
+        Button buttonOkay = (Button) findViewById(R.id.bt_date_time_picker_ok);
         buttonOkay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePicker datePicker = (DatePicker) findViewById(R.id.dp_reminder);
-                TimePicker timePicker = (TimePicker) findViewById(R.id.tp_reminder);
+                DatePicker datePicker = (DatePicker) findViewById(R.id.dp_date_time_picker);
+                TimePicker timePicker = (TimePicker) findViewById(R.id.tp_date_time_picker);
                 Calendar calendar = new GregorianCalendar(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), timePicker.getCurrentHour(), timePicker.getCurrentMinute());
 
-                callback.setReminder(TimeUnit.MILLISECONDS.toSeconds(calendar.getTimeInMillis()));
+                callback.setDateTime(TimeUnit.MILLISECONDS.toSeconds(calendar.getTimeInMillis()));
 
                 dismiss();
             }
         });
 
-        Button buttonNoReminder = (Button) findViewById(R.id.bt_reminder_noreminder);
-        buttonNoReminder.setOnClickListener(new View.OnClickListener() {
+        Button cancelButton = (Button) findViewById(R.id.bt_date_time_picker_no_date_time);
+        cancelButton.setText(getContext().getResources().getText(cancelButtonTextID));
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.removeReminder();
+                callback.removeDateTime();
                 dismiss();
             }
         });
 
     }
 
-    public interface ReminderCallback {
-        void setReminder(long deadline);
-        void removeReminder();
+    public interface DateTimeCallback {
+        void setDateTime(long dateTime);
+        void removeDateTime();
     }
 
-    public void setCallback(ReminderCallback callback) {
+    public void setCallback(DateTimeCallback callback) {
         this.callback = callback;
     }
 

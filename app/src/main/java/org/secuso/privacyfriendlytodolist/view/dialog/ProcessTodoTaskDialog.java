@@ -248,21 +248,25 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
 
     // initialize deadline view
     private void initDeadline(Button okayButton) {
-        deadlineTextView = (TextView) findViewById(R.id.tv_todo_list_deadline);
+        deadlineTextView = findViewById(R.id.tv_todo_list_deadline);
         deadlineTextView.setTextColor(okayButton.getCurrentTextColor());
         deadlineTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DeadlineDialog deadlineDialog = new DeadlineDialog(getContext(), deadline);
-                deadlineDialog.setCallback(new DeadlineDialog.DeadlineCallback() {
+                DatePickerDialog deadlineDialog = new DatePickerDialog(
+                        getContext(),
+                        deadline,
+                        R.string.no_deadline
+                );
+                deadlineDialog.setCallback(new DatePickerDialog.DateCallback() {
                     @Override
-                    public void setDeadline(long d) {
+                    public void setDate(long d) {
                         deadline = d;
                         deadlineTextView.setText(Helper.getDate(getContext(), deadline));
                     }
 
                     @Override
-                    public void removeDeadline() {
+                    public void removeDate() {
                         deadline = -1;
                         deadlineTextView.setText(getContext().getResources().getString(R.string.deadline));
                     }
@@ -279,27 +283,27 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         reminderTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ReminderDialog reminderDialog = new ReminderDialog(getContext(), reminderTime, deadline);
-                reminderDialog.setCallback(new ReminderDialog.ReminderCallback() {
+                DateTimePickerDialog reminderDialog = new DateTimePickerDialog(getContext(), reminderTime, deadline, R.string.no_reminder);
+                reminderDialog.setCallback(new DateTimePickerDialog.DateTimeCallback() {
                     @Override
-                    public void setReminder(long r) {
+                    public void setDateTime(long reminder) {
 
                         /*if(deadline == -1) {
                             Toast.makeText(getContext(), getContext().getString(R.string.set_deadline_before_reminder), Toast.LENGTH_SHORT).show();
                             return;
                         }*/
 
-                        if (deadline != -1 && deadline < r) {
+                        if (deadline != -1 && deadline < reminder) {
                             Toast.makeText(getContext(), getContext().getString(R.string.deadline_smaller_reminder), Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        reminderTime = r;
+                        reminderTime = reminder;
                         reminderTextView.setText(Helper.getDateTime(getContext(), reminderTime));
                     }
 
                     @Override
-                    public void removeReminder() {
+                    public void removeDateTime() {
                         reminderTime = -1;
                         TextView reminderTextView = (TextView) findViewById(R.id.tv_todo_list_reminder);
                         reminderTextView.setText(getContext().getResources().getString(R.string.reminder));

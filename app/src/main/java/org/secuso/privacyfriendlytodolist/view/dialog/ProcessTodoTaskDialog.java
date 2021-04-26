@@ -18,9 +18,7 @@
 package org.secuso.privacyfriendlytodolist.view.dialog;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,8 +39,6 @@ import org.secuso.privacyfriendlytodolist.model.database.DatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.secuso.privacyfriendlytodolist.model.TodoList.DUMMY_LIST_ID;
 
 /**
  * Created by Sebastian Lutz on 12.03.2018.
@@ -108,11 +104,11 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         if (task.getDeadline() <= 0)
             deadlineTextView.setText(context.getString(R.string.no_deadline));
         else
-            deadlineTextView.setText(Helper.getDate(deadline));
+            deadlineTextView.setText(Helper.getDate(context, deadline));
         if (task.getReminderTime() <= 0)
             reminderTextView.setText(context.getString(R.string.reminder));
         else
-            reminderTextView.setText(Helper.getDateTime(reminderTime));
+            reminderTextView.setText(Helper.getDateTime(context, reminderTime));
 
         this.task = task;
     }
@@ -259,7 +255,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
                     @Override
                     public void setDeadline(long d) {
                         deadline = d;
-                        deadlineTextView.setText(Helper.getDate(deadline));
+                        deadlineTextView.setText(Helper.getDate(getContext(), deadline));
                     }
 
                     @Override
@@ -296,7 +292,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
                         }
 
                         reminderTime = r;
-                        reminderTextView.setText(Helper.getDateTime(reminderTime));
+                        reminderTextView.setText(Helper.getDateTime(getContext(), reminderTime));
                     }
 
                     @Override

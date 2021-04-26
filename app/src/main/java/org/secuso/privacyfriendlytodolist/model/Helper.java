@@ -22,7 +22,6 @@ import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.text.format.DateFormat;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,16 +37,26 @@ public class Helper {
 
     public static final CharSequence DATE_FORMAT = "dd.MM.yyyy";
 
-    public static String getDate(long time) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(time));
-        return DateFormat.format(DATE_FORMAT, calendar).toString();
+    public static String getDate(Context context, long time) {
+        Calendar today = Calendar.getInstance();
+        Calendar toDisplay = Calendar.getInstance();
+        toDisplay.setTimeInMillis(TimeUnit.SECONDS.toMillis(time));
+        switch (toDisplay.get(Calendar.DATE) - today.get(Calendar.DATE)) {
+            case -1:
+                return context.getResources().getString(R.string.yesterday);
+            case 0:
+                return context.getResources().getString(R.string.today);
+            case 1:
+                return context.getResources().getString(R.string.tomorrow);
+            default:
+                return DateFormat.format(DATE_FORMAT, toDisplay).toString();
+        }
     }
 
-    public static String getDateTime(long time) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(time));
-        return DateFormat.format(DATE_FORMAT + " HH:mm", calendar).toString();
+    public static String getDateTime(Context context, long time) {
+        Calendar toDisplay = Calendar.getInstance();
+        toDisplay.setTimeInMillis(TimeUnit.SECONDS.toMillis(time));
+        return getDate(context, time) + " " + DateFormat.format("HH:mm", toDisplay).toString();
     }
 
     public static long getCurrentTimestamp() {
@@ -67,9 +76,9 @@ public class Helper {
         throw new IllegalArgumentException("Deadline color not defined.");
     }
 
-    public static String priority2String(Context context, Priority prio) {
+    public static String priority2String(Context context, Priority priority) {
 
-        switch (prio) {
+        switch (priority) {
             case HIGH:
                 return context.getResources().getString(R.string.high_priority);
             case MEDIUM:

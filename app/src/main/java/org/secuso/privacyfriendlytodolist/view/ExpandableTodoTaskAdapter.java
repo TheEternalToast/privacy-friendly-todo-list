@@ -462,7 +462,7 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                 if (currentTask.getDeadline() <= 0)
                     deadline = context.getResources().getString(R.string.no_deadline);
                 else
-                    deadline = context.getResources().getString(R.string.deadline_dd) + " " + Helper.getDate(currentTask.getDeadline());
+                    deadline = context.getResources().getString(R.string.deadline_dd) + " " + Helper.getDate(context, currentTask.getDeadline());
 
                 if (showListName) {
                     vh2.listName.setVisibility(View.VISIBLE);

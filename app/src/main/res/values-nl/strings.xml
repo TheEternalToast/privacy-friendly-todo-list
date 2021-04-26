@@ -167,4 +167,11 @@
     <string name="task_to_db_error">Fout tijdens het invoegen van een taak in de database.</string>
     <string name="subtask_to_db_error">Fout tijdens het invoegen van een ondertaak in de database.</string>
     <string name="recurrence">Herhaling</string>
+    <string name="repeat_every">Herhaal elke</string>
+    <string name="select_recurrence">Selecteer herhaling</string>
+    <string name="start_date">Startdatum</string>
+    <string name="end_date">Einddatum</string>
+    <string name="yesterday">gisteren</string>
+    <string name="today">vandaag</string>
+    <string name="tomorrow">morgen</string>
 </resources>

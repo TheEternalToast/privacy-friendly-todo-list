@@ -167,4 +167,11 @@
     <string name="task_to_db_error">La tâche n\'a pas été enregistrée dans la base de données.</string>
     <string name="subtask_to_db_error">La sous-tâche n\'a pas été enregistrée dans la base de données.</string>
     <string name="recurrence">Récurrence</string>
+    <string name="repeat_every">Répéte chaque</string>
+    <string name="select_recurrence">Sélectionner la récurrence</string>
+    <string name="start_date">Date de début</string>
+    <string name="end_date">Date de fin</string>
+    <string name="tomorrow">demain</string>
+    <string name="today">aujourd\'hui</string>
+    <string name="yesterday">hier</string>
 </resources>

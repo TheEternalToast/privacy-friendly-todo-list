@@ -247,5 +247,13 @@
     <string name="permission_todo_name">TODO Integration</string>
     <string name="permission_todo_description">Enables the TODO App to start the timer with a given TODO Item</string>
     <string name="recurrence">Recurrence</string>
+    <string name="repeat_every">Repeat every</string>
+    <string name="select_recurrence">Select recurrence</string>
+    <string name="start_date">Start date</string>
+    <string name="end_date">End date</string>
+    <string name="default_recurrence_increment" translatable="false">1</string>
+    <string name="yesterday">yesterday</string>
+    <string name="today">today</string>
+    <string name="tomorrow">tomorrow</string>
 
 </resources>

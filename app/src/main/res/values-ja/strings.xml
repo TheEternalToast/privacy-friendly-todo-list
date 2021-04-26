@@ -167,4 +167,11 @@
     <string name="task_to_db_error">データベースに新しいタスクを挿入中にエラーが発生しました。</string>
     <string name="subtask_to_db_error">データベースに新しいサブタスクを挿入中にエラーが発生しました。</string>
     <string name="recurrence">反復</string>
+    <string name="repeat_every">毎回</string>
+    <string name="select_recurrence">反復を選択</string>
+    <string name="start_date">開始日</string>
+    <string name="end_date">終了日</string>
+    <string name="yesterday">昨日</string>
+    <string name="today">今日</string>
+    <string name="tomorrow">明日</string>
 </resources>

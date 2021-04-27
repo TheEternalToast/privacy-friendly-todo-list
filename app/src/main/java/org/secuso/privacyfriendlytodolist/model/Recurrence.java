@@ -9,8 +9,9 @@ import org.secuso.privacyfriendlytodolist.R;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -93,7 +94,7 @@ public class Recurrence implements Parcelable {
     // Instance variables
     protected Type type;
     protected int increment;
-    protected Set<Integer> selection;
+    protected SortedSet<Integer> selection;
 
     protected long startDate;
     protected long endDate;
@@ -102,15 +103,15 @@ public class Recurrence implements Parcelable {
     public Recurrence() {
         this.type = Type.NONE;
         this.increment = 1;
-        this.selection = new HashSet<>();
+        this.selection = new TreeSet<>();
         this.startDate = Helper.getCurrentTimestamp();
         this.endDate = Long.MAX_VALUE;
     }
 
     public Recurrence(Type type, int increment) {
         this.type = type;
-        this.increment = increment;
-        this.selection = new HashSet<>();
+        setIncrement(increment);
+        this.selection = new TreeSet<>();
         this.startDate = Helper.getCurrentTimestamp();
         this.endDate = Long.MAX_VALUE;
     }
@@ -118,15 +119,15 @@ public class Recurrence implements Parcelable {
     public Recurrence(Type type, Set<Integer> selection) {
         this.type = type;
         this.increment = 1;
-        this.selection = selection;
+        setSelection(selection);
         this.startDate = Helper.getCurrentTimestamp();
         this.endDate = Long.MAX_VALUE;
     }
 
     public Recurrence(Type type, int increment, long startDate, long endDate) {
         this.type = type;
-        this.increment = increment;
-        this.selection = new HashSet<>();
+        setIncrement(increment);
+        this.selection = new TreeSet<>();
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -134,32 +135,31 @@ public class Recurrence implements Parcelable {
     public Recurrence(Type type, Set<Integer> selection, long startDate, long endDate) {
         this.type = type;
         this.increment = 1;
-        this.selection = selection;
+        setSelection(selection);
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
     public Recurrence(Type type, int increment, Set<Integer> selection, long startDate, long endDate) {
         this.type = type;
-        this.increment = increment;
-        this.selection = selection;
+        setIncrement(increment);
+        setSelection(selection);
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
     public Recurrence(Recurrence recurrence) {
         this.type = recurrence.type;
-        this.increment = recurrence.increment;
-        this.selection = new HashSet<>();
-        this.selection.addAll(recurrence.selection);
+        setIncrement(recurrence.increment);
+        setSelection(recurrence.selection);
         this.startDate = recurrence.startDate;
         this.endDate = recurrence.endDate;
     }
 
     public Recurrence(Parcel parcel) {
         type = Type.fromInt(parcel.readInt());
-        increment = parcel.readInt();
-        selection = decodeSelection(parcel.readInt());
+        setIncrement(parcel.readInt());
+        setSelection(decodeSelection(parcel.readInt()));
         startDate = parcel.readLong();
         endDate = parcel.readLong();
     }
@@ -195,6 +195,37 @@ public class Recurrence implements Parcelable {
         return (31 + type.hashCode()) * 31 + selection.hashCode();
     }
 
+    public String toString(Context context) {
+        switch (type) {
+            case NONE:
+                return context.getResources().getString(R.string.no_recurrence);
+            case DAILY:
+                if (increment == 1) return context.getResources().getString(R.string.daily);
+                return context.getResources().getString(R.string.every_X_days, increment);
+            case WEEKLY:
+                if (increment == 1) return context.getResources().getString(R.string.weekly);
+                return context.getResources().getString(R.string.every_X_weeks, increment);
+            case MONTHLY:
+                if (increment == 1) return context.getResources().getString(R.string.monthly);
+                return context.getResources().getString(R.string.every_X_months, increment);
+            case YEARLY:
+                if (increment == 1) return context.getResources().getString(R.string.annual);
+                return context.getResources().getString(R.string.every_X_years, increment);
+            case WEEKDAYS:
+            case SOME_MONTHS:
+                if (selection.isEmpty())
+                    return context.getResources().getString(R.string.no_recurrence);
+                StringBuilder selectedOptionsBuilder = new StringBuilder();
+                for (int i : selection) {
+                    RecurrenceSelectionOption thisOption = recurrenceSelectionOptionFromInt(i);
+                    selectedOptionsBuilder.append(thisOption.toString(context)).append(", ");
+                }
+                String selectedOptions = selectedOptionsBuilder.toString();
+                return selectedOptions.substring(0, selectedOptions.length() - 2);
+        }
+        return super.toString();
+    }
+
     // Getters & Setters
     public Type getType() {
         return type;
@@ -209,23 +240,49 @@ public class Recurrence implements Parcelable {
     }
 
     public void setIncrement(int increment) {
-        this.increment = increment;
+        this.increment = Math.max(increment, 1);
     }
 
-    public Set<Integer> getSelection() {
+    public SortedSet<Integer> getSelection() {
         return selection;
     }
 
     public void setSelection(Set<Integer> selection) {
-        this.selection = selection;
+        this.selection = new TreeSet<>();
+        for (Integer option : selection) {
+            addToSelection(option);
+        }
     }
 
-    public boolean addToSelection(Integer option){
-        return selection.add(option);
+    private Integer verifySelectable(Integer option) {
+        int numOptions;
+        switch (type) {
+            case WEEKDAYS:
+                numOptions = 7;
+                break;
+            case SOME_MONTHS:
+                numOptions = 12;
+                break;
+            default:
+                throw new IllegalStateException("Selection can only be modified in selective recursion.");
+        }
+        if (option < 0 || numOptions <= option)
+            throw new IllegalArgumentException("Invalid option: " + option + ", must be at least 0 and less than " + numOptions + ".");
+        return option;
+    }
+
+    public boolean addToSelection(Integer option) {
+        return selection.add(verifySelectable(option));
     }
 
     public boolean removeFromSelection(Integer option) {
-        return selection.remove(option);
+        try {
+            return selection.remove(verifySelectable(option));
+        } catch (IllegalArgumentException ignored){
+            return false;
+        } catch (IllegalStateException ignored){
+            return false;
+        }
     }
 
     public long getStartDate() {
@@ -246,6 +303,7 @@ public class Recurrence implements Parcelable {
 
     // Functional methods
     public long next(long lastDeadline) {
+        if (lastDeadline == -1 ) return -1;
         Calendar deadline = GregorianCalendar.getInstance();
         deadline.setTimeInMillis(TimeUnit.SECONDS.toMillis(lastDeadline));
 
@@ -305,13 +363,24 @@ public class Recurrence implements Parcelable {
         return encodedSelections;
     }
 
-    public static Set<Integer> decodeSelection(int encodedSelection) {
-        Set<Integer> selection = new HashSet<>();
+    public static TreeSet<Integer> decodeSelection(int encodedSelection) {
+        TreeSet<Integer> selection = new TreeSet<>();
         for (int i = 0; i < 31; i++) {
             if (encodedSelection % 2 == 1)
                 selection.add(i);
             encodedSelection = encodedSelection >> 1;
         }
         return selection;
+    }
+
+    private RecurrenceSelectionOption recurrenceSelectionOptionFromInt(int i) {
+        switch (type) {
+            case WEEKDAYS:
+                return RecurrenceSelectionOption.Weekday.fromInt(i);
+            case SOME_MONTHS:
+                return RecurrenceSelectionOption.Month.fromInt(i);
+            default:
+                throw new IllegalStateException("Selection option can only be inferred from selective recursion types.");
+        }
     }
 }

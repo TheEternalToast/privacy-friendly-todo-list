@@ -65,6 +65,16 @@ public class Helper {
         return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
     }
 
+    public static long endOfDay(long dateTime) {
+        Calendar toClean = Calendar.getInstance();
+        toClean.setTimeInMillis(TimeUnit.SECONDS.toMillis(dateTime));
+        toClean.set(Calendar.HOUR_OF_DAY, 23);
+        toClean.set(Calendar.MINUTE, 59);
+        toClean.set(Calendar.SECOND, 59);
+        toClean.set(Calendar.MILLISECOND, 999);
+        return TimeUnit.MILLISECONDS.toSeconds(toClean.getTimeInMillis());
+    }
+
     public static int getDeadlineColor(Context context, DeadlineColors color) {
         switch (color) {
             case RED:

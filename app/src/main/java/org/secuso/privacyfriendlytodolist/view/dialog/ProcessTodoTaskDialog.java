@@ -293,13 +293,15 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
                             return;
                         }*/
 
-                        if (deadline != -1 && deadline < reminder) {
+                        if (deadline != -1 && Helper.endOfDay(deadline) < reminder) {
                             Toast.makeText(getContext(), getContext().getString(R.string.deadline_smaller_reminder), Toast.LENGTH_SHORT).show();
                             return;
                         }
 
                         reminderTime = reminder;
-                        reminderTextView.setText(Helper.getDateTime(getContext(), reminderTime));
+                        reminderTextView.setText(
+                                reminderTime == -1 ? getContext().getResources().getString(R.string.no_reminder) : Helper.getDateTime(getContext(), reminderTime)
+                        );
                     }
 
                     @Override

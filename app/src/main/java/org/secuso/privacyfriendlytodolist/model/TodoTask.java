@@ -24,8 +24,6 @@ import android.util.Log;
 import org.secuso.privacyfriendlytodolist.model.database.DBQueryHandler;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by Sebastian Lutz on 12.03.2018.
@@ -130,10 +128,11 @@ public class TodoTask extends BaseTodo implements Parcelable {
 
         this.recurrence = new Recurrence(todoTask.recurrence);
         if (mode == CopyMode.NEXT) {
-            this.deadline = todoTask.recurrence.next(todoTask.deadline);
+            setDeadline(todoTask.recurrence.next(todoTask.deadline));
             this.reminderTime = todoTask.recurrence.next(todoTask.reminderTime);
+            this.dbState = DBQueryHandler.ObjectStates.INSERT_TO_DB;
         } else {
-            this.deadline = todoTask.deadline;
+            setDeadline(todoTask.deadline);
             this.reminderTime = todoTask.reminderTime;
         }
 
@@ -160,7 +159,7 @@ public class TodoTask extends BaseTodo implements Parcelable {
         done = parcel.readByte() != 0;
         inTrash = parcel.readByte() != 0;
 
-        deadline = parcel.readLong();
+        setDeadline(parcel.readLong());
         recurrence = parcel.readParcelable(Recurrence.class.getClassLoader());
 
         reminderTime = parcel.readLong();
@@ -267,7 +266,8 @@ public class TodoTask extends BaseTodo implements Parcelable {
     }
 
     public void setDeadline(long deadline) {
-        this.deadline = deadline;
+        if (deadline == -1) this.deadline = deadline;
+        else this.deadline = Helper.endOfDay(deadline);
     }
 
     public Recurrence getRecurrence() {

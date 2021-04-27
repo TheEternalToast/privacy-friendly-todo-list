@@ -55,6 +55,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
     // Views
     private TextView prioritySelector;
     private TextView deadlineTextView;
+    private RelativeLayout recurrenceView;
     private TextView recurrenceTextView;
     private TextView reminderTextView;
     private TextView listSelector;
@@ -106,6 +107,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         prioritySelector.setText(Helper.priority2String(context, task.getPriority()));
         taskPriority = task.getPriority();
         progressSelector.setProgress(task.getProgress());
+
         if (task.getDeadline() <= 0)
             deadlineTextView.setText(context.getString(R.string.no_deadline));
         else
@@ -251,9 +253,10 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
 
     //  deadline view
     private void initDeadline(Button okayButton) {
-        deadlineTextView = findViewById(R.id.tv_todo_task_deadline);
+        RelativeLayout deadlineView = findViewById(R.id.rl_todo_task_deadline);
+        deadlineTextView = deadlineView.findViewById(R.id.tv_todo_task_deadline_text);
         deadlineTextView.setTextColor(okayButton.getCurrentTextColor());
-        deadlineTextView.setOnClickListener(new View.OnClickListener() {
+        deadlineView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DatePickerDialog deadlineDialog = new DatePickerDialog(
@@ -284,9 +287,10 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
 
     //  recurrence view
     private void initRecurrence(Button okayButton) {
-        recurrenceTextView = findViewById(R.id.tv_todo_task_recurrence);
+        recurrenceView = findViewById(R.id.rl_todo_task_recurrence);
+        recurrenceTextView = recurrenceView.findViewById(R.id.tv_todo_task_recurrence_text);
         recurrenceTextView.setTextColor(okayButton.getCurrentTextColor());
-        recurrenceTextView.setOnClickListener(new View.OnClickListener() {
+        recurrenceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 RecurrenceDialog recurrenceDialog = new RecurrenceDialog(getContext(), task.getRecurrence());
@@ -311,9 +315,10 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
 
     //  reminder view
     private void initReminder(Button okayButton) {
-        reminderTextView = (TextView) findViewById(R.id.tv_todo_task_reminder);
+        RelativeLayout reminderView = findViewById(R.id.rl_todo_task_reminder);
+        reminderTextView = reminderView.findViewById(R.id.tv_todo_task_reminder_text);
         reminderTextView.setTextColor(okayButton.getCurrentTextColor());
-        reminderTextView.setOnClickListener(new View.OnClickListener() {
+        reminderView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DateTimePickerDialog reminderDialog = new DateTimePickerDialog(getContext(), reminderTime, deadline, R.string.no_reminder);
@@ -340,7 +345,6 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
                     @Override
                     public void removeDateTime() {
                         reminderTime = -1;
-                        TextView reminderTextView = (TextView) findViewById(R.id.tv_todo_task_reminder);
                         reminderTextView.setText(getContext().getResources().getString(R.string.reminder));
                     }
                 });
@@ -376,7 +380,6 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
                 break;
         }
     }
-
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -438,8 +441,8 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
 
     private void adjustRecurrenceViewToDeadline() {
         if (deadline == -1)
-            recurrenceTextView.setVisibility(View.GONE);
-        else recurrenceTextView.setVisibility(View.VISIBLE);
+            recurrenceView.setVisibility(View.GONE);
+        else recurrenceView.setVisibility(View.VISIBLE);
     }
 
     private void autoProgress() {
@@ -450,6 +453,4 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         taskProgress = (int) computedProgress;
         progressPercent.setText(String.valueOf(computedProgress) + "%");
     }
-
-
 }

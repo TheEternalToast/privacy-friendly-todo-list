@@ -112,12 +112,13 @@ public class RecurrenceDialog extends FullScreenDialog {
                 adjustIncrementAndSelectionToType();
             }
         });
+        typeSpinner.setSelection(Math.max(0, recurrence.getType().getValue() - 1));
     }
 
     //  increment text field
     private void initIncrementEditText() {
         incrementEditText = findViewById(R.id.tv_recurrence_increment);
-        incrementEditText.setText("1");
+        incrementEditText.setText(Integer.toString(recurrence.getIncrement()));
         incrementEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -172,6 +173,7 @@ public class RecurrenceDialog extends FullScreenDialog {
     private void initStartDate(Button okayButton) {
         startDateTextView = findViewById(R.id.tv_recurrence_start_date);
         startDateTextView.setTextColor(okayButton.getCurrentTextColor());
+        startDateTextView.setText(Helper.getDate(getContext(), recurrence.getStartDate()));
         startDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -200,6 +202,7 @@ public class RecurrenceDialog extends FullScreenDialog {
     private void initEndDate(Button okayButton) {
         endDateTextView = findViewById(R.id.tv_recurrence_end_date);
         endDateTextView.setTextColor(okayButton.getCurrentTextColor());
+        endDateTextView.setText(Helper.getDate(getContext(), recurrence.getEndDate()));
         endDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

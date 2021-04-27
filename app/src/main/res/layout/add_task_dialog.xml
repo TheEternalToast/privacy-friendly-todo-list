@@ -62,6 +62,7 @@
         android:background="@color/grey" />
 
     <LinearLayout
+        android:id="@+id/ll_time_opt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -71,10 +72,13 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical">
+            android:layout_height="0dp"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:baselineAligned="false">
 
             <RelativeLayout
+                android:id="@+id/rl_todo_task_deadline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
@@ -83,18 +87,20 @@
                     android:id="@+id/iv_todo_task_deadline_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignBottom="@id/tv_todo_task_deadline"
-                    android:src="@android:drawable/ic_menu_my_calendar"/>
+                    android:layout_alignBottom="@id/tv_todo_task_deadline_text"
+                    android:src="@android:drawable/ic_menu_my_calendar" />
 
                 <TextView
-                    android:id="@+id/tv_todo_task_deadline"
+                    android:id="@+id/tv_todo_task_deadline_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/iv_todo_task_deadline_icon"
-                    android:text="@string/deadline" />
+                    android:text="@string/deadline"
+                    android:textSize="@dimen/task_dialog_time_opt_size" />
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/rl_todo_task_reminder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
@@ -103,42 +109,46 @@
                     android:id="@+id/iv_todo_task_reminder_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignTop="@id/tv_todo_task_reminder"
-                    android:layout_alignBottom="@id/tv_todo_task_reminder"
-                    android:paddingBottom="2dp"
+                    android:layout_alignTop="@id/tv_todo_task_reminder_text"
+                    android:layout_alignBottom="@id/tv_todo_task_reminder_text"
                     android:paddingLeft="7dp"
-                    android:paddingRight="7dp"
                     android:paddingTop="2dp"
+                    android:paddingRight="7dp"
+                    android:paddingBottom="2dp"
                     android:src="@android:drawable/ic_lock_idle_alarm" />
 
                 <TextView
-                    android:id="@+id/tv_todo_task_reminder"
+                    android:id="@+id/tv_todo_task_reminder_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/iv_todo_task_reminder_icon"
-                    android:text="@string/reminder" />
+                    android:text="@string/reminder"
+                    android:textSize="@dimen/task_dialog_time_opt_size" />
             </RelativeLayout>
 
         </LinearLayout>
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_height="0dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:id="@+id/rl_todo_task_recurrence">
 
             <ImageView
                 android:id="@+id/iv_todo_task_recurrence_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@id/tv_todo_task_recurrence"
+                android:layout_alignBottom="@id/tv_todo_task_recurrence_text"
                 android:src="@android:drawable/ic_menu_rotate" />
 
             <TextView
-                android:id="@+id/tv_todo_task_recurrence"
+                android:id="@+id/tv_todo_task_recurrence_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/iv_todo_task_recurrence_icon"
-                android:text="@string/recurrence" />
+                android:text="@string/recurrence"
+                android:textSize="@dimen/task_dialog_time_opt_size" />
         </RelativeLayout>
 
 

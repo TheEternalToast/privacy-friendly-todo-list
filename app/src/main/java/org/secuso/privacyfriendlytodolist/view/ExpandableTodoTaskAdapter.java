@@ -35,12 +35,14 @@ import android.widget.TextView;
 import org.secuso.privacyfriendlytodolist.R;
 import org.secuso.privacyfriendlytodolist.model.BaseTodo;
 import org.secuso.privacyfriendlytodolist.model.Helper;
+import org.secuso.privacyfriendlytodolist.model.Recurrence;
 import org.secuso.privacyfriendlytodolist.model.TodoSubTask;
 import org.secuso.privacyfriendlytodolist.model.TodoTask;
 import org.secuso.privacyfriendlytodolist.model.Tuple;
 import org.secuso.privacyfriendlytodolist.model.database.DBQueryHandler;
 import org.secuso.privacyfriendlytodolist.model.database.DatabaseHelper;
 import org.secuso.privacyfriendlytodolist.view.dialog.ProcessTodoSubTaskDialog;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -225,7 +227,9 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                     vh2 = new GroupTaskViewHolder();
                     vh2.name = (TextView) convertView.findViewById(R.id.tv_exlv_task_name);
                     vh2.done = (CheckBox) convertView.findViewById(R.id.cb_task_done);
-                    vh2.deadline = (TextView) convertView.findViewById(R.id.tv_exlv_task_deadline);
+                    vh2.deadline = (RelativeLayout) convertView.findViewById(R.id.rl_exlv_task_deadline);
+                    vh2.recurrence = (RelativeLayout) convertView.findViewById(R.id.rl_exlv_task_recurrence);
+                    vh2.reminder = (RelativeLayout) convertView.findViewById(R.id.rl_exlv_task_reminder);
                     vh2.listName = (TextView) convertView.findViewById(R.id.tv_exlv_task_list_name);
                     vh2.progressBar = (ProgressBar) convertView.findViewById(R.id.pb_task_progress);
                     vh2.seperator = convertView.findViewById(R.id.v_exlv_header_separator);
@@ -242,12 +246,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                 vh2.name.setText(currentTask.getName());
                 getProgressDone(currentTask, hasAutoProgress());
                 vh2.progressBar.setProgress(currentTask.getProgress());
-                String deadline;
-                if (currentTask.getDeadline() <= 0)
-                    deadline = context.getResources().getString(R.string.no_deadline);
-                else
-                    deadline = context.getResources().getString(R.string.deadline_dd) + " " + Helper.getDate(context, currentTask.getDeadline());
-
                 if (showListName) {
                     vh2.listName.setVisibility(View.VISIBLE);
                     vh2.listName.setText(currentTask.getListName());
@@ -255,7 +253,32 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                     vh2.listName.setVisibility(View.GONE);
                 }
 
-                vh2.deadline.setText(deadline);
+                TextView deadlineText = vh2.deadline.findViewById(R.id.tv_exlv_task_deadline_text);
+                TextView recurrenceText = vh2.recurrence.findViewById(R.id.tv_exlv_task_recurrence_text);
+                TextView reminderText = vh2.reminder.findViewById(R.id.tv_exlv_task_reminder_text);
+                if (currentTask.getDeadline() <= 0) {
+                    deadlineText.setText(context.getResources().getString(R.string.no_deadline));
+                    vh2.deadline.setVisibility(View.GONE);
+                    vh2.recurrence.setVisibility(View.GONE);
+                } else {
+                    deadlineText.setText(Helper.getDate(context, currentTask.getDeadline()));
+                    vh2.deadline.setVisibility(View.VISIBLE);
+                    if (currentTask.getRecurrenceType() == Recurrence.Type.NONE.getValue()) {
+                        recurrenceText.setText(context.getResources().getString(R.string.no_recurrence));
+                        vh2.recurrence.setVisibility(View.INVISIBLE);
+                    } else {
+                        recurrenceText.setText(currentTask.getRecurrence().toString(context));
+                        vh2.recurrence.setVisibility(View.VISIBLE);
+                    }
+                }
+                if (currentTask.getReminderTime() <= 0) {
+                    reminderText.setText(context.getResources().getString(R.string.no_reminder));
+                    vh2.reminder.setVisibility(View.GONE);
+                } else {
+                    reminderText.setText(Helper.getDateTime(context, currentTask.getReminderTime()));
+                    vh2.reminder.setVisibility(View.VISIBLE);
+                }
+
                 vh2.deadlineColorBar.setBackgroundColor(Helper.getDeadlineColor(context, currentTask.getDeadlineColor(getDefaultReminderTime())));
                 vh2.done.setChecked(currentTask.isDone());
                 vh2.done.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -668,7 +691,9 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
     // ViewHolders
     public class GroupTaskViewHolder {
         public TextView name;
-        public TextView deadline;
+        public RelativeLayout deadline;
+        public RelativeLayout recurrence;
+        public RelativeLayout reminder;
         public TextView listName;
         public CheckBox done;
         public View deadlineColorBar;

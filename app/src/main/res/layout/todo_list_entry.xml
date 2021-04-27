@@ -22,14 +22,35 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tv_todo_list_next_deadline"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_todo_list_title"
         android:layout_alignLeft="@+id/tv_todo_list_title"
-        android:text="Test" />
+        android:layout_toLeftOf="@id/tv_todo_list_status">
 
+        <TextView
+            android:id="@+id/tv_todo_list_next_deadline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Test" />
+
+        <TextView
+            android:id="@+id/tv_todo_list_recurrence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Test" />
+
+        <TextView
+            android:id="@+id/tv_todo_list_reminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Test" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_todo_list_status"
@@ -44,8 +65,8 @@
         android:id="@+id/tv_todo_str_done"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_below="@+id/tv_todo_list_title"
+        android:layout_alignParentRight="true"
         android:layout_marginRight="5dp"
         android:paddingBottom="10dp"
         android:text="@string/done" />

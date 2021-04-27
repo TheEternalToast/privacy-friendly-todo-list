@@ -35,7 +35,7 @@ import org.secuso.privacyfriendlytodolist.model.TodoList;
 
 import java.util.ArrayList;
 
-public class TodoListAdapter extends  RecyclerView.Adapter<TodoListAdapter.ViewHolder>  {
+public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHolder> {
 
     private static final String TAG = TodoListAdapter.class.getSimpleName();
     private MainActivity contextActivity;
@@ -61,7 +61,7 @@ public class TodoListAdapter extends  RecyclerView.Adapter<TodoListAdapter.ViewH
         this.position = position;
     }
 
-    private long getDefaultReminderTime()  {
+    private long getDefaultReminderTime() {
         return new Long(prefs.getString(Settings.DEFAULT_REMINDER_TIME_KEY, String.valueOf(contextActivity.getResources().getInteger(R.integer.one_day))));
     }
 
@@ -79,12 +79,13 @@ public class TodoListAdapter extends  RecyclerView.Adapter<TodoListAdapter.ViewH
     // replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        TodoList list = this.filteredLists.get(this.filteredLists.size()-1-position);
+        TodoList list = this.filteredLists.get(this.filteredLists.size() - 1 - position);
         holder.title.setText(list.getName());
         if (list.getNextDeadline() <= 0)
             holder.deadline.setText(contextActivity.getResources().getString(R.string.no_next_deadline));
         else
             holder.deadline.setText(contextActivity.getResources().getString(R.string.next_deadline_dd, Helper.getDate(contextActivity, list.getNextDeadline())));
+        // TODO include recurrence and reminder
         holder.done.setText(String.format("%d/%d", list.getDoneTodos(), list.getSize()));
         holder.urgency.setBackgroundColor(Helper.getDeadlineColor(contextActivity, list.getDeadlineColor(getDefaultReminderTime())));
 
@@ -131,18 +132,20 @@ public class TodoListAdapter extends  RecyclerView.Adapter<TodoListAdapter.ViewH
     public TodoList getToDoListFromPosition(int index) {
         if (index < 0 || index >= this.filteredLists.size())
             return null;
-        return this.filteredLists.get(this.filteredLists.size()-index-1);
+        return this.filteredLists.get(this.filteredLists.size() - index - 1);
     }
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnCreateContextMenuListener {
-        public TextView title, deadline, done;
+        public TextView title, deadline, recurrence, reminder, done;
         public View urgency;
 
         public ViewHolder(View v) {
             super(v);
-            title =  (TextView) v.findViewById(R.id.tv_todo_list_title);
+            title = (TextView) v.findViewById(R.id.tv_todo_list_title);
             deadline = (TextView) v.findViewById(R.id.tv_todo_list_next_deadline);
+            recurrence = v.findViewById(R.id.tv_todo_list_recurrence);
+            reminder = v.findViewById(R.id.tv_todo_list_reminder);
             done = (TextView) v.findViewById(R.id.tv_todo_list_status);
             urgency = v.findViewById(R.id.v_urgency_indicator);
 
@@ -156,7 +159,7 @@ public class TodoListAdapter extends  RecyclerView.Adapter<TodoListAdapter.ViewH
             Bundle bundle = new Bundle();
 
             // It is important to save the clicked list, because it is possible that it was not yet written to the database and thus cannot be identified by its id.
-            contextActivity.setClickedList(filteredLists.get(filteredLists.size()-1-getAdapterPosition()));
+            contextActivity.setClickedList(filteredLists.get(filteredLists.size() - 1 - getAdapterPosition()));
             bundle.putBoolean(TodoTasksFragment.SHOW_FLOATING_BUTTON, true);
             TodoTasksFragment fragment = new TodoTasksFragment();
             fragment.setArguments(bundle);

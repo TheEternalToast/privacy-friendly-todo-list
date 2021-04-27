@@ -227,7 +227,6 @@ public class DBQueryHandler {
         return todo;
     }
 
-
     public static ArrayList<TodoTask> getBin(SQLiteDatabase db) {
         ArrayList<TodoTask> todo = new ArrayList<>();
 
@@ -251,7 +250,6 @@ public class DBQueryHandler {
         }
         return todo;
     }
-
 
     public static ArrayList<TodoList> getAllToDoLists(SQLiteDatabase db) {
 
@@ -393,7 +391,10 @@ public class DBQueryHandler {
             values.put(TTodoTask.COLUMN_DONE, todoTask.isDone());
             values.put(TTodoTask.COLUMN_TRASH, todoTask.isInTrash());
             values.put(TTodoTask.COLUMN_RECURRENCE_TYPE, todoTask.getRecurrenceType());
+            values.put(TTodoTask.COLUMN_RECURRENCE_INCREMENT, todoTask.getRecurrence().getIncrement());
             values.put(TTodoTask.COLUMN_RECURRENCE_SELECTION, todoTask.getEncodedRecurrenceSelection());
+            values.put(TTodoTask.COLUMN_RECURRENCE_START_DATE, todoTask.getRecurrence().getStartDate());
+            values.put(TTodoTask.COLUMN_RECURRENCE_END_DATE, todoTask.getRecurrence().getEndDate());
 
             if (todoTask.getDBState() == ObjectStates.INSERT_TO_DB) {
                 returnCode = (int) db.insert(TTodoTask.TABLE_NAME, null, values);

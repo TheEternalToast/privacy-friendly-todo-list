@@ -42,17 +42,17 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Sebastian Lutz on 12.03.2018.
- *
+ * <p>
  * This service implements the following alarm policies:
- *
+ * <p>
  * - On startup it sets alarms for all tasks fulfilling all of the subsequent conditions:
- *          1. The reminding time is in the past.
- *          2. The deadline is in the future.
- *          3. The task is not yet done.
+ * 1. The reminding time is in the past.
+ * 2. The deadline is in the future.
+ * 3. The task is not yet done.
  * - On startup the service sets an alarm for next due task in the future.
- *
+ * <p>
  * - Whenever an alarm is triggered the service sets the alarm for the next due task in the future. It is possible
- *   that this alarm is already set. In that case is just gets overwritten.
+ * that this alarm is already set. In that case is just gets overwritten.
  */
 
 
@@ -103,16 +103,20 @@ public class ReminderService extends Service {
 
         boolean alarmTriggered = false;
         Bundle extras = intent.getExtras();
-        if (extras != null)
-            alarmTriggered = intent.getExtras().getBoolean(ALARM_TRIGGERED);
+        TodoTask task = null;
+        if (extras != null) {
+            task = intent.getExtras().getParcelable(TodoTask.PARCELABLE_KEY);
+            if (task == null)
+                throw new IllegalStateException("An alarm was triggered without a specific task being the cause, this is not allowed.");
+            alarmTriggered = task.getReminderTime() != -1 && intent.getExtras().getBoolean(ALARM_TRIGGERED);
+        }
 
         if (alarmTriggered) {
-            TodoTask task = intent.getExtras().getParcelable(TodoTask.PARCELABLE_KEY);
             handleAlarm(task);
 
             // get next alarm
             TodoTask nextDueTask = DBQueryHandler.getNextDueTask(dbHelper.getReadableDatabase(), Helper.getCurrentTimestamp());
-            if(nextDueTask != null)
+            if (nextDueTask != null)
                 setAlarmForTask(nextDueTask);
         } else {
 
@@ -132,7 +136,7 @@ public class ReminderService extends Service {
     private void handleAlarm(TodoTask task) {
         String title = task.getName();
 
-        NotificationCompat.Builder nb = helper.getNotification(title, getResources().getString(R.string.deadline_approaching, Helper.getDateTime(this, task.getDeadline())), task);
+        NotificationCompat.Builder nb = helper.getNotification(title, getResources().getString(R.string.deadline_approaching, Helper.getDate(this, task.getDeadline())), task);
         helper.getManager().notify(task.getId(), nb.build());
 
     }
@@ -148,7 +152,7 @@ public class ReminderService extends Service {
             setAlarmForTask(currentTask);
         }
 
-        if(tasksToRemind.size() == 0) {
+        if (tasksToRemind.size() == 0) {
             Log.i(TAG, "No alarms set.");
         }
     }
@@ -164,7 +168,7 @@ public class ReminderService extends Service {
         Calendar calendar = Calendar.getInstance();
         long reminderTime = task.getReminderTime();
 
-        if (reminderTime != -1 && reminderTime <= Helper.getCurrentTimestamp()){
+        if (reminderTime != -1 && reminderTime <= Helper.getCurrentTimestamp()) {
             Date date = new Date(TimeUnit.SECONDS.toMillis(Helper.getCurrentTimestamp()));
             calendar.setTime(date);
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingAlarmIntent);
@@ -195,12 +199,12 @@ public class ReminderService extends Service {
 
             // 1. cancel old alarm
             alarmManager.cancel(alarmIntent);
-            Log.i(TAG, "Alarm of task " + changedTask.getName() + " cancelled. (id="+changedTask.getId()+")");
+            Log.i(TAG, "Alarm of task " + changedTask.getName() + " cancelled. (id=" + changedTask.getId() + ")");
 
             // 2. delete old notification if it exists
             mNotificationManager.cancel(changedTask.getId());
-            Log.i(TAG, "Notification of task " + changedTask.getName() + " deleted (if existed). (id="+changedTask.getId()+")");
-        } else  {
+            Log.i(TAG, "Notification of task " + changedTask.getName() + " deleted (if existed). (id=" + changedTask.getId() + ")");
+        } else {
             Log.i(TAG, "No alarm found for " + changedTask.getName() + " (alarm id: " + changedTask.getId() + ")");
         }
 

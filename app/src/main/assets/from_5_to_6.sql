@@ -1,4 +1,4 @@
--- include COLUMNs 'recurrence_increment', 'recurrence_start_date' and 'recurrence_end_date' in TABLE 'todo_task'
+-- set default value of 'recurrence_increment' to 1 in TABLE 'todo_task'
 PRAGMA foreign_keys=off;
 BEGIN TRANSACTION;
 ALTER TABLE todo_task RENAME TO temp_table;
@@ -18,7 +18,7 @@ CREATE TABLE todo_task (
 
             deadline DATETIME DEFAULT NULL,
             type_of_recurrence INTEGER NOT NULL DEFAULT 0,
-            recurrence_increment INTEGER NOT NULL DEFAULT -1,
+            recurrence_increment INTEGER NOT NULL DEFAULT 1,
             encoded_recurrence_selection INTEGER NOT NULL DEFAULT 0,
             recurrence_start_date SIGNED BIGINT NOT NULL DEFAULT 0,
             recurrence_end_date SIGNED BIGINT NOT NULL DEFAULT 9223372036854775807,
@@ -29,8 +29,8 @@ CREATE TABLE todo_task (
 
             FOREIGN KEY (todo_list_id) REFERENCES todo_list(_id)
 );
-INSERT INTO todo_task (_id, name, description, todo_list_id, position_in_todo_list, priority, progress, done, in_trash, deadline, deadline_warning_time, type_of_recurrence, encoded_recurrence_selection)
-  SELECT _id, name, description, todo_list_id, position_in_todo_list, priority, progress, done, in_trash, deadline, deadline_warning_time, type_of_recurrence, encoded_recurrence_selection
+INSERT INTO todo_task (_id, name, description, todo_list_id, position_in_todo_list, priority, progress, done, in_trash, deadline, deadline_warning_time, type_of_recurrence, encoded_recurrence_selection, recurrence_start_date, recurrence_end_date)
+  SELECT _id, name, description, todo_list_id, position_in_todo_list, priority, progress, done, in_trash, deadline, deadline_warning_time, type_of_recurrence, encoded_recurrence_selection, recurrence_start_date, recurrence_end_date
   FROM temp_table;
 DROP TABLE temp_table;
 COMMIT;

@@ -49,17 +49,17 @@ public class Recurrence implements Parcelable {
                 case NONE:
                     return context.getResources().getString(R.string.no_recurrence);
                 case DAILY:
-                    return context.getResources().getString(R.string.day);
+                    return context.getResources().getString(R.string.days);
                 case WEEKDAYS:
                     return context.getResources().getString(R.string.weekdays);
                 case WEEKLY:
-                    return context.getResources().getString(R.string.week);
+                    return context.getResources().getString(R.string.weeks);
                 case MONTHLY:
-                    return context.getResources().getString(R.string.month);
+                    return context.getResources().getString(R.string.months);
                 case SOME_MONTHS:
                     return context.getResources().getString(R.string.some_months);
                 case YEARLY:
-                    return context.getResources().getString(R.string.year);
+                    return context.getResources().getString(R.string.years);
                 default:
                     throw new IllegalStateException("No such type defined.");
             }

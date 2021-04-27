@@ -125,7 +125,7 @@
     <!-- Settings -->
 	<string name="default_reminder_time">デフォルトのリマインダー時間</string>
     <string-array name="default_reminder_times_human">
-        <item>期限</item>
+        <item>リマインダーなし</item>
         <item>0.5 日前</item>
         <item>1 日前</item>
         <item>1.5 日前</item>
@@ -167,19 +167,42 @@
     <string name="task_to_db_error">データベースに新しいタスクを挿入中にエラーが発生しました。</string>
     <string name="subtask_to_db_error">データベースに新しいサブタスクを挿入中にエラーが発生しました。</string>
     <string name="recurrence">反復</string>
-    <string name="repeat_every">毎回</string>
+    <string name="repeat_every">反復</string>
     <string name="select_recurrence">反復を選択</string>
     <string name="start_date">開始日</string>
     <string name="end_date">終了日</string>
     <string name="yesterday">昨日</string>
     <string name="today">今日</string>
     <string name="tomorrow">明日</string>
-    <string name="day">日</string>
-    <string name="week">週</string>
-    <string name="month">月</string>
-    <string name="year">年</string>
+    <string name="days">"日ごと "</string>
+    <string name="weeks">"週間ごと "</string>
+    <string name="months">"ヶ月ごと "</string>
+    <string name="years">"年ごと "</string>
     <string name="weekdays">曜日の選択</string>
     <string name="some_months">月の選択</string>
     <string name="never">いつも</string>
     <string name="no_recurrence">反復なし</string>
+    <string name="january_abbr">1</string>
+    <string name="february_abbr">2</string>
+    <string name="march_abbr">3</string>
+    <string name="april_abbr">4</string>
+    <string name="may_abbr">5</string>
+    <string name="june_abbr">6</string>
+    <string name="july_abbr">7</string>
+    <string name="august_abbr">8</string>
+    <string name="september_abbr">9</string>
+    <string name="october_abbr">10</string>
+    <string name="november_abbr">11</string>
+    <string name="december_abbr">12</string>
+    <string name="cancel">キャンセル</string>
+    <string name="no_end_date">終了日なし</string>
+    <string name="daily">毎日</string>
+    <string name="weekly">毎週</string>
+    <string name="monthly">毎月</string>
+    <string name="every_X_days">%d日ごと</string>
+    <string name="every_X_weeks">%d週間ごと</string>
+    <string name="annual">毎年</string>
+    <string name="every_X_months">%dヶ月ごと</string>
+    <string name="every_X_years">%d年ごと</string>
+    <string name="past_end_date">過去</string>
 </resources>

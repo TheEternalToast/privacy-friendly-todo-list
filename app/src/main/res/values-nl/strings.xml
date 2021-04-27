@@ -125,7 +125,7 @@
     <!-- Settings -->
 	<string name="default_reminder_time">Standaard herinneringstijd</string>
     <string-array name="default_reminder_times_human">
-        <item>Op het moment van de deadline</item>
+        <item>Geen herinnering</item>
         <item>een halve dag op voorhand</item>
         <item>één dag op voorhand</item>
         <item>anderhalve dag op voorhand</item>
@@ -174,12 +174,35 @@
     <string name="yesterday">gisteren</string>
     <string name="today">vandaag</string>
     <string name="tomorrow">morgen</string>
-    <string name="day">dag</string>
-    <string name="week">week</string>
-    <string name="month">maand</string>
-    <string name="year">jaar</string>
+    <string name="days">dagen</string>
+    <string name="weeks">weken</string>
+    <string name="months">maanden</string>
+    <string name="years">jaren</string>
     <string name="weekdays">weekdag selectie</string>
     <string name="some_months">maand selectie</string>
     <string name="never">nooit</string>
     <string name="no_recurrence">geen herhaling</string>
+    <string name="january_abbr">JAN</string>
+    <string name="february_abbr">FEB</string>
+    <string name="march_abbr">MAA</string>
+    <string name="april_abbr">APR</string>
+    <string name="may_abbr">MEI</string>
+    <string name="june_abbr">JUN</string>
+    <string name="july_abbr">JUL</string>
+    <string name="august_abbr">AUG</string>
+    <string name="september_abbr">SEP</string>
+    <string name="october_abbr">OCT</string>
+    <string name="november_abbr">NOV</string>
+    <string name="december_abbr">DEC</string>
+    <string name="cancel">Annuleren</string>
+    <string name="no_end_date">Geen einddatum</string>
+    <string name="daily">dagelijks</string>
+    <string name="weekly">wekelijks</string>
+    <string name="monthly">maandelijks</string>
+    <string name="every_X_days">elke %d dagen</string>
+    <string name="every_X_weeks">elke %d weken</string>
+    <string name="annual">jaarlijks</string>
+    <string name="every_X_months">elke %d maanden</string>
+    <string name="every_X_years">elke %d jaar</string>
+    <string name="past_end_date">verleden</string>
 </resources>

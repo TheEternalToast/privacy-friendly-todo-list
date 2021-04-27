@@ -25,6 +25,7 @@
     <string name="name">Name</string>
     <string name="todo_list_description_hint">Description</string>
     <string name="ok">Okay</string>
+    <string name="cancel">Cancel</string>
 
     <!-- Common model strings -->
     <string name="select_option">Select option</string>
@@ -124,7 +125,7 @@
     <!-- Select reminder dialog -->
     <string name="date">Date</string>
     <string name="time">Time</string>
-    <string name="no_reminder">No Reminder</string>
+    <string name="no_reminder">No reminder</string>
 
     <!-- Calendar view -->
     <string name="calendar">Calendar</string>
@@ -141,7 +142,7 @@
     <!-- Settings -->
     <string name="default_reminder_time">Default reminder time</string>
     <string-array name="default_reminder_times_human">
-        <item>At the deadline</item>
+        <item>No reminder</item>
         <item>0.5 days before</item>
         <item>1 day before</item>
         <item>1.5 days before</item>
@@ -177,6 +178,18 @@
     <string name="october">October</string>
     <string name="november">November</string>
     <string name="december">December</string>
+    <string name="january_abbr">JAN</string>
+    <string name="february_abbr">FEB</string>
+    <string name="march_abbr">MAR</string>
+    <string name="april_abbr">APR</string>
+    <string name="may_abbr">MAY</string>
+    <string name="june_abbr">JUN</string>
+    <string name="july_abbr">JUL</string>
+    <string name="august_abbr">AUG</string>
+    <string name="september_abbr">SEP</string>
+    <string name="october_abbr">OCT</string>
+    <string name="november_abbr">NOV</string>
+    <string name="december_abbr">DEC</string>
 
     <!-- relative Date and Time -->
     <string name="yesterday">yesterday</string>
@@ -185,10 +198,32 @@
     <string name="never">never</string>
 
     <!-- Date Units -->
-    <string name="day">day</string>
-    <string name="week">week</string>
-    <string name="month">month</string>
-    <string name="year">year</string>
+    <string name="days">days</string>
+    <string name="weeks">weeks</string>
+    <string name="months">months</string>
+    <string name="years">years</string>
+
+    <!-- RECURRENCE -->
+    <string name="recurrence">Recurrence</string>
+    <string name="no_recurrence">no recurrence</string>
+    <string name="repeat_every">Repeat every</string>
+    <string name="select_recurrence">Select recurrence</string>
+    <string name="weekdays">selected weekdays</string>
+    <string name="some_months">selected months</string>
+    <string name="start_date">Start date</string>
+    <string name="end_date">End date</string>
+    <string name="no_end_date">No end date</string>
+
+    <!-- Repeating times -->
+    <string name="daily">daily</string>
+    <string name="weekly">weekly</string>
+    <string name="monthly">monthly</string>
+    <string name="annual">annual</string>
+    <string name="every_X_days">every %d days</string>
+    <string name="every_X_weeks">every %d weeks</string>
+    <string name="every_X_months">every %d months</string>
+    <string name="every_X_years">every %d years</string>
+    <string name="past_end_date">in the past</string>
 
     <!-- Error messages -->
     <string name="error_removing_subtask">Subtask could not be removed from the database.</string>
@@ -258,16 +293,5 @@
     <!-- POMODORO INTEGRATION -->
     <string name="permission_todo_name">TODO Integration</string>
     <string name="permission_todo_description">Enables the TODO App to start the timer with a given TODO Item</string>
-
-    <!-- RECURRENCE -->
-    <string name="recurrence">Recurrence</string>
-    <string name="no_recurrence">no recurrence</string>
-    <string name="repeat_every">Repeat every</string>
-    <string name="select_recurrence">Select recurrence</string>
-    <string name="weekdays">selected weekdays</string>
-    <string name="some_months">selected months</string>
-    <string name="start_date">Start date</string>
-    <string name="end_date">End date</string>
-    <string name="default_recurrence_increment" translatable="false">1</string>
 
 </resources>

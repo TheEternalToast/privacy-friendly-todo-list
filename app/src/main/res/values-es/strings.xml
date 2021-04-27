@@ -124,7 +124,7 @@
     <!-- Settings -->
 	<string name="default_reminder_time">Alarma estándar</string>
     <string-array name="default_reminder_times_human">
-        <item>Justo con la fecha límite</item>
+        <item>No hay alarma</item>
         <item>0.5 día antes</item>
         <item>1 día antes</item>
         <item>1.5 día antes</item>
@@ -175,10 +175,33 @@
     <string name="tomorrow">mañana</string>
     <string name="some_months">selección de mes</string>
     <string name="weekdays">día de la semana</string>
-    <string name="year">año</string>
-    <string name="month">mes</string>
-    <string name="week">semana</string>
-    <string name="day">día</string>
+    <string name="years">años</string>
+    <string name="months">meses</string>
+    <string name="weeks">semanas</string>
+    <string name="days">días</string>
     <string name="never">nunca</string>
     <string name="no_recurrence">sin recurrencia</string>
+    <string name="january_abbr">ENE</string>
+    <string name="february_abbr">FEB</string>
+    <string name="march_abbr">MAR</string>
+    <string name="april_abbr">ABR</string>
+    <string name="may_abbr">MAY</string>
+    <string name="june_abbr">JUN</string>
+    <string name="july_abbr">JUL</string>
+    <string name="august_abbr">AGO</string>
+    <string name="september_abbr">SEP</string>
+    <string name="october_abbr">OCT</string>
+    <string name="november_abbr">NOV</string>
+    <string name="december_abbr">DIC</string>
+    <string name="cancel">Cancelar</string>
+    <string name="no_end_date">Sin fecha final</string>
+    <string name="daily">diario</string>
+    <string name="weekly">semanal</string>
+    <string name="monthly">mensual</string>
+    <string name="every_X_days">cada %d dias</string>
+    <string name="every_X_weeks">cada %d semanas</string>
+    <string name="annual">anual</string>
+    <string name="every_X_months">cada %d meses</string>
+    <string name="every_X_years">cada %d años</string>
+    <string name="past_end_date">pasado</string>
 </resources>

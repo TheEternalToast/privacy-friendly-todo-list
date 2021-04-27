@@ -49,6 +49,8 @@ public class Helper {
             case 1:
                 return context.getResources().getString(R.string.tomorrow);
             default:
+                if (time == Long.MAX_VALUE)
+                    return context.getResources().getString(R.string.never);
                 return DateFormat.format(DATE_FORMAT, toDisplay).toString();
         }
     }

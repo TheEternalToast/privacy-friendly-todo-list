@@ -125,7 +125,7 @@
     <!-- Settings -->
 	<string name="default_reminder_time">Domyślny alarm</string>
     <string-array name="default_reminder_times_human">
-        <item>Razem z terminem</item>
+        <item>Brak alarmu</item>
         <item>0.5 dnia wcześniej</item>
         <item>1 dzeń wcześniej</item>
         <item>1.5 dnia wcześniej</item>
@@ -174,12 +174,35 @@
     <string name="yesterday">wczoraj</string>
     <string name="today">dzisiaj</string>
     <string name="tomorrow">jutro</string>
-    <string name="day">dzień</string>
-    <string name="week">tydzień</string>
-    <string name="month">miesiąc</string>
-    <string name="year">rok</string>
+    <string name="days">dni</string>
+    <string name="weeks">tygodni</string>
+    <string name="months">miesięcy</string>
+    <string name="years">lata</string>
     <string name="weekdays">dzień powszedni</string>
     <string name="some_months">wybór miesiąca</string>
     <string name="never">nigdy</string>
     <string name="no_recurrence">brak powtórzenie</string>
+    <string name="january_abbr">STY</string>
+    <string name="february_abbr">LUT</string>
+    <string name="march_abbr">MAR</string>
+    <string name="april_abbr">KWI</string>
+    <string name="may_abbr">MAJ</string>
+    <string name="june_abbr">CZE</string>
+    <string name="july_abbr">LIP</string>
+    <string name="august_abbr">SIE</string>
+    <string name="september_abbr">WRZ</string>
+    <string name="october_abbr">PAZ</string>
+    <string name="november_abbr">LIS</string>
+    <string name="december_abbr">GRU</string>
+    <string name="cancel">Anuluj</string>
+    <string name="no_end_date">Brak daty zakończenia</string>
+    <string name="daily">codziennie</string>
+    <string name="weekly">tygodniowo</string>
+    <string name="monthly">miesięczny</string>
+    <string name="every_X_days">co %d dni</string>
+    <string name="every_X_weeks">co %d tygodnie</string>
+    <string name="annual">roczny</string>
+    <string name="every_X_years">co %d lata</string>
+    <string name="every_X_months">co %d miesiące</string>
+    <string name="past_end_date">przeszłość</string>
 </resources>

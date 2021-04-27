@@ -125,7 +125,7 @@
     <!-- Settings -->
 	<string name="default_reminder_time">Alarme standard</string>
     <string-array name="default_reminder_times_human">
-        <item>Avec la date limite</item>
+        <item>Aucune alarme</item>
         <item>0.5 jour avant</item>
         <item>1 jour avant</item>
         <item>1.5 jour avant</item>
@@ -176,10 +176,33 @@
     <string name="yesterday">hier</string>
     <string name="some_months">sélection du mois</string>
     <string name="weekdays">jour de la semaine</string>
-    <string name="year">an</string>
-    <string name="month">mois</string>
-    <string name="week">semaine</string>
-    <string name="day">jour</string>
+    <string name="years">ans</string>
+    <string name="months">mois</string>
+    <string name="weeks">semaines</string>
+    <string name="days">jours</string>
     <string name="never">jamais</string>
     <string name="no_recurrence">pas de récurrence</string>
+    <string name="january_abbr">JAN</string>
+    <string name="february_abbr">FÉV</string>
+    <string name="march_abbr">MAR</string>
+    <string name="april_abbr">APR</string>
+    <string name="may_abbr">MAI</string>
+    <string name="june_abbr">JUN</string>
+    <string name="july_abbr">JUL</string>
+    <string name="august_abbr">AOÛ</string>
+    <string name="september_abbr">SEP</string>
+    <string name="october_abbr">OCT</string>
+    <string name="november_abbr">NOV</string>
+    <string name="december_abbr">DÉC</string>
+    <string name="cancel">Annuler</string>
+    <string name="no_end_date">Pas de date de fin</string>
+    <string name="daily">quotidien</string>
+    <string name="weekly">hebdomadaire</string>
+    <string name="monthly">mensuellement</string>
+    <string name="every_X_days">tous les %d jours</string>
+    <string name="every_X_weeks">toutes les %d semaines</string>
+    <string name="annual">annuellement</string>
+    <string name="every_X_years">tous les %d ans</string>
+    <string name="every_X_months">tous les %d mois</string>
+    <string name="past_end_date">passé</string>
 </resources>

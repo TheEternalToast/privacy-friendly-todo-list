@@ -136,7 +136,7 @@
     <!-- Settings -->
 	<string name="default_reminder_time">Standardmäßige Erinnerungszeit</string>
     <string-array name="default_reminder_times_human">
-        <item>Pünktlich zur Deadline</item>
+        <item>Keine Erinnerung</item>
         <item>0.5 Tage vorher</item>
         <item>1 Tag vorher</item>
         <item>1.5 Tage vorher</item>
@@ -164,7 +164,7 @@
 	<string name="february">Februar</string>
 	<string name="march">März</string>
 	<string name="april">April</string>
-	<string name="may">May</string>
+	<string name="may">Mai</string>
 	<string name="june">Juni</string>
 	<string name="july">Juli</string>
 	<string name="august">August</string>
@@ -247,13 +247,36 @@
     <string name="yesterday">gestern</string>
     <string name="today">heute</string>
     <string name="tomorrow">morgen</string>
-    <string name="day">Tag</string>
+    <string name="days">Tage</string>
     <string name="weekdays">Wochentage (Auswahl)</string>
-    <string name="week">Woche</string>
-    <string name="month">Monat</string>
+    <string name="weeks">Wochen</string>
+    <string name="months">Monate</string>
     <string name="some_months">Monate (Auswahl)</string>
-    <string name="year">Jahr</string>
+    <string name="years">Jahre</string>
     <string name="no_recurrence">keine Wiederholung</string>
     <string name="never">nie</string>
+    <string name="january_abbr">JAN</string>
+    <string name="february_abbr">FEB</string>
+    <string name="march_abbr">MÄR</string>
+    <string name="april_abbr">APR</string>
+    <string name="may_abbr">MAI</string>
+    <string name="june_abbr">JUN</string>
+    <string name="july_abbr">JUL</string>
+    <string name="august_abbr">AUG</string>
+    <string name="september_abbr">SEP</string>
+    <string name="october_abbr">OCT</string>
+    <string name="november_abbr">NOV</string>
+    <string name="december_abbr">DEZ</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="no_end_date">kein Ende</string>
+    <string name="daily">täglich</string>
+    <string name="weekly">wöchentlich</string>
+    <string name="monthly">jeden Monat</string>
+    <string name="every_X_days">alle %d Tage</string>
+    <string name="every_X_weeks">alle %d Wochen</string>
+    <string name="annual">jährlich</string>
+    <string name="every_X_months">alle %d Monate</string>
+    <string name="every_X_years">alle %d Jahre</string>
+    <string name="past_end_date">liegt in der Vergangenheit</string>
 
 </resources>

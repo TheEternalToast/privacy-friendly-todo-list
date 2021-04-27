@@ -11,11 +11,11 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:maxLength="@integer/max_todo_title_length"
+        android:padding="20sp"
         android:text="@string/new_todo_task"
         android:textColor="@color/black"
         android:textSize="22sp"
-        android:padding="20sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/dialog_edit"
@@ -23,20 +23,20 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:maxLength="@integer/max_todo_title_length"
-        android:visibility="gone"
+        android:padding="20sp"
         android:text="@string/edit_todo_task"
         android:textColor="@color/black"
         android:textSize="22sp"
-        android:padding="20sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:visibility="gone" />
 
     <EditText
         android:id="@+id/et_new_task_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
         android:hint="@string/name"
         android:inputType="text" />
 
@@ -66,45 +66,46 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical">
+
             <TextView
-                android:id="@+id/tv_todo_list_deadline"
+                android:id="@+id/tv_todo_task_deadline"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="10dp"
+                android:layout_weight="1"
                 android:drawableStart="@android:drawable/ic_menu_my_calendar"
                 android:drawablePadding="5dp"
                 android:gravity="center_vertical"
                 android:text="@string/deadline" />
 
-
             <TextView
-                android:id="@+id/tv_todo_list_recurrence"
+                android:id="@+id/tv_todo_task_reminder"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="10dp"
-                android:drawableStart="@android:drawable/ic_menu_rotate"
-                android:drawablePadding="5dp"
+                android:layout_weight="1"
+                android:drawableStart="@android:drawable/ic_lock_idle_alarm"
+                android:drawablePadding="10dp"
                 android:gravity="center_vertical"
-                android:text="@string/recurrence"/>
+                android:text="@string/reminder" />
+
         </LinearLayout>
+
         <TextView
-            android:id="@+id/tv_todo_list_reminder"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:drawableLeft="@android:drawable/ic_lock_idle_alarm"
-            android:drawablePadding="10dp"
+            android:id="@+id/tv_todo_task_recurrence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="@android:drawable/ic_menu_rotate"
+            android:drawablePadding="5dp"
             android:gravity="center_vertical"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:text="@string/reminder" />
+            android:text="@string/recurrence" />
 
     </LinearLayout>
 
@@ -125,26 +126,26 @@
             android:id="@+id/tv_task_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/progress_colon"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:text="@string/progress_colon" />
+            android:textStyle="bold" />
 
         <SeekBar
             android:id="@+id/sb_new_task_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/tv_task_progress"
             android:layout_alignParentRight="true"
-            android:max="100"/>
+            android:layout_toRightOf="@+id/tv_task_progress"
+            android:max="100" />
 
         <TextView
             android:id="@+id/new_task_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/sb_new_task_progress"
-            android:text="@string/zero_percent"
             android:layout_alignLeft="@+id/sb_new_task_progress"
-            android:layout_marginLeft="15dp"/>
+            android:layout_marginLeft="15dp"
+            android:text="@string/zero_percent" />
 
     </RelativeLayout>
 
@@ -159,10 +160,10 @@
             android:id="@+id/tv_new_task_priority_str"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="@string/priority_colon"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="10dp"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_new_task_priority"
@@ -181,20 +182,20 @@
             android:id="@+id/tv_new_task_listchoose_str"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/list_colon"
             android:layout_below="@+id/tv_new_task_priority"
+            android:layout_marginTop="10dp"
+            android:text="@string/list_colon"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="10dp"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_new_task_listchoose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/tv_new_task_listchoose_str"
+            android:layout_alignStart="@+id/tv_new_task_priority"
             android:layout_alignBottom="@+id/tv_new_task_listchoose_str"
             android:layout_alignParentEnd="true"
-            android:layout_alignStart="@+id/tv_new_task_priority"
             android:text="@string/click_to_choose"
             android:textSize="16sp"
             android:textStyle="italic" />

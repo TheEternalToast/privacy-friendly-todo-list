@@ -248,7 +248,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
 
     // initialize deadline view
     private void initDeadline(Button okayButton) {
-        deadlineTextView = findViewById(R.id.tv_todo_list_deadline);
+        deadlineTextView = findViewById(R.id.tv_todo_task_deadline);
         deadlineTextView.setTextColor(okayButton.getCurrentTextColor());
         deadlineTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -278,7 +278,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
 
     // initialize reminder view
     private void initReminder(Button okayButton) {
-        reminderTextView = (TextView) findViewById(R.id.tv_todo_list_reminder);
+        reminderTextView = (TextView) findViewById(R.id.tv_todo_task_reminder);
         reminderTextView.setTextColor(okayButton.getCurrentTextColor());
         reminderTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -307,7 +307,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
                     @Override
                     public void removeDateTime() {
                         reminderTime = -1;
-                        TextView reminderTextView = (TextView) findViewById(R.id.tv_todo_list_reminder);
+                        TextView reminderTextView = (TextView) findViewById(R.id.tv_todo_task_reminder);
                         reminderTextView.setText(getContext().getResources().getString(R.string.reminder));
                     }
                 });

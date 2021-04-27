@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import org.secuso.privacyfriendlytodolist.R;
 import org.secuso.privacyfriendlytodolist.model.Helper;
+import org.secuso.privacyfriendlytodolist.model.Recurrence;
 import org.secuso.privacyfriendlytodolist.model.TodoList;
 import org.secuso.privacyfriendlytodolist.model.TodoTask;
 import org.secuso.privacyfriendlytodolist.model.database.DBQueryHandler;
@@ -54,6 +55,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
     // Views
     private TextView prioritySelector;
     private TextView deadlineTextView;
+    private TextView recurrenceTextView;
     private TextView reminderTextView;
     private TextView listSelector;
     private TextView dialogTitleNew;
@@ -112,12 +114,11 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
             reminderTextView.setText(context.getString(R.string.reminder));
         else
             reminderTextView.setText(Helper.getDateTime(context, reminderTime));
-
+        adjustRecurrenceViewToDeadline();
         this.task = task;
     }
 
     // Inits
-    // initialize entire dialog
     private void initGui() {
         initPrioritySelector();
         initTitles();
@@ -128,13 +129,14 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
 
         // initialize TextViews to get deadline and reminder time
         initDeadline(okayButton);
+        initRecurrence(okayButton);
         initReminder(okayButton);
 
         taskName = (EditText) findViewById(R.id.et_new_task_name);
         taskDescription = (EditText) findViewById(R.id.et_new_task_description);
     }
 
-    // initialize TextView that displays the selected priority
+    //  TextView that displays the selected priority
     private void initPrioritySelector() {
         prioritySelector = (TextView) findViewById(R.id.tv_new_task_priority);
         prioritySelector.setOnClickListener(new View.OnClickListener() {
@@ -149,13 +151,13 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         prioritySelector.setText(Helper.priority2String(getContext(), taskPriority));
     }
 
-    //initialize titles of the dialog
+    //  titles of the dialog
     private void initTitles() {
         dialogTitleNew = (TextView) findViewById(R.id.dialog_title);
         dialogTitleEdit = (TextView) findViewById(R.id.dialog_edit);
     }
 
-    // initialize TextView that displays selected list
+    //  TextView that displays selected list
     private void initListSelector() {
         listSelector = (TextView) findViewById(R.id.tv_new_task_listchoose);
         listSelector.setOnClickListener(new View.OnClickListener() {
@@ -168,7 +170,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         listSelector.setOnCreateContextMenuListener(this);
     }
 
-    // initialize progress bar
+    //  progress bar
     private void initProgressBar() {
         progressText = (TextView) findViewById(R.id.tv_task_progress);
         progressPercent = (TextView) findViewById(R.id.new_task_progress);
@@ -198,11 +200,11 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
                 }
             });
         } else {
-            makeProgressGone();
+            progress_layout.setVisibility(View.GONE);
         }
     }
 
-    // initialize buttons
+    //  buttons
     private Button initOkayButton() {
         Button okayButton = (Button) findViewById(R.id.bt_new_task_ok);
         okayButton.setOnClickListener(new View.OnClickListener() {
@@ -246,7 +248,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         });
     }
 
-    // initialize deadline view
+    //  deadline view
     private void initDeadline(Button okayButton) {
         deadlineTextView = findViewById(R.id.tv_todo_task_deadline);
         deadlineTextView.setTextColor(okayButton.getCurrentTextColor());
@@ -263,12 +265,15 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
                     public void setDate(long d) {
                         deadline = d;
                         deadlineTextView.setText(Helper.getDate(getContext(), deadline));
+                        adjustRecurrenceViewToDeadline();
                     }
 
                     @Override
                     public void removeDate() {
                         deadline = -1;
                         deadlineTextView.setText(getContext().getResources().getString(R.string.deadline));
+                        task.setRecurrence(new Recurrence());
+                        adjustRecurrenceViewToDeadline();
                     }
                 });
                 deadlineDialog.show();
@@ -276,7 +281,34 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         });
     }
 
-    // initialize reminder view
+    //  recurrence view
+    private void initRecurrence(Button okayButton) {
+        recurrenceTextView = findViewById(R.id.tv_todo_task_recurrence);
+        recurrenceTextView.setTextColor(okayButton.getCurrentTextColor());
+        recurrenceTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RecurrenceDialog recurrenceDialog = new RecurrenceDialog(getContext(), task.getRecurrence());
+                recurrenceDialog.setCallback(new RecurrenceDialog.RecurrenceCallback() {
+                    @Override
+                    public void setRecurrence(Recurrence recurrence) {
+                        task.setRecurrence(recurrence);
+                        recurrenceTextView.setText(recurrence.toString(getContext()));
+                    }
+
+                    @Override
+                    public void removeRecurrence() {
+                        task.setRecurrence(new Recurrence());
+                        recurrenceTextView.setText(getContext().getResources().getText(R.string.no_recurrence));
+                    }
+                });
+                recurrenceDialog.show();
+            }
+        });
+        adjustRecurrenceViewToDeadline();
+    }
+
+    //  reminder view
     private void initReminder(Button okayButton) {
         reminderTextView = (TextView) findViewById(R.id.tv_todo_task_reminder);
         reminderTextView.setTextColor(okayButton.getCurrentTextColor());
@@ -399,12 +431,10 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         return true;
     }
 
-    //Make progress-selectionbar disappear
-    private void makeProgressGone() {
-        progress_layout.setVisibility(View.GONE);
-           /* progressSelector.setVisibility(View.INVISIBLE);
-            progressPercent.setVisibility(View.INVISIBLE);
-            progressText.setVisibility(View.INVISIBLE); */
+    private void adjustRecurrenceViewToDeadline() {
+        if (deadline == -1)
+            recurrenceTextView.setVisibility(View.GONE);
+        else recurrenceTextView.setVisibility(View.VISIBLE);
     }
 
     private void autoProgress() {

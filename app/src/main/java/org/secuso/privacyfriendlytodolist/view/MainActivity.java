@@ -784,6 +784,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
+    public boolean sendToDbAndUpdateView(BaseTodo todo, boolean listExists, int listId) {
+        if (todo instanceof TodoTask) {
+            sendToDatabase(todo);
+            hints();
+            //show List if created in certain list, else show all tasks
+            if (listExists) {
+                showTasksOfList(listId);
+            } else
+                showAllTasks();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean sendToDbAndUpdateView(BaseTodo todo) {
+        if (todo instanceof TodoTask)
+            return sendToDbAndUpdateView(todo, true, ((TodoTask) todo).getListId());
+        return false;
+    }
 
     public TodoList getListByID(int id) {
         for (TodoList currentList : todoLists) {
@@ -991,16 +1010,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 pt.setDialogResult(new TodoCallback() {
                     @Override
                     public void finish(BaseTodo b) {
-                        if (b instanceof TodoTask) {
-                            //((TodoTask) b).setListId(helpId);
-                            sendToDatabase(b);
-                            hints();
-                            //show List if created in certain list, else show all tasks
-                            if (helpExists) {
-                                showTasksOfList(helpId);
-                            } else
-                                showAllTasks();
-                        }
+                        sendToDbAndUpdateView(b, helpExists, helpId);
                     }
                 });
                 pt.show();
@@ -1177,7 +1187,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (todoRe.getProgress() == 100) {
             // Create next task according to recurrence
             if (todoRe.getRecurrenceType() != Recurrence.Type.NONE.getValue() && !todoRe.isDone()) {
-                sendToDatabase(new TodoTask(todoRe, BaseTodo.CopyMode.NEXT));
+                sendToDbAndUpdateView(new TodoTask(todoRe, BaseTodo.CopyMode.NEXT));
             }
             // Set task as done
             todoRe.setDone(true);

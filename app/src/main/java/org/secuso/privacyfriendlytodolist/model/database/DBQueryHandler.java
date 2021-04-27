@@ -30,6 +30,7 @@ import org.secuso.privacyfriendlytodolist.model.TodoTask;
 import org.secuso.privacyfriendlytodolist.model.database.tables.TTodoList;
 import org.secuso.privacyfriendlytodolist.model.database.tables.TTodoSubTask;
 import org.secuso.privacyfriendlytodolist.model.database.tables.TTodoTask;
+import org.secuso.privacyfriendlytodolist.view.MainActivity;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -367,13 +368,11 @@ public class DBQueryHandler {
         return returnCode;
     }
 
-    public static int saveNextTodoTaskInDbIfRecurring(SQLiteDatabase db, TodoTask todoTask, Boolean newDoneStatus) {
+    public static boolean createNextTodoIfRecurring(TodoTask todoTask, Boolean newDoneStatus, MainActivity mainActivity) {
         if (todoTask.getRecurrenceType() != Recurrence.Type.NONE.getValue()
-                && newDoneStatus && !todoTask.isDone()) {
-            return saveTodoTaskInDb(db, new TodoTask(todoTask, BaseTodo.CopyMode.NEXT)
-            );
-        }
-        return NO_CHANGES;
+                && newDoneStatus && !todoTask.isDone())
+            return mainActivity.sendToDbAndUpdateView(new TodoTask(todoTask, BaseTodo.CopyMode.NEXT));
+        return false;
     }
 
     public static int saveTodoTaskInDb(SQLiteDatabase db, TodoTask todoTask) {

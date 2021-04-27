@@ -406,7 +406,7 @@ public class TodoTasksFragment extends Fragment implements SearchView.OnQueryTex
             if(!currentList.isDummyList())
                 currentTask.setListId(currentList.getId()); // crucial step to not lose the connection to the list
 
-            boolean dbChanged = containingActivity.sendToDatabase(currentTask);
+            boolean dbChanged = containingActivity.sendToDbAndUpdateView(currentTask);
             if(dbChanged)
                 containingActivity.notifyReminderService(currentTask);
 

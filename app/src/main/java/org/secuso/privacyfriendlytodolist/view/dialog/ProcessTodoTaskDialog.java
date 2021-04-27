@@ -110,6 +110,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
             deadlineTextView.setText(context.getString(R.string.no_deadline));
         else
             deadlineTextView.setText(Helper.getDate(context, deadline));
+        recurrenceTextView.setText(task.getRecurrence().toString(getContext()));
         if (task.getReminderTime() <= 0)
             reminderTextView.setText(context.getString(R.string.reminder));
         else
@@ -349,6 +350,10 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
     }
 
     // Overrides
+
+    /**
+     * @see android.app.Dialog
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         switch (v.getId()) {

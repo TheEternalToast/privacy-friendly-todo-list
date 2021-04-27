@@ -142,7 +142,7 @@
     <!-- Settings -->
     <string name="default_reminder_time">Default reminder time</string>
     <string-array name="default_reminder_times_human">
-        <item>No reminder</item>
+        <item>@string/no_reminder</item>
         <item>0.5 days before</item>
         <item>1 day before</item>
         <item>1.5 days before</item>

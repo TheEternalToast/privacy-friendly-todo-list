@@ -22,6 +22,7 @@ import org.secuso.privacyfriendlytodolist.model.Helper;
 import org.secuso.privacyfriendlytodolist.model.Recurrence;
 import org.secuso.privacyfriendlytodolist.model.RecurrenceSelectionOption;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class RecurrenceDialog extends FullScreenDialog {
@@ -63,9 +64,9 @@ public class RecurrenceDialog extends FullScreenDialog {
         initIncrementEditText();
         initSelectionGrid();
         initCancelButton();
-        Button okayButton = initOkayButton();
-        initStartDate(okayButton);
-        initEndDate(okayButton);
+        initOkayButton();
+        initStartDate();
+        initEndDate();
     }
 
     //  recurrence type Spinner
@@ -170,9 +171,8 @@ public class RecurrenceDialog extends FullScreenDialog {
     }
 
     //  initialize start date view
-    private void initStartDate(Button okayButton) {
+    private void initStartDate() {
         startDateTextView = findViewById(R.id.tv_recurrence_start_date);
-        startDateTextView.setTextColor(okayButton.getCurrentTextColor());
         startDateTextView.setText(Helper.getDate(getContext(), recurrence.getStartDate()));
         startDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,9 +199,8 @@ public class RecurrenceDialog extends FullScreenDialog {
     }
 
     //  initialize end date view
-    private void initEndDate(Button okayButton) {
+    private void initEndDate() {
         endDateTextView = findViewById(R.id.tv_recurrence_end_date);
-        endDateTextView.setTextColor(okayButton.getCurrentTextColor());
         endDateTextView.setText(Helper.getDate(getContext(), recurrence.getEndDate()));
         endDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -246,7 +245,7 @@ public class RecurrenceDialog extends FullScreenDialog {
     }
 
     //  okay button
-    private Button initOkayButton() {
+    private void initOkayButton() {
         Button okayButton = findViewById(R.id.bt_recurrence_ok);
         okayButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -255,7 +254,6 @@ public class RecurrenceDialog extends FullScreenDialog {
                 dismiss();
             }
         });
-        return okayButton;
     }
 
     // Functional methods

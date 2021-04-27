@@ -19,6 +19,8 @@
 
     <color name="invalid_time_waring">#ea9d00</color>
 
+    <color name="clickable_text_color">#026499</color>
+
     <!-- dots inactive colors -->
     <color name="dot_dark_screen">#026499</color>
 

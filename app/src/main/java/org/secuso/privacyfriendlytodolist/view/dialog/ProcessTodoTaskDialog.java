@@ -127,13 +127,13 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
         initTitles();
         initListSelector();
         initProgressBar();
-        Button okayButton = initOkayButton();
+        initOkayButton();
         initCancelButton();
 
         // initialize TextViews to get deadline and reminder time
-        initDeadline(okayButton);
-        initRecurrence(okayButton);
-        initReminder(okayButton);
+        initDeadline();
+        initRecurrence();
+        initReminder();
 
         taskName = (EditText) findViewById(R.id.et_new_task_name);
         taskDescription = (EditText) findViewById(R.id.et_new_task_description);
@@ -208,7 +208,7 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
     }
 
     //  buttons
-    private Button initOkayButton() {
+    private void initOkayButton() {
         Button okayButton = (Button) findViewById(R.id.bt_new_task_ok);
         okayButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -237,7 +237,6 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
                 }
             }
         });
-        return okayButton;
     }
 
     private void initCancelButton() {
@@ -252,10 +251,9 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
     }
 
     //  deadline view
-    private void initDeadline(Button okayButton) {
+    private void initDeadline() {
         RelativeLayout deadlineView = findViewById(R.id.rl_todo_task_deadline);
         deadlineTextView = deadlineView.findViewById(R.id.tv_todo_task_deadline_text);
-        deadlineTextView.setTextColor(okayButton.getCurrentTextColor());
         deadlineView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -286,10 +284,9 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
     }
 
     //  recurrence view
-    private void initRecurrence(Button okayButton) {
+    private void initRecurrence() {
         recurrenceView = findViewById(R.id.rl_todo_task_recurrence);
         recurrenceTextView = recurrenceView.findViewById(R.id.tv_todo_task_recurrence_text);
-        recurrenceTextView.setTextColor(okayButton.getCurrentTextColor());
         recurrenceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -314,10 +311,9 @@ public class ProcessTodoTaskDialog extends FullScreenDialog {
     }
 
     //  reminder view
-    private void initReminder(Button okayButton) {
+    private void initReminder() {
         RelativeLayout reminderView = findViewById(R.id.rl_todo_task_reminder);
         reminderTextView = reminderView.findViewById(R.id.tv_todo_task_reminder_text);
-        reminderTextView.setTextColor(okayButton.getCurrentTextColor());
         reminderView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

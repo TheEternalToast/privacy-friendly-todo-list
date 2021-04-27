@@ -34,29 +34,30 @@
                 android:id="@+id/tv_recurrence_increment_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:labelFor="@id/tv_recurrence_increment"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
+                android:gravity="center"
+                android:labelFor="@id/tv_recurrence_increment"
                 android:text="@string/repeat_every" />
 
             <EditText
                 android:id="@+id/tv_recurrence_increment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
                 android:gravity="center"
                 android:inputType="number"
-                android:minWidth="@dimen/dots_height"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"/>
+                android:minWidth="@dimen/dots_height" />
 
             <Spinner
                 android:id="@+id/s_recurrence_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"/>
+                android:layout_marginEnd="5dp"
+                android:gravity="right"
+                android:background="?android:selectableItemBackground"/>
         </LinearLayout>
 
         <GridView
@@ -82,22 +83,23 @@
             android:id="@+id/tv_recurrence_start_date_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:labelFor="@id/tv_recurrence_start_date"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
+            android:gravity="center"
+            android:labelFor="@id/tv_recurrence_start_date"
             android:text="@string/start_date" />
 
         <TextView
             android:id="@+id/tv_recurrence_start_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:drawableStart="@android:drawable/ic_menu_my_calendar"
             android:drawablePadding="5dp"
             android:gravity="center"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:text="@string/today" />
+            android:text="@string/today"
+            android:textColor="@color/clickable_text_color" />
 
     </LinearLayout>
 
@@ -112,35 +114,36 @@
             android:id="@+id/tv_recurrence_end_date_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:labelFor="@id/tv_recurrence_end_date"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
+            android:gravity="center"
+            android:labelFor="@id/tv_recurrence_end_date"
             android:text="@string/end_date" />
 
         <TextView
             android:id="@+id/tv_recurrence_end_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:drawableStart="@android:drawable/ic_menu_my_calendar"
             android:drawablePadding="5dp"
             android:gravity="center"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:text="@string/never"/>
+            android:text="@string/never"
+            android:textColor="@color/clickable_text_color" />
 
         <TextView
             android:id="@+id/tv_recurrence_end_date_past_warning"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:drawableStart="?android:attr/alertDialogIcon"
             android:drawablePadding="5dp"
             android:gravity="center"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:textColor="@color/invalid_time_waring"
             android:text="@string/past_end_date"
-            android:visibility="gone"/>
+            android:textColor="@color/invalid_time_waring"
+            android:visibility="gone" />
 
     </LinearLayout>
 
@@ -156,7 +159,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:minHeight="48dip"
-            android:text="@string/no_recurrence" />
+            android:text="@string/no_recurrence"
+            android:textColor="@color/clickable_text_color" />
 
         <Button
             android:id="@+id/bt_recurrence_ok"
@@ -165,6 +169,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:minHeight="48dip"
-            android:text="@string/ok" />
+            android:text="@string/ok"
+            android:textColor="@color/clickable_text_color" />
     </LinearLayout>
 </LinearLayout>

@@ -290,7 +290,7 @@ public class Recurrence implements Parcelable {
     }
 
     public void setStartDate(long startDate) {
-        this.startDate = startDate;
+        this.startDate = Helper.startOfDay(startDate);
     }
 
     public long getEndDate() {
@@ -298,7 +298,7 @@ public class Recurrence implements Parcelable {
     }
 
     public void setEndDate(long endDate) {
-        this.endDate = endDate;
+        this.endDate = Helper.endOfDay(endDate);
     }
 
     // Functional methods

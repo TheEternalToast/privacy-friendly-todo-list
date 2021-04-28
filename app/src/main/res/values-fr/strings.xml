@@ -199,10 +199,7 @@
     <string name="daily">quotidien</string>
     <string name="weekly">hebdomadaire</string>
     <string name="monthly">mensuellement</string>
-    <string name="every_X_days">tous les %d jours</string>
-    <string name="every_X_weeks">toutes les %d semaines</string>
+    <string name="every_X_units">tous les %1$d %2$s</string>
     <string name="annual">annuellement</string>
-    <string name="every_X_years">tous les %d ans</string>
-    <string name="every_X_months">tous les %d mois</string>
     <string name="past_end_date">passé</string>
 </resources>

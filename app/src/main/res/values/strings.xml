@@ -219,10 +219,7 @@
     <string name="weekly">weekly</string>
     <string name="monthly">monthly</string>
     <string name="annual">annual</string>
-    <string name="every_X_days">every %d days</string>
-    <string name="every_X_weeks">every %d weeks</string>
-    <string name="every_X_months">every %d months</string>
-    <string name="every_X_years">every %d years</string>
+    <string name="every_X_units">every %1$d %2$s</string>
     <string name="past_end_date">in the past</string>
 
     <!-- Error messages -->

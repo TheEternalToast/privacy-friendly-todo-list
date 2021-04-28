@@ -65,23 +65,27 @@ public class Helper {
         return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
     }
 
+    public static long startOfDay(long dateTime) {
+        Calendar calendar = Calendar.getInstance();
+        if (dateTime == -1)
+            calendar.setTimeInMillis(getCurrentTimestamp());
+        else
+            calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(dateTime));
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return TimeUnit.MILLISECONDS.toSeconds(calendar.getTimeInMillis());
+    }
+
     public static long endOfDay(long dateTime) {
+        if (dateTime == Long.MAX_VALUE) return dateTime;
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(dateTime));
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
-        return TimeUnit.MILLISECONDS.toSeconds(calendar.getTimeInMillis());
-    }
-
-    public static long startOfDay(long dateTime) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(dateTime));
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
         return TimeUnit.MILLISECONDS.toSeconds(calendar.getTimeInMillis());
     }
 

@@ -85,7 +85,6 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             holder.deadline.setText(contextActivity.getResources().getString(R.string.no_next_deadline));
         else
             holder.deadline.setText(contextActivity.getResources().getString(R.string.next_deadline_dd, Helper.getDate(contextActivity, list.getNextDeadline())));
-        // TODO include recurrence and reminder
         holder.done.setText(String.format("%d/%d", list.getDoneTodos(), list.getSize()));
         holder.urgency.setBackgroundColor(Helper.getDeadlineColor(contextActivity, list.getDeadlineColor(getDefaultReminderTime())));
 
@@ -137,15 +136,13 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnCreateContextMenuListener {
-        public TextView title, deadline, recurrence, reminder, done;
+        public TextView title, deadline, done;
         public View urgency;
 
         public ViewHolder(View v) {
             super(v);
             title = (TextView) v.findViewById(R.id.tv_todo_list_title);
             deadline = (TextView) v.findViewById(R.id.tv_todo_list_next_deadline);
-            recurrence = v.findViewById(R.id.tv_todo_list_recurrence);
-            reminder = v.findViewById(R.id.tv_todo_list_reminder);
             done = (TextView) v.findViewById(R.id.tv_todo_list_status);
             urgency = v.findViewById(R.id.v_urgency_indicator);
 

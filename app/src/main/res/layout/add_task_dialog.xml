@@ -96,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/iv_todo_task_deadline_icon"
                     android:text="@string/deadline"
-                    android:textSize="@dimen/task_dialog_time_opt_size" />
+                    android:textSize="@dimen/task_dialog_time_opt_size"
                     android:textColor="@color/clickable_text_color" />
             </RelativeLayout>
 
@@ -124,7 +124,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/iv_todo_task_reminder_icon"
                     android:text="@string/reminder"
-                    android:textSize="@dimen/task_dialog_time_opt_size" />
+                    android:textSize="@dimen/task_dialog_time_opt_size"
                     android:textColor="@color/clickable_text_color" />
             </RelativeLayout>
 
@@ -150,7 +150,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/iv_todo_task_recurrence_icon"
                 android:text="@string/recurrence"
-                android:textSize="@dimen/task_dialog_time_opt_size" />
+                android:textSize="@dimen/task_dialog_time_opt_size"
                 android:textColor="@color/clickable_text_color" />
         </RelativeLayout>
 
@@ -266,7 +266,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:minHeight="48dip"
-            android:text="@android:string/cancel" />
+            android:text="@android:string/cancel"
             android:textColor="@color/clickable_text_color" />
 
         <Button
@@ -276,7 +276,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:minHeight="48dip"
-            android:text="@string/ok" />
+            android:text="@string/ok"
             android:textColor="@color/clickable_text_color" />
 
     </LinearLayout>

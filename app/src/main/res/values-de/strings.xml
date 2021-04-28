@@ -272,11 +272,8 @@
     <string name="daily">täglich</string>
     <string name="weekly">wöchentlich</string>
     <string name="monthly">jeden Monat</string>
-    <string name="every_X_days">alle %d Tage</string>
-    <string name="every_X_weeks">alle %d Wochen</string>
+    <string name="every_X_units">alle %1$d %2$s</string>
     <string name="annual">jährlich</string>
-    <string name="every_X_months">alle %d Monate</string>
-    <string name="every_X_years">alle %d Jahre</string>
     <string name="past_end_date">liegt in der Vergangenheit</string>
 
 </resources>

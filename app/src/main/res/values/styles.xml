@@ -30,4 +30,10 @@
         <item name="android:background">?android:selectableItemBackground</item>
     </style>
 
+    <style name="RoundToggleButton">
+        <item name="android:shape">oval</item>
+        <item name="android:textSize">@dimen/recurrence_selection_button_text_size</item>
+        <item name="android:layout_width">@dimen/recurrence_selection_button_size</item>
+        <item name="android:layout_height">@dimen/recurrence_selection_button_size</item>
+    </style>
 </resources>

@@ -1,6 +1,7 @@
 package org.secuso.privacyfriendlytodolist.model;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -8,6 +9,7 @@ import org.secuso.privacyfriendlytodolist.R;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.Set;
 import java.util.SortedSet;
@@ -66,12 +68,15 @@ public class Recurrence implements Parcelable {
             }
         }
 
-        public static ArrayList<String> stringValues(Context context) {
-            ArrayList<String> strVals = new ArrayList<>(values().length);
-            for (int i = 0; i < values().length; i++) {
-                strVals.set(i, values()[i].toString(context));
+        public Class<? extends RecurrenceSelectionOption> getOptionType() {
+            switch (this) {
+                case WEEKDAYS:
+                    return RecurrenceSelectionOption.Weekday.class;
+                case SOME_MONTHS:
+                    return RecurrenceSelectionOption.Month.class;
+                default:
+                    return RecurrenceSelectionOption.NoSelection.class;
             }
-            return strVals;
         }
     }
 
@@ -95,7 +100,6 @@ public class Recurrence implements Parcelable {
     protected Type type;
     protected int increment;
     protected SortedSet<Integer> selection;
-
     protected long startDate;
     protected long endDate;
 
@@ -108,52 +112,20 @@ public class Recurrence implements Parcelable {
         this.endDate = Long.MAX_VALUE;
     }
 
-    public Recurrence(Type type, int increment) {
-        this.type = type;
-        setIncrement(increment);
-        this.selection = new TreeSet<>();
-        this.startDate = Helper.getCurrentTimestamp();
-        this.endDate = Long.MAX_VALUE;
-    }
-
-    public Recurrence(Type type, Set<Integer> selection) {
-        this.type = type;
-        this.increment = 1;
-        setSelection(selection);
-        this.startDate = Helper.getCurrentTimestamp();
-        this.endDate = Long.MAX_VALUE;
-    }
-
-    public Recurrence(Type type, int increment, long startDate, long endDate) {
-        this.type = type;
-        setIncrement(increment);
-        this.selection = new TreeSet<>();
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
-    public Recurrence(Type type, Set<Integer> selection, long startDate, long endDate) {
-        this.type = type;
-        this.increment = 1;
-        setSelection(selection);
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
     public Recurrence(Type type, int increment, Set<Integer> selection, long startDate, long endDate) {
         this.type = type;
         setIncrement(increment);
         setSelection(selection);
-        this.startDate = startDate;
-        this.endDate = endDate;
+        setStartDate(startDate);
+        setEndDate(endDate);
     }
 
     public Recurrence(Recurrence recurrence) {
         this.type = recurrence.type;
         setIncrement(recurrence.increment);
         setSelection(recurrence.selection);
-        this.startDate = recurrence.startDate;
-        this.endDate = recurrence.endDate;
+        setStartDate(recurrence.startDate);
+        setEndDate(recurrence.endDate);
     }
 
     public Recurrence(Parcel parcel) {
@@ -165,7 +137,10 @@ public class Recurrence implements Parcelable {
     }
 
     // Overrides
-    //  Parcelable
+
+    /**
+     * @see Parcelable
+     */
     @Override
     public int describeContents() {
         return 0;
@@ -175,42 +150,46 @@ public class Recurrence implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(type.getValue());
         dest.writeInt(increment);
-        dest.writeInt(encodeSelection());
+        dest.writeList(new ArrayList<>(selection));
         dest.writeLong(startDate);
         dest.writeLong(endDate);
     }
 
-    //  Object
+    /**
+     * @see Object
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Recurrence)) return false;
         Recurrence that = (Recurrence) o;
         return type == that.type &&
-                selection.equals(that.selection);
-    }
-
-    @Override
-    public int hashCode() {
-        return (31 + type.hashCode()) * 31 + selection.hashCode();
+                increment == that.increment &&
+                selection.equals(that.selection) &&
+                startDate == that.startDate &&
+                endDate == that.endDate;
     }
 
     public String toString(Context context) {
+        Resources res = context.getResources();
+        String unit;
         switch (type) {
-            case NONE:
-                return context.getResources().getString(R.string.no_recurrence);
             case DAILY:
                 if (increment == 1) return context.getResources().getString(R.string.daily);
-                return context.getResources().getString(R.string.every_X_days, increment);
+                unit = res.getString(R.string.days);
+                break;
             case WEEKLY:
                 if (increment == 1) return context.getResources().getString(R.string.weekly);
-                return context.getResources().getString(R.string.every_X_weeks, increment);
+                unit = res.getString(R.string.weeks);
+                break;
             case MONTHLY:
                 if (increment == 1) return context.getResources().getString(R.string.monthly);
-                return context.getResources().getString(R.string.every_X_months, increment);
+                unit = res.getString(R.string.months);
+                break;
             case YEARLY:
                 if (increment == 1) return context.getResources().getString(R.string.annual);
-                return context.getResources().getString(R.string.every_X_years, increment);
+                unit = res.getString(R.string.years);
+                break;
             case WEEKDAYS:
             case SOME_MONTHS:
                 if (selection.isEmpty())
@@ -221,9 +200,21 @@ public class Recurrence implements Parcelable {
                     selectedOptionsBuilder.append(thisOption.toString(context)).append(", ");
                 }
                 String selectedOptions = selectedOptionsBuilder.toString();
-                return selectedOptions.substring(0, selectedOptions.length() - 2);
+                unit = selectedOptions.substring(0, selectedOptions.length() - 2);
+                break;
+            default:
+                return res.getString(R.string.no_recurrence);
         }
-        return super.toString();
+        // TODO remove unnecessary 1 for selective recurrence
+        /* TODO
+            fix Japanese version of selective Recurrence display:
+            short versions for every Xth Monday are:
+                X月
+            this is highly confusing, since this also means "the Xth month".
+            Also X1月 would be displayed for every Xth January, which is far from correct.
+                In fact it simply means November if X=1
+         */
+        return res.getString(R.string.every_X_units, increment, unit);
     }
 
     // Getters & Setters
@@ -247,27 +238,23 @@ public class Recurrence implements Parcelable {
         return selection;
     }
 
-    public void setSelection(Set<Integer> selection) {
-        this.selection = new TreeSet<>();
-        for (Integer option : selection) {
-            addToSelection(option);
-        }
+    public void setSelection(Collection<Integer> selection) {
+        this.selection = new TreeSet<>(selection);
     }
 
     private Integer verifySelectable(Integer option) {
-        int numOptions;
         switch (type) {
             case WEEKDAYS:
-                numOptions = 7;
+                if (option < 1 || 8 <= option)
+                    throw new IllegalArgumentException("Invalid option: " + option + ", must be at least 1 (Sunday) and at most 7 (Saturday).");
                 break;
             case SOME_MONTHS:
-                numOptions = 12;
+                if (option < 0 || 12 <= option)
+                    throw new IllegalArgumentException("Invalid option: " + option + ", must be at least 0 and at most 11.");
                 break;
             default:
                 throw new IllegalStateException("Selection can only be modified in selective recursion.");
         }
-        if (option < 0 || numOptions <= option)
-            throw new IllegalArgumentException("Invalid option: " + option + ", must be at least 0 and less than " + numOptions + ".");
         return option;
     }
 
@@ -276,13 +263,7 @@ public class Recurrence implements Parcelable {
     }
 
     public boolean removeFromSelection(Integer option) {
-        try {
-            return selection.remove(verifySelectable(option));
-        } catch (IllegalArgumentException ignored){
-            return false;
-        } catch (IllegalStateException ignored){
-            return false;
-        }
+        return selection.remove(option);
     }
 
     public long getStartDate() {
@@ -303,71 +284,98 @@ public class Recurrence implements Parcelable {
 
     // Functional methods
     public long next(long lastDeadline) {
-        if (lastDeadline == -1 ) return -1;
-        Calendar deadline = GregorianCalendar.getInstance();
-        deadline.setTimeInMillis(TimeUnit.SECONDS.toMillis(lastDeadline));
+        if (lastDeadline == -1) return -1;
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(lastDeadline));
 
+        long deadline = TimeUnit.MILLISECONDS.toSeconds(calendar.getTimeInMillis());
+        if (deadline < startDate)
+            return startDate;
+
+        incrementCalendar(calendar);
+
+        deadline = TimeUnit.MILLISECONDS.toSeconds(calendar.getTimeInMillis());
         long now = Helper.getCurrentTimestamp();
-        long longDeadline = TimeUnit.MILLISECONDS.toSeconds(deadline.getTimeInMillis());
-        while (longDeadline < startDate && (allowPastRecurrence || longDeadline < now)) {
-            deadline.add(Calendar.DATE, increment);
-            longDeadline = TimeUnit.MILLISECONDS.toSeconds(deadline.getTimeInMillis());
-        }
+        if (deadline < now && !allowPastRecurrence)
+            deadline = now;
+        if (deadline > endDate) return -1;
+        return deadline;
+    }
 
-        boolean inSelection;
+    private void incrementCalendar(Calendar calendar) {
         switch (type) {
             case DAILY:
-                deadline.add(Calendar.DATE, increment);
+                calendar.add(Calendar.DATE, increment);
                 break;
             case WEEKLY:
-                deadline.add(Calendar.DATE, 7 * increment);
+                calendar.add(Calendar.DATE, 7 * increment);
                 break;
             case MONTHLY:
-                deadline.add(Calendar.MONTH, increment);
+                calendar.add(Calendar.MONTH, increment);
                 break;
             case YEARLY:
-                deadline.add(Calendar.YEAR, increment);
+                calendar.add(Calendar.YEAR, increment);
                 break;
             case WEEKDAYS:
-                if (selection.isEmpty()) return -1;
-                do {
-                    deadline.add(Calendar.DATE, 1);
-                    inSelection = isSelected(deadline.get(Calendar.DAY_OF_WEEK));
-                } while (!inSelection);
+                incrementSelective(calendar, Calendar.DAY_OF_WEEK, Calendar.DATE, calendar.getFirstDayOfWeek(), Calendar.DATE, 7);
                 break;
             case SOME_MONTHS:
-                if (selection.isEmpty()) return -1;
-                do {
-                    deadline.add(Calendar.MONTH, 1);
-                    inSelection = isSelected(deadline.get(Calendar.MONTH));
-                } while (!inSelection);
+                incrementSelective(calendar, Calendar.MONTH, Calendar.MONTH, 1, Calendar.YEAR, 1);
                 break;
             default:
-                return -1;
+                calendar.setTimeInMillis(-1000);
         }
-        longDeadline = TimeUnit.MILLISECONDS.toSeconds(deadline.getTimeInMillis());
-        if (longDeadline > endDate) return -1;
-        return longDeadline;
+    }
+
+    private void incrementSelective(
+            Calendar cursor, int criteriaField, int addField, int firstInSpan, int spanField, int spanIncrement
+    ) {
+        if (selection.isEmpty()) {
+            cursor.setTimeInMillis(-1000);
+            return;
+        }
+        while (cursor.get(criteriaField) != firstInSpan) {
+            cursor.add(addField, 1);
+            if (!isSelected(cursor.get(criteriaField)))
+                break;
+        }
+        if (cursor.get(criteriaField) == firstInSpan) {
+            cursor.add(spanField, spanIncrement * increment);
+            while (!isSelected(cursor.get(criteriaField)))
+                cursor.add(addField, 1);
+        }
     }
 
     public boolean isSelected(int indicator) {
         return selection.contains(indicator);
     }
 
+    public boolean hasEnded() {
+        return endDate < Helper.getCurrentTimestamp();
+    }
+
+    public boolean isSelective() {
+        return type == Type.WEEKDAYS || type == Type.SOME_MONTHS;
+    }
+
+    public boolean isEffectivelyNONE() {
+        return type == Type.NONE || hasEnded() || (isSelective() && selection.isEmpty());
+    }
+
     public int encodeSelection() {
         int encodedSelections = 0;
-        for (int i = 30; i >= 0; i--) {
+        for (int i = 30; i > 0; i--) {
             if (isSelected(i)) encodedSelections++;
             encodedSelections = encodedSelections << 1;
         }
+        if (isSelected(0)) encodedSelections++;
         return encodedSelections;
     }
 
     public static TreeSet<Integer> decodeSelection(int encodedSelection) {
         TreeSet<Integer> selection = new TreeSet<>();
         for (int i = 0; i < 31; i++) {
-            if (encodedSelection % 2 == 1)
-                selection.add(i);
+            if (encodedSelection % 2 == 1) selection.add(i);
             encodedSelection = encodedSelection >> 1;
         }
         return selection;

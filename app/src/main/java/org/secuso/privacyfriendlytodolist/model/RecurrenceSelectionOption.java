@@ -4,15 +4,23 @@ import android.content.Context;
 
 import org.secuso.privacyfriendlytodolist.R;
 
-public interface RecurrenceSelectionOption {
+import java.util.Calendar;
+
+public interface RecurrenceSelectionOption{
+    public boolean isSelected();
+
+    public void setSelected(boolean selected);
 
     public int getValue();
+
     public String toString(Context context);
 
     public enum Weekday implements RecurrenceSelectionOption {
-        MONDAY(0), TUESDAY(1), WEDNESDAY(2), THURSDAY(3),
-        FRIDAY(4), SATURDAY(5), SUNDAY(6);
+        MONDAY(Calendar.MONDAY), TUESDAY(Calendar.TUESDAY), WEDNESDAY(Calendar.WEDNESDAY),
+        THURSDAY(Calendar.THURSDAY), FRIDAY(Calendar.FRIDAY), SATURDAY(Calendar.SATURDAY),
+        SUNDAY(Calendar.SUNDAY);
         private final int value;
+        private boolean selected = false;
 
         Weekday(final int value) {
             this.value = value;
@@ -24,11 +32,24 @@ public interface RecurrenceSelectionOption {
             throw new IllegalArgumentException("No such weekday defined.");
         }
 
+
+        @Override
+        public boolean isSelected() {
+            return selected;
+        }
+
+        @Override
+        public void setSelected(boolean selected) {
+            this.selected = selected;
+        }
+
+        @Override
         public int getValue() {
             return value;
         }
 
-        public String toString(Context context){
+        @Override
+        public String toString(Context context) {
             switch (this) {
                 case MONDAY:
                     return context.getResources().getString(R.string.monday_abbr);
@@ -51,10 +72,12 @@ public interface RecurrenceSelectionOption {
     }
 
     public enum Month implements RecurrenceSelectionOption {
-        JANUARY(0), FEBRUARY(1), MARCH(2), APRIL(3), MAY(4),
-        JUNE(5), JULY(6), AUGUST(7), SEPTEMBER(8), OCTOBER(9),
-        NOVEMBER(10), DECEMBER(11);
+        JANUARY(Calendar.JANUARY), FEBRUARY(Calendar.FEBRUARY), MARCH(Calendar.MARCH),
+        APRIL(Calendar.APRIL), MAY(Calendar.MAY), JUNE(Calendar.JUNE), JULY(Calendar.JULY),
+        AUGUST(Calendar.AUGUST), SEPTEMBER(Calendar.SEPTEMBER), OCTOBER(Calendar.OCTOBER),
+        NOVEMBER(Calendar.NOVEMBER), DECEMBER(Calendar.DECEMBER);
         private final int value;
+        private boolean selected = false;
 
         Month(final int value) {
             this.value = value;
@@ -66,11 +89,21 @@ public interface RecurrenceSelectionOption {
             throw new IllegalArgumentException("No such month defined.");
         }
 
+        @Override
+        public boolean isSelected() {
+            return selected;
+        }
+
+        @Override
+        public void setSelected(boolean selected) {
+            this.selected = selected;
+        }
+
         public int getValue() {
             return value;
         }
 
-        public String toString(Context context){
+        public String toString(Context context) {
             switch (this) {
                 case JANUARY:
                     return context.getResources().getString(R.string.january_abbr);
@@ -102,4 +135,26 @@ public interface RecurrenceSelectionOption {
         }
     }
 
+    public enum NoSelection implements RecurrenceSelectionOption {
+        ;
+
+        @Override
+        public boolean isSelected() {
+            return false;
+        }
+
+        @Override
+        public void setSelected(boolean selected) {
+        }
+
+        @Override
+        public int getValue() {
+            return 0;
+        }
+
+        @Override
+        public String toString(Context context) {
+            return "";
+        }
+    }
 }

@@ -36,20 +36,6 @@
             android:layout_weight="1"
             android:text="Test" />
 
-        <TextView
-            android:id="@+id/tv_todo_list_recurrence"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Test" />
-
-        <TextView
-            android:id="@+id/tv_todo_list_reminder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Test" />
-
     </LinearLayout>
 
     <TextView

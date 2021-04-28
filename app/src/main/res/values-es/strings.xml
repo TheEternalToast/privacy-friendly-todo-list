@@ -198,10 +198,7 @@
     <string name="daily">diario</string>
     <string name="weekly">semanal</string>
     <string name="monthly">mensual</string>
-    <string name="every_X_days">cada %d dias</string>
-    <string name="every_X_weeks">cada %d semanas</string>
+    <string name="every_X_units">cada %1$d %2$s</string>
     <string name="annual">anual</string>
-    <string name="every_X_months">cada %d meses</string>
-    <string name="every_X_years">cada %d años</string>
     <string name="past_end_date">pasado</string>
 </resources>

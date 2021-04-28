@@ -199,10 +199,7 @@
     <string name="daily">codziennie</string>
     <string name="weekly">tygodniowo</string>
     <string name="monthly">miesięczny</string>
-    <string name="every_X_days">co %d dni</string>
-    <string name="every_X_weeks">co %d tygodnie</string>
+    <string name="every_X_units">co %1$d %2$s</string>
     <string name="annual">roczny</string>
-    <string name="every_X_years">co %d lata</string>
-    <string name="every_X_months">co %d miesiące</string>
     <string name="past_end_date">przeszłość</string>
 </resources>

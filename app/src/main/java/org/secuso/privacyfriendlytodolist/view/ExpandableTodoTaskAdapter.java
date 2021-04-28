@@ -263,7 +263,7 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                 } else {
                     deadlineText.setText(Helper.getDate(context, currentTask.getDeadline()));
                     vh2.deadline.setVisibility(View.VISIBLE);
-                    if (currentTask.getRecurrenceType() == Recurrence.Type.NONE.getValue()) {
+                    if (currentTask.getRecurrence().isEffectivelyNONE()) {
                         recurrenceText.setText(context.getResources().getString(R.string.no_recurrence));
                         vh2.recurrence.setVisibility(View.INVISIBLE);
                     } else {

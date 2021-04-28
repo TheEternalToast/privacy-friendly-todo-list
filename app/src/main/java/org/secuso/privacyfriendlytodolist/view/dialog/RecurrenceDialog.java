@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.Spinner;
@@ -22,16 +23,45 @@ import org.secuso.privacyfriendlytodolist.model.Helper;
 import org.secuso.privacyfriendlytodolist.model.Recurrence;
 import org.secuso.privacyfriendlytodolist.model.RecurrenceSelectionOption;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class RecurrenceDialog extends FullScreenDialog {
 
-    // Internal Interfaces
+    // Internal Interfaces/Classes
     public interface RecurrenceCallback {
         void setRecurrence(Recurrence recurrence);
 
         void removeRecurrence();
+    }
+
+    private class SelectionGridAdapter extends ArrayAdapter<RecurrenceSelectionOption> {
+        public SelectionGridAdapter(@NonNull Context context, int resource, @NonNull RecurrenceSelectionOption[] objects) {
+            super(context, resource, objects);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            ToggleButton button;
+            if (convertView == null)
+                button = (ToggleButton) LayoutInflater.from(getContext())
+                        .inflate(R.layout.recurrence_selection_toggle_button, parent, false);
+            else
+                button = (ToggleButton) convertView;
+            final RecurrenceSelectionOption item = getItem(position);
+            if (item == null) return button;
+            button.setTextOn(item.toString(getContext()));
+            button.setTextOff(item.toString(getContext()));
+            button.setChecked(item.isSelected());
+            button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) recurrence.addToSelection(item.getValue());
+                    else recurrence.removeFromSelection(item.getValue());
+                }
+            });
+            return button;
+        }
     }
 
     // Instance variables
@@ -149,25 +179,15 @@ public class RecurrenceDialog extends FullScreenDialog {
     //  selection grid
     private void initSelectionGrid() {
         selectionGridView = findViewById(R.id.gv_recurrence_selection);
-        selectionGridView.setAdapter(new ArrayAdapter<>(
+        final RecurrenceSelectionOption[] options = recurrence.getType().getOptionType().getEnumConstants();
+        for (RecurrenceSelectionOption option : options)
+            option.setSelected(recurrence.isSelected(option.getValue()));
+
+        selectionGridView.setAdapter(new SelectionGridAdapter(
                 getContext(),
                 R.layout.recurrence_selection_toggle_button,
-                new RecurrenceSelectionOption[]{}
+                options
         ));
-        selectionGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ToggleButton option = (ToggleButton) view;
-                int item = (Integer) parent.getItemAtPosition(position);
-                if (option.isChecked()) {
-                    recurrence.removeFromSelection(item);
-                    option.setChecked(false);
-                } else {
-                    recurrence.addToSelection(item);
-                    option.setChecked(true);
-                }
-            }
-        });
     }
 
     //  initialize start date view
@@ -258,8 +278,6 @@ public class RecurrenceDialog extends FullScreenDialog {
 
     // Functional methods
     public void setCallback(RecurrenceCallback callback) {
-        if (recurrence.getEndDate() <= Helper.getCurrentTimestamp())
-            recurrence.setType(Recurrence.Type.NONE);
         this.callback = callback;
     }
 
@@ -270,30 +288,27 @@ public class RecurrenceDialog extends FullScreenDialog {
             case WEEKLY:
             case MONTHLY:
             case YEARLY:
-                incrementEditText.setVisibility(View.VISIBLE);
                 selectionGridView.setVisibility(View.GONE);
                 break;
             case WEEKDAYS:
-                incrementEditText.setVisibility(View.GONE);
-
-                selectionGridView.setAdapter(new ArrayAdapter<RecurrenceSelectionOption>(
-                        getContext(),
-                        R.layout.recurrence_selection_toggle_button,
-                        RecurrenceSelectionOption.Weekday.values()
-                ));
-                selectionGridView.setVisibility(View.VISIBLE);
-                break;
             case SOME_MONTHS:
-                incrementEditText.setVisibility(View.GONE);
-
-                selectionGridView.setAdapter(new ArrayAdapter<RecurrenceSelectionOption>(
+                selectionGridView.setAdapter(new SelectionGridAdapter(
                         getContext(),
                         R.layout.recurrence_selection_toggle_button,
-                        RecurrenceSelectionOption.Month.values()
+                        recurrence.getType().getOptionType().getEnumConstants()
                 ));
+                switch (recurrence.getType()) {
+                    case WEEKDAYS:
+                        selectionGridView.setNumColumns(7);
+                        break;
+                    case SOME_MONTHS:
+                        selectionGridView.setNumColumns(6);
+                        break;
+                }
                 selectionGridView.setVisibility(View.VISIBLE);
                 break;
         }
 
     }
+
 }

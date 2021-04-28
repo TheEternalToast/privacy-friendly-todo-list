@@ -22,6 +22,8 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     -->
     <dimen name="widget_margin">8dp</dimen>
     <dimen name="task_dialog_time_opt_size">8.5pt</dimen>
+    <dimen name="recurrence_selection_button_size">40dp</dimen>
+    <dimen name="recurrence_selection_button_text_size">7pt</dimen>
 
 
 </resources>

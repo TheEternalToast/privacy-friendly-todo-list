@@ -199,10 +199,7 @@
     <string name="daily">dagelijks</string>
     <string name="weekly">wekelijks</string>
     <string name="monthly">maandelijks</string>
-    <string name="every_X_days">elke %d dagen</string>
-    <string name="every_X_weeks">elke %d weken</string>
+    <string name="every_X_units">elke %1$d %2$s</string>
     <string name="annual">jaarlijks</string>
-    <string name="every_X_months">elke %d maanden</string>
-    <string name="every_X_years">elke %d jaar</string>
     <string name="past_end_date">verleden</string>
 </resources>

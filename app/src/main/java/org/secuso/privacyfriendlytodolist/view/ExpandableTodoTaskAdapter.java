@@ -88,6 +88,65 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         }
     }
 
+    public class ToggleTodoListener implements CompoundButton.OnCheckedChangeListener {
+        final TodoTask currentTask;
+
+        public ToggleTodoListener(TodoTask task) {
+            super();
+            currentTask = task;
+        }
+
+        @Override
+        public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+            if (buttonView.isPressed()) {
+                Snackbar snackbar = Snackbar.make(buttonView, R.string.snack_check, Snackbar.LENGTH_LONG);
+                snackbar.setAction(R.string.snack_undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (isChecked) {
+                            buttonView.setChecked(false);
+                            currentTask.setDone(buttonView.isChecked());
+                            currentTask.setAllSubTasksDone(false);
+                            getProgressDone(currentTask, hasAutoProgress());
+                            currentTask.setChanged();
+                            notifyDataSetChanged();
+                            ((MainActivity) context).sendToDbAndUpdateView(currentTask);
+                            for (TodoSubTask st : currentTask.getSubTasks()) {
+                                st.setDone(false);
+                                ((MainActivity) context).sendToDbAndUpdateView(st);
+                            }
+                        } else {
+                            buttonView.setChecked(true);
+                            currentTask.setDone(buttonView.isChecked());
+                            currentTask.setAllSubTasksDone(true);
+                            getProgressDone(currentTask, hasAutoProgress());
+                            currentTask.setChanged();
+                            notifyDataSetChanged();
+                            ((MainActivity) context).sendToDbAndUpdateView(currentTask);
+                            for (TodoSubTask st : currentTask.getSubTasks()) {
+                                st.setDone(true);
+                                ((MainActivity) context).sendToDbAndUpdateView(st);
+                            }
+                        }
+
+                    }
+                });
+                snackbar.show();
+                DBQueryHandler.createNextTodoIfRecurring(currentTask, isChecked, (MainActivity) context);
+                currentTask.setDone(isChecked);
+                currentTask.setAllSubTasksDone(isChecked);
+                getProgressDone(currentTask, hasAutoProgress());
+                currentTask.setChanged();
+                notifyDataSetChanged();
+                ((MainActivity) context).sendToDbAndUpdateView(currentTask);
+                for (int i = 0; i < currentTask.getSubTasks().size(); i++) {
+                    currentTask.getSubTasks().get(i).setChanged();
+                    notifyDataSetChanged();
+                }
+            }
+        }
+    }
+
     // FILTER AND SORTING OPTIONS MADE BY THE USER
     private Filter filterMeasure;
     private String queryString;
@@ -243,95 +302,11 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                     vh2 = (GroupTaskViewHolder) convertView.getTag();
                 }
 
-                vh2.name.setText(currentTask.getName());
-                getProgressDone(currentTask, hasAutoProgress());
-                vh2.progressBar.setProgress(currentTask.getProgress());
-                if (showListName) {
-                    vh2.listName.setVisibility(View.VISIBLE);
-                    vh2.listName.setText(currentTask.getListName());
-                } else {
-                    vh2.listName.setVisibility(View.GONE);
-                }
-
-                TextView deadlineText = vh2.deadline.findViewById(R.id.tv_exlv_task_deadline_text);
-                TextView recurrenceText = vh2.recurrence.findViewById(R.id.tv_exlv_task_recurrence_text);
-                TextView reminderText = vh2.reminder.findViewById(R.id.tv_exlv_task_reminder_text);
-                if (currentTask.getDeadline() <= 0) {
-                    deadlineText.setText(context.getResources().getString(R.string.no_deadline));
-                    vh2.deadline.setVisibility(View.GONE);
-                    vh2.recurrence.setVisibility(View.GONE);
-                } else {
-                    deadlineText.setText(Helper.getDate(context, currentTask.getDeadline()));
-                    vh2.deadline.setVisibility(View.VISIBLE);
-                    if (currentTask.getRecurrence().isEffectivelyNONE()) {
-                        recurrenceText.setText(context.getResources().getString(R.string.no_recurrence));
-                        vh2.recurrence.setVisibility(View.INVISIBLE);
-                    } else {
-                        recurrenceText.setText(currentTask.getRecurrence().toString(context));
-                        vh2.recurrence.setVisibility(View.VISIBLE);
-                    }
-                }
-                if (currentTask.getReminderTime() <= 0) {
-                    reminderText.setText(context.getResources().getString(R.string.no_reminder));
-                    vh2.reminder.setVisibility(View.GONE);
-                } else {
-                    reminderText.setText(Helper.getDateTime(context, currentTask.getReminderTime()));
-                    vh2.reminder.setVisibility(View.VISIBLE);
-                }
+                updateTaskInfo(currentTask, vh2);
 
                 vh2.deadlineColorBar.setBackgroundColor(Helper.getDeadlineColor(context, currentTask.getDeadlineColor(getDefaultReminderTime())));
                 vh2.done.setChecked(currentTask.isDone());
-                vh2.done.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                        if (buttonView.isPressed()) {
-                            Snackbar snackbar = Snackbar.make(buttonView, R.string.snack_check, Snackbar.LENGTH_LONG);
-                            snackbar.setAction(R.string.snack_undo, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    if (isChecked) {
-                                        buttonView.setChecked(false);
-                                        currentTask.setDone(buttonView.isChecked());
-                                        currentTask.setAllSubTasksDone(false);
-                                        getProgressDone(currentTask, hasAutoProgress());
-                                        currentTask.setChanged();
-                                        notifyDataSetChanged();
-                                        ((MainActivity) context).sendToDbAndUpdateView(currentTask);
-                                        for (TodoSubTask st : currentTask.getSubTasks()) {
-                                            st.setDone(false);
-                                            ((MainActivity) context).sendToDbAndUpdateView(st);
-                                        }
-                                    } else {
-                                        buttonView.setChecked(true);
-                                        currentTask.setDone(buttonView.isChecked());
-                                        currentTask.setAllSubTasksDone(true);
-                                        getProgressDone(currentTask, hasAutoProgress());
-                                        currentTask.setChanged();
-                                        notifyDataSetChanged();
-                                        ((MainActivity) context).sendToDbAndUpdateView(currentTask);
-                                        for (TodoSubTask st : currentTask.getSubTasks()) {
-                                            st.setDone(true);
-                                            ((MainActivity) context).sendToDbAndUpdateView(st);
-                                        }
-                                    }
-
-                                }
-                            });
-                            snackbar.show();
-                            DBQueryHandler.createNextTodoIfRecurring(currentTask, isChecked, (MainActivity) context);
-                            currentTask.setDone(isChecked);
-                            currentTask.setAllSubTasksDone(isChecked);
-                            getProgressDone(currentTask, hasAutoProgress());
-                            currentTask.setChanged();
-                            notifyDataSetChanged();
-                            ((MainActivity) context).sendToDbAndUpdateView(currentTask);
-                            for (int i = 0; i < currentTask.getSubTasks().size(); i++) {
-                                currentTask.getSubTasks().get(i).setChanged();
-                                notifyDataSetChanged();
-                            }
-                        }
-                    }
-                });
+                vh2.done.setOnCheckedChangeListener(new ToggleTodoListener(currentTask));
 
                 break;
             default:
@@ -485,55 +460,7 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         super.notifyDataSetChanged();
     }
 
-    public void setLongClickedTaskByPos(int position) {
-        longClickedTodo = Tuple.makePair(getTaskByPosition(position), null);
-    }
-
-    public void setListNames(boolean flag) {
-        showListName = flag;
-    }
-
-    public void setLongClickedSubTaskByPos(int groupPosition, int childPosition) {
-        TodoTask task = getTaskByPosition(groupPosition);
-        if (task != null) {
-            TodoSubTask subTask = task.getSubTasks().get(childPosition - 1);
-            longClickedTodo = Tuple.makePair(task, subTask);
-        }
-    }
-
-    public Tuple<TodoTask, TodoSubTask> getLongClickedTodo() {
-        return longClickedTodo;
-    }
-
-    // interface to outer world
-    public void setFilter(Filter filter) {
-        this.filterMeasure = filter;
-    }
-
-    public void setQueryString(String query) {
-        this.queryString = query;
-    }
-
-    /**
-     * Sets the n-th bit of {@link ExpandableTodoTaskAdapter#sortType} whereas n is the value of {@param type}
-     * After having changed the sorting conditions, you must call {@link ExpandableTodoTaskAdapter#sortTasks}
-     *
-     * @param type condition by what tasks will be sorted (one-hot encoding)
-     */
-    public void addSortCondition(SortTypes type) {
-        this.sortType |= type.getValue(); // set n-th bit
-    }
-
-    /**
-     * Sets the n-th bit of {@link ExpandableTodoTaskAdapter#sortType} whereas n is the value of {@param type}
-     * After having changed the sorting conditions, you must call {@link ExpandableTodoTaskAdapter#sortTasks}
-     *
-     * @param type condition by what tasks will be sorted (one-hot encoding)
-     */
-    public void removeSortCondition(SortTypes type) {
-        this.sortType &= ~(1 << type.getValue() - 1);
-    }
-
+    // private methods
     /**
      * filter tasks by "done" criterion (show "all", only "open" or only "completed" tasks)
      * If the user changes the filter, it is crucial to call "sortTasks" again.
@@ -552,59 +479,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         // Call this method even if sorting is disabled. In the case of enabled sorting, all
         // sorting patterns are automatically employed after having changed the filter on tasks.
         sortTasks();
-    }
-
-    private boolean isPriorityGroupingEnabled() {
-        return (sortType & SortTypes.PRIORITY.getValue()) == 1;
-    }
-
-    /**
-     * Sort tasks by selected criteria (priority and/or deadline)
-     * This method works on {@link ExpandableTodoTaskAdapter#filteredTasks}. For that reason it is
-     * important to keep {@link ExpandableTodoTaskAdapter#filteredTasks} up-to-date.
-     **/
-    public void sortTasks() {
-
-        final boolean prioSorting = isPriorityGroupingEnabled();
-        final boolean deadlineSorting = (sortType & SortTypes.DEADLINE.getValue()) != 0;
-
-        Collections.sort(filteredTasks, new Comparator<TodoTask>() {
-
-            private int compareDeadlines(long d1, long d2) {
-                // tasks with deadlines always first
-                if (d1 == -1 && d2 == -1) return 0;
-                if (d1 == -1) return 1;
-                if (d2 == -1) return -1;
-
-                if (d1 < d2) return -1;
-                if (d1 == d2) return 0;
-                return 1;
-            }
-
-            @Override
-            public int compare(TodoTask t1, TodoTask t2) {
-
-                if (prioSorting) {
-                    TodoTask.Priority p1 = t1.getPriority();
-                    TodoTask.Priority p2 = t2.getPriority();
-                    int comp = p1.compareTo(p2);
-
-                    if (comp == 0 && deadlineSorting) {
-                        return compareDeadlines(t1.getDeadline(), t2.getDeadline());
-                    }
-                    return comp;
-
-                } else if (deadlineSorting) {
-                    return compareDeadlines(t1.getDeadline(), t2.getDeadline());
-                } else
-                    return t1.getListPosition() - t2.getListPosition();
-
-            }
-        });
-
-        if (prioSorting)
-            countTasksPerPriority();
-
     }
 
     // count how many tasks belong to each priority group (tasks are now sorted by priority)
@@ -671,7 +545,149 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
     }
 
     private long getDefaultReminderTime() {
-        return new Long(prefs.getString(Settings.DEFAULT_REMINDER_TIME_KEY, String.valueOf(context.getResources().getInteger(R.integer.one_day))));
+        return Long.parseLong(prefs.getString(Settings.DEFAULT_REMINDER_TIME_KEY, String.valueOf(context.getResources().getInteger(R.integer.one_day))));
+    }
+
+    private boolean isPriorityGroupingEnabled() {
+        return (sortType & SortTypes.PRIORITY.getValue()) == 1;
+    }
+
+    private void updateTaskInfo(TodoTask task, GroupTaskViewHolder taskViewHolder) {
+        taskViewHolder.name.setText(task.getName());
+        getProgressDone(task, hasAutoProgress());
+        taskViewHolder.progressBar.setProgress(task.getProgress());
+        if (showListName) {
+            taskViewHolder.listName.setVisibility(View.VISIBLE);
+            taskViewHolder.listName.setText(task.getListName());
+        } else {
+            taskViewHolder.listName.setVisibility(View.GONE);
+        }
+
+        TextView deadlineText = taskViewHolder.deadline.findViewById(R.id.tv_exlv_task_deadline_text);
+        TextView recurrenceText = taskViewHolder.recurrence.findViewById(R.id.tv_exlv_task_recurrence_text);
+        TextView reminderText = taskViewHolder.reminder.findViewById(R.id.tv_exlv_task_reminder_text);
+        if (task.getDeadline() <= 0) {
+            deadlineText.setText(context.getResources().getString(R.string.no_deadline));
+            taskViewHolder.deadline.setVisibility(View.GONE);
+            taskViewHolder.recurrence.setVisibility(View.GONE);
+        } else {
+            deadlineText.setText(Helper.getDate(context, task.getDeadline()));
+            taskViewHolder.deadline.setVisibility(View.VISIBLE);
+            if (task.getRecurrence().isEffectivelyNONE()) {
+                recurrenceText.setText(context.getResources().getString(R.string.no_recurrence));
+                taskViewHolder.recurrence.setVisibility(View.INVISIBLE);
+            } else {
+                recurrenceText.setText(task.getRecurrence().toString(context));
+                taskViewHolder.recurrence.setVisibility(View.VISIBLE);
+            }
+        }
+        if (task.getReminderTime() <= 0) {
+            reminderText.setText(context.getResources().getString(R.string.no_reminder));
+            taskViewHolder.reminder.setVisibility(View.GONE);
+        } else {
+            reminderText.setText(Helper.getDateTime(context, task.getReminderTime()));
+            taskViewHolder.reminder.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+
+    public void setLongClickedTaskByPos(int position) {
+        longClickedTodo = Tuple.makePair(getTaskByPosition(position), null);
+    }
+
+    public void setListNames(boolean flag) {
+        showListName = flag;
+    }
+
+    public void setLongClickedSubTaskByPos(int groupPosition, int childPosition) {
+        TodoTask task = getTaskByPosition(groupPosition);
+        if (task != null) {
+            TodoSubTask subTask = task.getSubTasks().get(childPosition - 1);
+            longClickedTodo = Tuple.makePair(task, subTask);
+        }
+    }
+
+    public Tuple<TodoTask, TodoSubTask> getLongClickedTodo() {
+        return longClickedTodo;
+    }
+
+    // interface to outer world
+    public void setFilter(Filter filter) {
+        this.filterMeasure = filter;
+    }
+
+    public void setQueryString(String query) {
+        this.queryString = query;
+    }
+
+    /**
+     * Sets the n-th bit of {@link ExpandableTodoTaskAdapter#sortType} whereas n is the value of {@param type}
+     * After having changed the sorting conditions, you must call {@link ExpandableTodoTaskAdapter#sortTasks}
+     *
+     * @param type condition by what tasks will be sorted (one-hot encoding)
+     */
+    public void addSortCondition(SortTypes type) {
+        this.sortType |= type.getValue(); // set n-th bit
+    }
+
+    /**
+     * Sets the n-th bit of {@link ExpandableTodoTaskAdapter#sortType} whereas n is the value of {@param type}
+     * After having changed the sorting conditions, you must call {@link ExpandableTodoTaskAdapter#sortTasks}
+     *
+     * @param type condition by what tasks will be sorted (one-hot encoding)
+     */
+    public void removeSortCondition(SortTypes type) {
+        this.sortType &= ~(1 << type.getValue() - 1);
+    }
+
+    /**
+     * Sort tasks by selected criteria (priority and/or deadline)
+     * This method works on {@link ExpandableTodoTaskAdapter#filteredTasks}. For that reason it is
+     * important to keep {@link ExpandableTodoTaskAdapter#filteredTasks} up-to-date.
+     **/
+    public void sortTasks() {
+
+        final boolean prioSorting = isPriorityGroupingEnabled();
+        final boolean deadlineSorting = (sortType & SortTypes.DEADLINE.getValue()) != 0;
+
+        Collections.sort(filteredTasks, new Comparator<TodoTask>() {
+
+            private int compareDeadlines(long d1, long d2) {
+                // tasks with deadlines always first
+                if (d1 == -1 && d2 == -1) return 0;
+                if (d1 == -1) return 1;
+                if (d2 == -1) return -1;
+
+                if (d1 < d2) return -1;
+                if (d1 == d2) return 0;
+                return 1;
+            }
+
+            @Override
+            public int compare(TodoTask t1, TodoTask t2) {
+
+                if (prioSorting) {
+                    TodoTask.Priority p1 = t1.getPriority();
+                    TodoTask.Priority p2 = t2.getPriority();
+                    int comp = p1.compareTo(p2);
+
+                    if (comp == 0 && deadlineSorting) {
+                        return compareDeadlines(t1.getDeadline(), t2.getDeadline());
+                    }
+                    return comp;
+
+                } else if (deadlineSorting) {
+                    return compareDeadlines(t1.getDeadline(), t2.getDeadline());
+                } else
+                    return t1.getListPosition() - t2.getListPosition();
+
+            }
+        });
+
+        if (prioSorting)
+            countTasksPerPriority();
+
     }
 
     public void getProgressDone(TodoTask t, boolean autoProgress) {

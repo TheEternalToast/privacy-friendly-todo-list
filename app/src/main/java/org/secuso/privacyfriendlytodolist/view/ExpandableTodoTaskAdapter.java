@@ -531,6 +531,14 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         return null; // should never be the case
     }
 
+    private String getPriorityNameByBarPos(int groupPosition) {
+        for (Map.Entry<TodoTask.Priority, Integer> entry : prioBarPositions.entrySet()) {
+            if (entry.getValue() == groupPosition) {
+                return Helper.priority2String(context, entry.getKey());
+            }
+        }
+        return context.getString(R.string.unknown_priority);
+    }
     /**
      * filter tasks by "done" criterion (show "all", only "open" or only "completed" tasks)
      * If the user changes the filter, it is crucial to call "sortTasks" again.
@@ -584,14 +592,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
      * @return null if there is no task at @param groupPosition (but a divider row) or the wanted task
      */
 
-    private String getPriorityNameByBarPos(int groupPosition) {
-        for (Map.Entry<TodoTask.Priority, Integer> entry : prioBarPositions.entrySet()) {
-            if (entry.getValue() == groupPosition) {
-                return Helper.priority2String(context, entry.getKey());
-            }
-        }
-        return context.getString(R.string.unknown_priority);
-    }
 
     private long getDefaultReminderTime() {
         return Long.parseLong(prefs.getString(Settings.DEFAULT_REMINDER_TIME_KEY, String.valueOf(context.getResources().getInteger(R.integer.one_day))));

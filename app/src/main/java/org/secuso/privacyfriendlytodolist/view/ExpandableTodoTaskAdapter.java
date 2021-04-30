@@ -60,6 +60,7 @@ import java.util.Map;
 
 public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
 
+    // Internal classes
     //  ViewHolders
     public class ListeningViewHolder {
         public View root;
@@ -109,34 +110,7 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         public View deadlineColorBar;
     }
 
-    private SharedPreferences prefs;
-
-    // left item: task that was long clicked
-    // right item: subtask that was long clicked
-    private Tuple<TodoTask, TodoSubTask> longClickedTodo;
-
-
-    public enum Filter {
-        ALL_TASKS,
-        COMPLETED_TASKS,
-        OPEN_TASKS
-    }
-
-    public enum SortTypes {
-        PRIORITY(0x1),
-        DEADLINE(0x2);
-
-        private final int id;
-
-        SortTypes(int id) {
-            this.id = id;
-        }
-
-        public int getValue() {
-            return id;
-        }
-    }
-
+    //  Listeners
     public class ToggleTodoListener implements CompoundButton.OnCheckedChangeListener {
         final TodoTask currentTask;
 
@@ -195,6 +169,36 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
             }
         }
     }
+
+    //  Enums
+    public enum Filter {
+        ALL_TASKS,
+        COMPLETED_TASKS,
+        OPEN_TASKS
+    }
+
+    public enum SortTypes {
+        PRIORITY(0x1),
+        DEADLINE(0x2);
+
+        private final int id;
+
+        SortTypes(int id) {
+            this.id = id;
+        }
+
+        public int getValue() {
+            return id;
+        }
+    }
+
+    // Variables
+    private SharedPreferences prefs;
+
+    // left item: task that was long clicked
+    // right item: subtask that was long clicked
+    private Tuple<TodoTask, TodoSubTask> longClickedTodo;
+
 
     // FILTER AND SORTING OPTIONS MADE BY THE USER
     private Filter filterMeasure;
@@ -558,7 +562,7 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         }
     }
 
-    /***
+    /**
      * @param groupPosition position of current row. For that reason the offset to the task must be
      *                      computed taking into account all preceding dividing priority bars
      * @return null if there is no task at @param groupPosition (but a divider row) or the wanted task

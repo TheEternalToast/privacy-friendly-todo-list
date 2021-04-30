@@ -299,8 +299,10 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                     vh2.progressBar = (ProgressBar) convertView.findViewById(R.id.pb_task_progress);
                     vh2.seperator = convertView.findViewById(R.id.v_exlv_header_separator);
                     vh2.deadlineColorBar = convertView.findViewById(R.id.v_urgency_task);
-                    vh2.done.setTag(currentTask.getId());
-                    vh2.done.setChecked(currentTask.isDone());
+                    if (currentTask != null){
+                        vh2.done.setTag(currentTask.getId());
+                        vh2.done.setChecked(currentTask.isDone());
+                    }
 
                     convertView.setTag(vh2);
 

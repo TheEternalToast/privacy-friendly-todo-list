@@ -310,8 +310,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                     vh2 = (GroupTaskViewHolder) convertView.getTag();
                 }
 
-                vh2.deadlineColorBar.setBackgroundColor(Helper.getDeadlineColor(context, currentTask.getDeadlineColor(getDefaultReminderTime())));
-                vh2.done.setChecked(currentTask.isDone());
                 updateTaskInfo(currentTask == null ? new TodoTask() :currentTask, vh2);
                 vh2.done.setOnCheckedChangeListener(new ToggleTodoListener(currentTask));
                 break;
@@ -671,6 +669,8 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
             taskViewHolder.reminder.setVisibility(View.VISIBLE);
         }
 
+        taskViewHolder.deadlineColorBar.setBackgroundColor(Helper.getDeadlineColor(context, task.getDeadlineColor(getDefaultReminderTime())));
+        taskViewHolder.done.setChecked(task.isDone());
     }
 
     /**

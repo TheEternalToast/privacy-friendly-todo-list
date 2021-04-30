@@ -135,7 +135,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     }
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnCreateContextMenuListener {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView title, deadline, done;
         public View urgency;
 
@@ -146,30 +146,30 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             done = (TextView) v.findViewById(R.id.tv_todo_list_status);
             urgency = v.findViewById(R.id.v_urgency_indicator);
 
-            v.setOnClickListener(this);
-            v.setOnCreateContextMenuListener(this);
-        }
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bundle bundle = new Bundle();
 
-        @Override
-        public void onClick(View v) {
+                    // It is important to save the clicked list, because it is possible that it was not yet written to the database and thus cannot be identified by its id.
+                    contextActivity.setClickedList(filteredLists.get(filteredLists.size() - 1 - getAdapterPosition()));
+                    bundle.putBoolean(TodoTasksFragment.SHOW_FLOATING_BUTTON, true);
+                    TodoTasksFragment fragment = new TodoTasksFragment();
+                    fragment.setArguments(bundle);
 
-            Bundle bundle = new Bundle();
+                    //contextActivity.setFragment(fragment);
+                }
 
-            // It is important to save the clicked list, because it is possible that it was not yet written to the database and thus cannot be identified by its id.
-            contextActivity.setClickedList(filteredLists.get(filteredLists.size() - 1 - getAdapterPosition()));
-            bundle.putBoolean(TodoTasksFragment.SHOW_FLOATING_BUTTON, true);
-            TodoTasksFragment fragment = new TodoTasksFragment();
-            fragment.setArguments(bundle);
-
-            //contextActivity.setFragment(fragment);
-        }
-
-        @Override
-        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-            //TODO ask touchlistener for swipe action
-            menu.setHeaderView(Helper.getMenuHeader(contextActivity, contextActivity.getString(R.string.select_option)));
-            MenuInflater inflater = contextActivity.getMenuInflater();
-            inflater.inflate(R.menu.todo_list_long_click, menu);
+            });
+            v.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                @Override
+                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                    //TODO ask touchlistener for swipe action
+                    menu.setHeaderView(Helper.getMenuHeader(contextActivity, contextActivity.getString(R.string.select_option)));
+                    MenuInflater inflater = contextActivity.getMenuInflater();
+                    inflater.inflate(R.menu.todo_list_long_click, menu);
+                }
+            });
         }
     }
 }

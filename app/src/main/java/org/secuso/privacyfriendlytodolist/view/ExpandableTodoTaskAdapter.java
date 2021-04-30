@@ -60,6 +60,55 @@ import java.util.Map;
 
 public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
 
+    //  ViewHolders
+    public class ListeningViewHolder {
+        public View root;
+        public View left = null;
+        public View right = null;
+        public View top = null;
+        public View bottom = null;
+
+        public void setOnTouchListener(View.OnTouchListener listener) {
+            root.setOnTouchListener(listener);
+        }
+
+        public void setSwipeListener() {
+            root.setOnTouchListener(new SwipeListener(context, left, right, top, bottom));
+        }
+    }
+
+    public class GroupTaskViewHolder extends ListeningViewHolder {
+        public TextView name;
+        public RelativeLayout deadline;
+        public RelativeLayout recurrence;
+        public RelativeLayout reminder;
+        public TextView listName;
+        public CheckBox done;
+        public View deadlineColorBar;
+        public View seperator;
+        public ProgressBar progressBar;
+    }
+
+    public class GroupPrioViewHolder {
+        public TextView prioFlag;
+    }
+
+    private class SubTaskViewHolder extends ListeningViewHolder {
+        public TextView subtaskName;
+        public CheckBox done;
+        public View deadlineColorBar;
+    }
+
+    private class TaskDescriptionViewHolder {
+        public TextView taskDescription;
+        public View deadlineColorBar;
+    }
+
+    private class SettingViewHolder {
+        public RelativeLayout addSubTaskButton;
+        public View deadlineColorBar;
+    }
+
     private SharedPreferences prefs;
 
     // left item: task that was long clicked
@@ -461,6 +510,7 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
     }
 
     // private methods
+
     /**
      * filter tasks by "done" criterion (show "all", only "open" or only "completed" tasks)
      * If the user changes the filter, it is crucial to call "sortTasks" again.
@@ -702,39 +752,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
             double computedProgress = ((double) help / (double) t.getSubTasks().size()) * 100;
             t.setProgress((int) computedProgress);
         }
-    }
-
-    // ViewHolders
-    public class GroupTaskViewHolder {
-        public TextView name;
-        public RelativeLayout deadline;
-        public RelativeLayout recurrence;
-        public RelativeLayout reminder;
-        public TextView listName;
-        public CheckBox done;
-        public View deadlineColorBar;
-        public View seperator;
-        public ProgressBar progressBar;
-    }
-
-    public class GroupPrioViewHolder {
-        public TextView prioFlag;
-    }
-
-    private class SubTaskViewHolder {
-        public TextView subtaskName;
-        public CheckBox done;
-        public View deadlineColorBar;
-    }
-
-    private class TaskDescriptionViewHolder {
-        public TextView taskDescription;
-        public View deadlineColorBar;
-    }
-
-    private class SettingViewHolder {
-        public RelativeLayout addSubTaskButton;
-        public View deadlineColorBar;
     }
 
     private boolean hasAutoProgress() {

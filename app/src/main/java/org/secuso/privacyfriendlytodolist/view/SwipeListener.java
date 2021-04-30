@@ -8,10 +8,9 @@ import android.view.ViewConfiguration;
 public class SwipeListener implements View.OnTouchListener {
     private static final double SLOWNESS = 0.75;
 
-    private final double swipeThresholdX;
-    private final double swipeThresholdY;
+    private final double swipeThreshold;
     private final int clickThreshold;
-    private boolean dragX;
+    private final boolean dragX;
     private boolean dragY;
     private float startX;
     private float startY;
@@ -27,12 +26,11 @@ public class SwipeListener implements View.OnTouchListener {
     private final View bottomView;
 
     public SwipeListener(
-            double swipeThresholdX, double swipeThresholdY, int clickThreshold,
+            double swipeThreshold, int clickThreshold,
             boolean dragX, boolean dragY,
             View leftView, View rightView, View topView, View bottomView
     ) {
-        this.swipeThresholdX = swipeThresholdX;
-        this.swipeThresholdY = swipeThresholdY;
+        this.swipeThreshold = swipeThreshold;
         this.clickThreshold = clickThreshold;
         this.dragX = dragX;
         this.dragY = dragY;
@@ -46,7 +44,7 @@ public class SwipeListener implements View.OnTouchListener {
             Context context,
             View leftView, View rightView, View topView, View bottomView) {
         this(
-                100.0, 100.0,
+                112.5,
                 ViewConfiguration.get(context).getScaledTouchSlop(),
                 true, false,
                 leftView, rightView, topView, bottomView
@@ -71,7 +69,7 @@ public class SwipeListener implements View.OnTouchListener {
                 initViewStats(view);
                 startX = event.getX();
                 startY = event.getY();
-                break;
+                return true;
             case MotionEvent.ACTION_MOVE:
                 if (!isClick(event)) {
                     if (dragX) move(view,
@@ -81,7 +79,7 @@ public class SwipeListener implements View.OnTouchListener {
                             slow((double) event.getY() - startY, false),
                             false);
                 }
-                break;
+                return true;
             case MotionEvent.ACTION_OUTSIDE:
             case MotionEvent.ACTION_UP:
                 if (isClick(event)) {
@@ -93,12 +91,21 @@ public class SwipeListener implements View.OnTouchListener {
                     if (dragY) move(view, distY, false);
                     triggerSwipeAction(view, distX, distY);
                 }
-                break;
+                return true;
             case MotionEvent.ACTION_CANCEL:
                 if (dragX) move(view, 0, true);
                 if (dragY) move(view, 0, false);
+                return true;
         }
         return false;
+    }
+
+    public Integer getViewLeft() {
+        return viewLeft;
+    }
+
+    public Integer getViewRight() {
+        return viewRight;
     }
 
     private boolean isClick(MotionEvent event) {
@@ -110,25 +117,52 @@ public class SwipeListener implements View.OnTouchListener {
     }
 
     private void move(View view, double distance, boolean horizontal) {
+        distance *= 2;
         if (horizontal) {
             if (dragX) {
+                if (leftView != null) {
+                    if (distance > 0)
+                        leftView.getLayoutParams().width = (int) distance;
+                    else leftView.getLayoutParams().width = 0;
+                    leftView.setRight(viewLeft + (int) distance);
+                    leftView.requestLayout();
+                }
+                if (rightView != null) {
+                    if (distance < 0)
+                        rightView.getLayoutParams().width = (int) -distance;
+                    else rightView.getLayoutParams().width = 0;
+                    rightView.setLeft(viewRight + (int) distance);
+                    rightView.requestLayout();
+                }
+
                 view.setLeft(viewLeft + (int) distance);
                 view.setRight(viewRight + (int) distance);
-                if (rightView != null) rightView.setLeft(viewRight + (int) distance);
-                if (leftView != null) leftView.setRight(viewLeft + (int) distance);
             }
         } else {
             if (dragY) {
+                if (topView != null) {
+                    if (distance > 0)
+                        topView.getLayoutParams().width = (int) distance;
+                    else topView.getLayoutParams().width = 0;
+                    topView.requestLayout();
+                    topView.setBottom(viewTop + (int) distance);
+                }
+                if (bottomView != null) {
+                    if (distance < 0)
+                        bottomView.getLayoutParams().width = (int) -distance;
+                    else bottomView.getLayoutParams().width = 0;
+                    bottomView.requestLayout();
+                    bottomView.setTop(viewBottom + (int) distance);
+                }
+
                 view.setTop(viewTop + (int) distance);
                 view.setBottom(viewBottom + (int) distance);
-                if (topView != null) topView.setBottom(viewTop + (int) distance);
-                if (bottomView != null) bottomView.setTop(viewBottom + (int) distance);
             }
         }
     }
 
     private double slow(double distance, boolean horizontal) {
-        double threshold = horizontal ? swipeThresholdX : swipeThresholdY;
+        double threshold = horizontal ? swipeThreshold : swipeThreshold;
         if (distance < -threshold - 1) {
             distance = -threshold - Math.pow(-distance - threshold, SLOWNESS);
         } else if (distance > threshold + 1) {
@@ -138,34 +172,34 @@ public class SwipeListener implements View.OnTouchListener {
     }
 
     private double snap(float distance, boolean horizontal) {
-        double threshold = horizontal ? swipeThresholdX : swipeThresholdY;
+        double threshold = horizontal ? swipeThreshold : swipeThreshold;
         if (distance < -threshold / 2) return -threshold;
         if (distance <= threshold / 2) return 0;
         return threshold;
     }
 
     private void triggerSwipeAction(View view, double distX, double distY) {
-        if (distY >= swipeThresholdY) {
+        if (distY >= swipeThreshold) {
             onSwipeDown(view);
-            if (distX >= swipeThresholdX) {
+            if (distX >= swipeThreshold) {
                 onSwipeRight(view);
                 onSwipeDownRight(view);
-            } else if (distX <= -swipeThresholdX) {
+            } else if (distX <= -swipeThreshold) {
                 onSwipeLeft(view);
                 onSwipeDownLeft(view);
             }
-        } else if (distY <= -swipeThresholdY) {
+        } else if (distY <= -swipeThreshold) {
             onSwipeUp(view);
-            if (distX >= swipeThresholdX) {
+            if (distX >= swipeThreshold) {
                 onSwipeRight(view);
                 onSwipeUpRight(view);
-            } else if (distX <= -swipeThresholdX) {
+            } else if (distX <= -swipeThreshold) {
                 onSwipeLeft(view);
                 onSwipeUpLeft(view);
             }
-        } else if (distX >= swipeThresholdX)
+        } else if (distX >= swipeThreshold)
             onSwipeRight(view);
-        else if (distX <= -swipeThresholdX)
+        else if (distX <= -swipeThreshold)
             onSwipeLeft(view);
     }
 

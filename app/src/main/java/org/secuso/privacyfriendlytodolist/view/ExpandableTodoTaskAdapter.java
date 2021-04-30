@@ -539,6 +539,14 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         }
         return context.getString(R.string.unknown_priority);
     }
+
+    private long getDefaultReminderTime() {
+        return Long.parseLong(prefs.getString(Settings.DEFAULT_REMINDER_TIME_KEY, String.valueOf(context.getResources().getInteger(R.integer.one_day))));
+    }
+
+    private boolean isPriorityGroupingEnabled() {
+        return (sortType & SortTypes.PRIORITY.getValue()) == 1;
+    }
     /**
      * filter tasks by "done" criterion (show "all", only "open" or only "completed" tasks)
      * If the user changes the filter, it is crucial to call "sortTasks" again.
@@ -591,16 +599,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
      *                      computed taking into account all preceding dividing priority bars
      * @return null if there is no task at @param groupPosition (but a divider row) or the wanted task
      */
-
-
-    private long getDefaultReminderTime() {
-        return Long.parseLong(prefs.getString(Settings.DEFAULT_REMINDER_TIME_KEY, String.valueOf(context.getResources().getInteger(R.integer.one_day))));
-    }
-
-    private boolean isPriorityGroupingEnabled() {
-        return (sortType & SortTypes.PRIORITY.getValue()) == 1;
-    }
-
     private void updateTaskInfo(TodoTask task, GroupTaskViewHolder taskViewHolder) {
         taskViewHolder.name.setText(task.getName());
         getProgressDone(task, hasAutoProgress());

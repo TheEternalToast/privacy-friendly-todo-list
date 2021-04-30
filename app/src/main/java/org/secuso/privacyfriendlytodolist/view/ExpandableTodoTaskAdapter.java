@@ -768,6 +768,4 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
             return false;
         return true;
     }
-
-
 }

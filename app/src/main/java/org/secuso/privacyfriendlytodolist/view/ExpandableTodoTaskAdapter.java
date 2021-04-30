@@ -512,6 +512,7 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
      * @return null if there is no task at @param groupPosition (but a divider row) or the wanted task
      */
     private TodoTask getTaskByPosition(int groupPosition) {
+
         int seenPrioBars = 0;
         if (isPriorityGroupingEnabled()) {
             for (TodoTask.Priority priority : TodoTask.Priority.values()) {
@@ -547,6 +548,38 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
     private boolean isPriorityGroupingEnabled() {
         return (sortType & SortTypes.PRIORITY.getValue()) == 1;
     }
+
+    public void setListNames(boolean flag) {
+        showListName = flag;
+    }
+
+    public void setLongClickedTaskByPos(int position) {
+        longClickedTodo = Tuple.makePair(getTaskByPosition(position), null);
+    }
+
+    public void setLongClickedSubTaskByPos(int groupPosition, int childPosition) {
+        TodoTask task = getTaskByPosition(groupPosition);
+        if (task != null) {
+            TodoSubTask subTask = task.getSubTasks().get(childPosition - 1);
+            longClickedTodo = Tuple.makePair(task, subTask);
+        }
+    }
+
+    public Tuple<TodoTask, TodoSubTask> getLongClickedTodo() {
+        return longClickedTodo;
+    }
+
+    public void setFilter(Filter filter) {
+        this.filterMeasure = filter;
+    }
+
+    public void setQueryString(String query) {
+        this.queryString = query;
+    }
+
+
+    // setters subjected to application logic
+
     /**
      * filter tasks by "done" criterion (show "all", only "open" or only "completed" tasks)
      * If the user changes the filter, it is crucial to call "sortTasks" again.
@@ -567,9 +600,9 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         sortTasks();
     }
 
-    // count how many tasks belong to each priority group (tasks are now sorted by priority)
-
     /**
+     * count how many tasks belong to each priority group (tasks are now sorted by priority)
+     * <p>
      * If {@link ExpandableTodoTaskAdapter#sortTasks()} sorted by the priority, this method must be
      * called. It computes the position of the dividing bars between the priority ranges. These
      * positions are necessary to distinguish of what group type the current row is.
@@ -594,10 +627,12 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         }
     }
 
+
     /**
-     * @param groupPosition position of current row. For that reason the offset to the task must be
-     *                      computed taking into account all preceding dividing priority bars
-     * @return null if there is no task at @param groupPosition (but a divider row) or the wanted task
+     * Updates the task view to contain the info contained in task
+     *
+     * @param task           the task containing the information
+     * @param taskViewHolder the view to be updated
      */
     private void updateTaskInfo(TodoTask task, GroupTaskViewHolder taskViewHolder) {
         taskViewHolder.name.setText(task.getName());
@@ -636,36 +671,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
             taskViewHolder.reminder.setVisibility(View.VISIBLE);
         }
 
-    }
-
-
-    public void setLongClickedTaskByPos(int position) {
-        longClickedTodo = Tuple.makePair(getTaskByPosition(position), null);
-    }
-
-    public void setListNames(boolean flag) {
-        showListName = flag;
-    }
-
-    public void setLongClickedSubTaskByPos(int groupPosition, int childPosition) {
-        TodoTask task = getTaskByPosition(groupPosition);
-        if (task != null) {
-            TodoSubTask subTask = task.getSubTasks().get(childPosition - 1);
-            longClickedTodo = Tuple.makePair(task, subTask);
-        }
-    }
-
-    public Tuple<TodoTask, TodoSubTask> getLongClickedTodo() {
-        return longClickedTodo;
-    }
-
-    // interface to outer world
-    public void setFilter(Filter filter) {
-        this.filterMeasure = filter;
-    }
-
-    public void setQueryString(String query) {
-        this.queryString = query;
     }
 
     /**

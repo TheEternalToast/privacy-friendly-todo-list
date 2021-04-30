@@ -503,7 +503,33 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         super.notifyDataSetChanged();
     }
 
-    // private methods
+
+    // Getters & Setters
+
+    /**
+     * @param groupPosition position of current row. For that reason the offset to the task must be
+     *                      computed taking into account all preceding dividing priority bars
+     * @return null if there is no task at @param groupPosition (but a divider row) or the wanted task
+     */
+    private TodoTask getTaskByPosition(int groupPosition) {
+        int seenPrioBars = 0;
+        if (isPriorityGroupingEnabled()) {
+            for (TodoTask.Priority priority : TodoTask.Priority.values()) {
+                if (prioBarPositions.containsKey(priority)) {
+                    if (groupPosition < prioBarPositions.get(priority))
+                        break;
+                    seenPrioBars++;
+                }
+            }
+        }
+
+        int pos = groupPosition - seenPrioBars;
+
+        if (pos < filteredTasks.size() && pos >= 0)
+            return filteredTasks.get(pos);
+
+        return null; // should never be the case
+    }
 
     /**
      * filter tasks by "done" criterion (show "all", only "open" or only "completed" tasks)
@@ -557,27 +583,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
      *                      computed taking into account all preceding dividing priority bars
      * @return null if there is no task at @param groupPosition (but a divider row) or the wanted task
      */
-
-    private TodoTask getTaskByPosition(int groupPosition) {
-
-        int seenPrioBars = 0;
-        if (isPriorityGroupingEnabled()) {
-            for (TodoTask.Priority priority : TodoTask.Priority.values()) {
-                if (prioBarPositions.containsKey(priority)) {
-                    if (groupPosition < prioBarPositions.get(priority))
-                        break;
-                    seenPrioBars++;
-                }
-            }
-        }
-
-        int pos = groupPosition - seenPrioBars;
-
-        if (pos < filteredTasks.size() && pos >= 0)
-            return filteredTasks.get(pos);
-
-        return null; // should never be the case
-    }
 
     private String getPriorityNameByBarPos(int groupPosition) {
         for (Map.Entry<TodoTask.Priority, Integer> entry : prioBarPositions.entrySet()) {
@@ -754,6 +759,4 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
             return false;
         return true;
     }
-
-
 }

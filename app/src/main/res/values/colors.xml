@@ -21,6 +21,8 @@
 
     <color name="clickable_text_color">#026499</color>
 
+    <color name="delete_red">#ef0606</color>
+    <color name="edit_blue">#0274B2</color>
     <!-- dots inactive colors -->
     <color name="dot_dark_screen">#026499</color>
 

@@ -1,169 +1,202 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rl_exlv_task_group_root"
+    android:id="@+id/rl_exlv_task_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <View
-        android:id="@+id/v_urgency_task"
-        android:layout_width="5dp"
-        android:layout_height="0px"
-        android:layout_alignBottom="@+id/v_exlv_header_align_anchor"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:background="@color/colorPrimary" />
-
-    <LinearLayout
-        android:id="@+id/ll_cb_task_done"
+    <RelativeLayout
+        android:id="@+id/rl_exlv_task_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="17dp">
+        android:layout_toStartOf="@id/bt_exlv_delete_task"
+        android:layout_toEndOf="@id/bt_exlv_edit_task"
+        android:orientation="vertical">
 
-        <CheckBox
-            android:id="@+id/cb_task_done"
+        <View
+            android:id="@+id/v_urgency_task"
+            android:layout_width="5dp"
+            android:layout_height="0px"
+            android:layout_alignBottom="@+id/v_exlv_header_align_anchor"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@color/colorPrimary" />
+
+        <LinearLayout
+            android:id="@+id/ll_cb_task_done"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:focusable="false" />
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="17dp">
 
-    </LinearLayout>
+            <CheckBox
+                android:id="@+id/cb_task_done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="false" />
 
-    <View
-        android:id="@+id/v_urgency_indicator_task"
-        android:layout_width="5dp"
+        </LinearLayout>
+
+        <View
+            android:id="@+id/v_urgency_indicator_task"
+            android:layout_width="5dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+
+        <TextView
+            android:id="@+id/tv_exlv_task_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/ll_cb_task_done"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp"
+            android:text="Task Name"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_exlv_task_list_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_exlv_task_name"
+            android:layout_alignStart="@+id/tv_exlv_task_name"
+            android:text="List name: "
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/ll_exlv_task_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_exlv_task_list_name"
+            android:layout_alignStart="@+id/tv_exlv_task_name">
+
+            <RelativeLayout
+                android:id="@+id/rl_exlv_task_deadline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/iv_exlv_task_deadline_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/tv_exlv_task_deadline_text"
+                    android:layout_alignBottom="@id/tv_exlv_task_deadline_text"
+                    android:paddingStart="-6dp"
+                    android:paddingEnd="-6dp"
+                    android:src="@android:drawable/ic_menu_my_calendar" />
+
+                <TextView
+                    android:id="@+id/tv_exlv_task_deadline_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/iv_exlv_task_deadline_icon"
+                    android:text="@string/deadline" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_exlv_task_recurrence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/iv_exlv_task_recurrence_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/tv_exlv_task_recurrence_text"
+                    android:layout_alignBottom="@id/tv_exlv_task_recurrence_text"
+                    android:paddingStart="-6dp"
+                    android:paddingEnd="-6dp"
+                    android:src="@android:drawable/ic_menu_rotate" />
+
+                <TextView
+                    android:id="@+id/tv_exlv_task_recurrence_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/iv_exlv_task_recurrence_icon"
+                    android:text="@string/recurrence" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_exlv_task_reminder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/iv_exlv_task_reminder_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/tv_exlv_task_reminder_text"
+                    android:layout_alignBottom="@id/tv_exlv_task_reminder_text"
+                    android:padding="2dp"
+                    android:src="@android:drawable/ic_lock_idle_alarm" />
+
+                <TextView
+                    android:id="@+id/tv_exlv_task_reminder_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/iv_exlv_task_reminder_icon"
+                    android:text="@string/reminder" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pb_task_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_exlv_task_info"
+            android:layout_alignStart="@id/ll_exlv_task_info"
+            android:layout_marginEnd="10dp"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="1" />
+
+        <View
+            android:id="@+id/v_exlv_header_separator"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_below="@+id/pb_task_progress"
+            android:layout_toEndOf="@+id/v_urgency_task"
+            android:background="@color/grey" />
+
+        <View
+            android:id="@+id/v_exlv_header_align_anchor"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_below="@+id/v_exlv_header_separator"
+            android:layout_toEndOf="@+id/v_urgency_task" />
+
+
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/bt_exlv_edit_task"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/edit_blue"
+        android:src="@android:drawable/ic_menu_edit"
+        android:gravity="center"
+        android:contentDescription="@string/edit_task" />
 
-    <TextView
-        android:id="@+id/tv_exlv_task_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/ll_cb_task_done"
-        android:layout_marginLeft="40dp"
-        android:layout_marginTop="10dp"
-        android:text="Task Name"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-
-    <TextView
-        android:id="@+id/tv_exlv_task_list_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_exlv_task_name"
-        android:layout_alignLeft="@+id/tv_exlv_task_name"
-        android:text="List name: "
-        android:visibility="gone" />
-
-
-    <LinearLayout
-        android:id="@+id/ll_exlv_task_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_exlv_task_list_name"
-        android:layout_alignStart="@+id/tv_exlv_task_name">
-
-        <RelativeLayout
-            android:id="@+id/rl_exlv_task_deadline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/iv_exlv_task_deadline_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/tv_exlv_task_deadline_text"
-                android:layout_alignBottom="@id/tv_exlv_task_deadline_text"
-                android:paddingStart="-6dp"
-                android:paddingEnd="-6dp"
-                android:src="@android:drawable/ic_menu_my_calendar" />
-
-            <TextView
-                android:id="@+id/tv_exlv_task_deadline_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/iv_exlv_task_deadline_icon"
-                android:text="@string/deadline" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/rl_exlv_task_recurrence"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/iv_exlv_task_recurrence_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/tv_exlv_task_recurrence_text"
-                android:layout_alignBottom="@id/tv_exlv_task_recurrence_text"
-                android:paddingStart="-6dp"
-                android:paddingEnd="-6dp"
-                android:src="@android:drawable/ic_menu_rotate" />
-
-            <TextView
-                android:id="@+id/tv_exlv_task_recurrence_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/iv_exlv_task_recurrence_icon"
-                android:text="@string/recurrence" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/rl_exlv_task_reminder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/iv_exlv_task_reminder_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/tv_exlv_task_reminder_text"
-                android:layout_alignBottom="@id/tv_exlv_task_reminder_text"
-                android:padding="2dp"
-                android:src="@android:drawable/ic_lock_idle_alarm" />
-
-            <TextView
-                android:id="@+id/tv_exlv_task_reminder_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/iv_exlv_task_reminder_icon"
-                android:text="@string/reminder" />
-        </RelativeLayout>
-
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/pb_task_progress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/ll_exlv_task_info"
-        android:layout_alignLeft="@id/ll_exlv_task_info"
-        android:layout_marginRight="10dp"
-        android:indeterminate="false"
-        android:max="100"
-        android:progress="1" />
-
-    <View
-        android:id="@+id/v_exlv_header_separator"
-        android:layout_width="match_parent"
-        android:layout_height="2px"
-        android:layout_below="@+id/pb_task_progress"
-        android:layout_toRightOf="@+id/v_urgency_task"
-        android:background="@color/grey" />
-
-    <View
-        android:id="@+id/v_exlv_header_align_anchor"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_below="@+id/v_exlv_header_separator"
-        android:layout_toRightOf="@+id/v_urgency_task" />
+    <ImageButton
+        android:id="@+id/bt_exlv_delete_task"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/delete_red"
+        android:src="@android:drawable/ic_menu_delete"
+        android:gravity="center"
+        android:contentDescription="@string/delete_task" />
 
 </RelativeLayout>

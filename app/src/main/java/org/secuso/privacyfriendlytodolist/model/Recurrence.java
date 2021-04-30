@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import org.secuso.privacyfriendlytodolist.R;
 
@@ -191,8 +192,14 @@ public class Recurrence implements Parcelable {
                     return context.getResources().getString(R.string.no_recurrence);
                 StringBuilder selectedOptionsBuilder = new StringBuilder();
                 for (int i : selection) {
-                    RecurrenceSelectionOption thisOption = recurrenceSelectionOptionFromInt(i);
-                    selectedOptionsBuilder.append(thisOption.toString(context)).append(", ");
+                    try {
+                        RecurrenceSelectionOption thisOption = recurrenceSelectionOptionFromInt(i);
+                        selectedOptionsBuilder.append(thisOption.toString(context)).append(", ");
+                    } catch (IllegalArgumentException iae) {
+                        if (iae.getMessage().equals("No such weekday defined.")) {
+                            Log.e("Recurrence", "illegal option", iae);
+                        } else throw iae;
+                    }
                 }
                 String selectedOptions = selectedOptionsBuilder.toString();
                 unit = selectedOptions.substring(0, selectedOptions.length() - 2);

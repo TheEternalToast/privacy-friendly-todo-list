@@ -46,6 +46,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
@@ -84,6 +85,57 @@ import java.util.ArrayList;
  */
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    //ClickListener to delete a To-do-List
+    public class OnCustomMenuItemClickListener implements View.OnClickListener {
+        private final String name;
+        private int id;
+        private Context context;
+
+
+        OnCustomMenuItemClickListener(int id, String name, Context context) {
+            this.id = id;
+            this.name = name;
+            this.context = context;
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+            builder1.setMessage(R.string.alert_listdelete);
+            builder1.setCancelable(true);
+
+            builder1.setPositiveButton(
+                    R.string.alert_delete_yes,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int setId) {
+                            ArrayList<TodoList> todoLists = DBQueryHandler.getAllToDoLists(DatabaseHelper.getInstance(context).getReadableDatabase());
+                            for (TodoList t : todoLists) {
+                                if (t.getId() == id) {
+                                    DBQueryHandler.deleteTodoList(DatabaseHelper.getInstance(context).getWritableDatabase(), t);
+                                }
+                            }
+                            dialog.cancel();
+                            Intent intent = new Intent(context, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent);
+                        }
+                    });
+
+            builder1.setNegativeButton(
+                    R.string.alert_delete_no,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alert11 = builder1.create();
+            alert11.show();
+        }
+    }
 
 
     public static final String COMMAND = "command";
@@ -134,6 +186,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Service that triggers notifications for upcoming tasks
     private ReminderService reminderService;
+    private ServiceConnection reminderServiceConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            Log.d("ServiceConnection", "connected");
+            reminderService = ((ReminderService.ReminderServiceBinder) binder).getService();
+        }
+        //binder comes from server to communicate with method's of
+
+        public void onServiceDisconnected(ComponentName className) {
+            Log.d("ServiceConnection", "disconnected");
+            reminderService = null;
+        }
+    };
+
 
     // GUI
     private NavigationView navigationView;
@@ -154,191 +219,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Pomodoro
     private boolean pomodoroInstalled = false;
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        getMenuInflater().inflate(R.menu.search, menu);
-        getMenuInflater().inflate(R.menu.add_list, menu);
-
-        MenuItem searchItem = menu.findItem(R.id.ac_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                collapseAll();
-                expandableTodoTaskAdapter.setQueryString(query);
-                expandableTodoTaskAdapter.notifyDataSetChanged();
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-                collapseAll();
-                expandableTodoTaskAdapter.setQueryString(query);
-                expandableTodoTaskAdapter.notifyDataSetChanged();
-                return false;
-            }
-        });
-
-        MenuItem priotiryGroup = menu.findItem(R.id.ac_group_by_prio);
-        priotiryGroup.setChecked(mPref.getBoolean("PRIORITY", false));
-
-        MenuItem deadlineGroup = menu.findItem(R.id.ac_sort_by_deadline);
-        deadlineGroup.setChecked(mPref.getBoolean("DEADLINE", false));
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-
-    private void collapseAll() {
-        // collapse all elements on view change.
-        // the expandable list view keeps the expanded indices, so other items
-        // get expanded, when they get the old expanded index
-        int groupCount = expandableTodoTaskAdapter.getGroupCount();
-        for (int i = 0; i < groupCount; i++)
-            exLv.collapseGroup(i);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean checked = false;
-        ExpandableTodoTaskAdapter.SortTypes sortType;
-        sortType = ExpandableTodoTaskAdapter.SortTypes.DEADLINE;
-
-        collapseAll();
-
-        switch (item.getItemId()) {
-            case R.id.ac_add:
-                startListDialog();
-                addListToNav();
-                break;
-            case R.id.ac_show_all_tasks:
-                expandableTodoTaskAdapter.setFilter(ExpandableTodoTaskAdapter.Filter.ALL_TASKS);
-                expandableTodoTaskAdapter.notifyDataSetChanged();
-                mPref.edit().putString("FILTER", "ALL_TASKS").commit();
-                return true;
-            case R.id.ac_show_open_tasks:
-                expandableTodoTaskAdapter.setFilter(ExpandableTodoTaskAdapter.Filter.OPEN_TASKS);
-                expandableTodoTaskAdapter.notifyDataSetChanged();
-                mPref.edit().putString("FILTER", "OPEN_TASKS").commit();
-                return true;
-            case R.id.ac_show_completed_tasks:
-                expandableTodoTaskAdapter.setFilter(ExpandableTodoTaskAdapter.Filter.COMPLETED_TASKS);
-                expandableTodoTaskAdapter.notifyDataSetChanged();
-                mPref.edit().putString("FILTER", "COMPLETED_TASKS").commit();
-                return true;
-            case R.id.ac_group_by_prio:
-                checked = !item.isChecked();
-                item.setChecked(checked);
-                sortType = ExpandableTodoTaskAdapter.SortTypes.PRIORITY;
-                mPref.edit().putBoolean("PRIORITY", checked).commit();
-                break;
-            case R.id.ac_sort_by_deadline:
-                checked = !item.isChecked();
-                item.setChecked(checked);
-                sortType = ExpandableTodoTaskAdapter.SortTypes.DEADLINE;
-                mPref.edit().putBoolean("DEADLINE", checked).commit();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-        if (checked) {
-            expandableTodoTaskAdapter.addSortCondition(sortType);
-        } else {
-            expandableTodoTaskAdapter.removeSortCondition(sortType);
-        }
-
-        expandableTodoTaskAdapter.notifyDataSetChanged();
-        return true;
-    }
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-
-        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
-            finish();
-            return;
-        }
-
-        PrefManager prefManager = new PrefManager(this);
-        if (prefManager.isFirstTimeLaunch()) {
-            prefManager.setFirstTimeValues(this);
-            startTut();
-            finish();
-        }
-
-        if (savedInstanceState != null) {
-            restore(savedInstanceState);
-        } else {
-            isUnlocked = false;
-            unlockUntil = -1;
-        }
-
-        setContentView(R.layout.activity_main);
-
-        rl = (RelativeLayout) findViewById(R.id.relative_task);
-        exLv = (ExpandableListView) findViewById(R.id.exlv_tasks);
-        tv = (TextView) findViewById(R.id.tv_empty_view_no_tasks);
-        optionFab = (FloatingActionButton) findViewById(R.id.fab_new_task);
-        initialAlert = (TextView) findViewById(R.id.initial_alert);
-        secondAlert = (TextView) findViewById(R.id.second_alert);
-
-        hints();
-
-        dbHelper = DatabaseHelper.getInstance(this);
-        mPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        //Try to snooze the task by notification
-        /*if (savedInstanceState == null) {
-            Bundle b = getIntent().getExtras();
-            if (b != null){
-                notificationDone = b.getInt("snooze");
-                int taskID = b.getInt("taskId");
-                TodoList tasks = getTodoTasks();
-                TodoTask currentTask = tasks.getTasks().get(taskID);
-                currentTask.setReminderTime(System.currentTimeMillis() + notificationDone);
-                sendToDatabase(currentTask);
-
-            }
-        } */
-
-        if (getIntent().getIntExtra(COMMAND, -1) == COMMAND_UPDATE) {
-            updateTodoFromPomodoro();
-        }
-
-        authAndGuiInit(savedInstanceState);
-        TodoList defaultList = new TodoList();
-        defaultList.setDummyList();
-        DBQueryHandler.saveTodoListInDb(dbHelper.getWritableDatabase(), defaultList);
-
-        if (activeList != -1) {
-            showTasksOfList(activeList);
-        }
-
-
-    }
-
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_TODO_LISTS, todoLists);
-        outState.putParcelable(KEY_CLICKED_LIST, clickedList);
-        outState.putParcelable(KEY_DUMMY_LIST, dummyList);
-        outState.putBoolean(KEY_IS_UNLOCKED, isUnlocked);
-        outState.putLong(KEY_UNLOCK_UNTIL, unlockUntil);
-        outState.putInt(KEY_ACTIVE_LIST, activeList);
-    }
-
+    // init methods
     private void authAndGuiInit(final Bundle savedInstanceState) {
-
         if (hasPin() && !this.isUnlocked && (this.unlockUntil == -1 || System.currentTimeMillis() > this.unlockUntil)) {
             final PinDialog dialog = new PinDialog(this);
             dialog.setCallback(new PinDialog.PinCallback() {
@@ -368,33 +250,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-
-    private boolean hasPin() {
-        // pin activated?
-        if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_pin_enabled", false))
-            return false;
-        // pin valid?
-        if (PreferenceManager.getDefaultSharedPreferences(this).getString("pref_pin", null) == null || PreferenceManager.getDefaultSharedPreferences(this).getString("pref_pin", "").length() < 4)
-            return false;
-        return true;
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        restore(savedInstanceState);
-    }
-
-    private void restore(Bundle savedInstanceState) {
-        todoLists = savedInstanceState.getParcelableArrayList(KEY_TODO_LISTS);
-        clickedList = savedInstanceState.getParcelable(KEY_CLICKED_LIST);
-        dummyList = savedInstanceState.getParcelable(KEY_DUMMY_LIST);
-        isUnlocked = savedInstanceState.getBoolean(KEY_IS_UNLOCKED);
-        unlockUntil = savedInstanceState.getLong(KEY_UNLOCK_UNTIL);
-        activeList = savedInstanceState.getInt(KEY_ACTIVE_LIST);
-    }
-
     public void initActivity(Bundle savedInstanceState) {
         this.isUnlocked = true;
         getTodoLists(true);
@@ -413,8 +268,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             currentFragment = new TodoTasksFragment();
             currentFragment.setArguments(bundle);
         } else {
-
-
             if (currentFragment == null) {
                 showAllTasks();
                 Log.i(TAG, "Activity was not retained.");
@@ -438,16 +291,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.isInitialized = true;
         this.inList = false;
     }
-
-
-    public void onStart() {
-        super.onStart();
-        uncheckNavigationEntries();
-        if (navigationView != null) {
-            navigationView.getMenu().getItem(0).setChecked(true);
-        }
-    }
-
 
     private void guiSetup() {
 
@@ -473,27 +316,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-
-    public void uncheckNavigationEntries() {
-        // uncheck all navigtion entries
-        if (navigationView != null) {
-            int size = navigationView.getMenu().size();
-            for (int i = 0; i < size; i++) {
-                navigationView.getMenu().getItem(i).setChecked(false);
-            }
-            Log.i(TAG, "Navigation entries unchecked.");
+    public ArrayList<TodoList> getTodoLists(boolean reload) {
+        if (reload) {
+            if (dbHelper != null)
+                todoLists = DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase());
         }
-
-        if (navigationBottomView != null) {
-            int size = navigationBottomView.getMenu().size();
-            for (int i = 0; i < size; i++) {
-                navigationBottomView.getMenu().getItem(i).setChecked(false);
-            }
-            Log.i(TAG, "Navigation-Bottom entries unchecked.");
-        }
+        return todoLists;
     }
 
-
+    // Overrides
+    /**
+     * @see NavigationView
+     */
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -556,68 +390,110 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-
+    /**
+     * @see android.app.Activity
+     */
     @Override
-    protected void onStop() {
-        this.isUnlocked = false;
-        super.onStop();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.search, menu);
+        getMenuInflater().inflate(R.menu.add_list, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.ac_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                collapseAll();
+                expandableTodoTaskAdapter.setQueryString(query);
+                expandableTodoTaskAdapter.notifyDataSetChanged();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                collapseAll();
+                expandableTodoTaskAdapter.setQueryString(query);
+                expandableTodoTaskAdapter.notifyDataSetChanged();
+                return false;
+            }
+        });
+
+        MenuItem priotiryGroup = menu.findItem(R.id.ac_group_by_prio);
+        priotiryGroup.setChecked(mPref.getBoolean("PRIORITY", false));
+
+        MenuItem deadlineGroup = menu.findItem(R.id.ac_sort_by_deadline);
+        deadlineGroup.setChecked(mPref.getBoolean("DEADLINE", false));
+
+        return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean checked = false;
+        ExpandableTodoTaskAdapter.SortTypes sortType;
+        sortType = ExpandableTodoTaskAdapter.SortTypes.DEADLINE;
+
+        collapseAll();
+
+        switch (item.getItemId()) {
+            case R.id.ac_add:
+                startListDialog();
+                addListToNav();
+                break;
+            case R.id.ac_show_all_tasks:
+                expandableTodoTaskAdapter.setFilter(ExpandableTodoTaskAdapter.Filter.ALL_TASKS);
+                expandableTodoTaskAdapter.notifyDataSetChanged();
+                mPref.edit().putString("FILTER", "ALL_TASKS").commit();
+                return true;
+            case R.id.ac_show_open_tasks:
+                expandableTodoTaskAdapter.setFilter(ExpandableTodoTaskAdapter.Filter.OPEN_TASKS);
+                expandableTodoTaskAdapter.notifyDataSetChanged();
+                mPref.edit().putString("FILTER", "OPEN_TASKS").commit();
+                return true;
+            case R.id.ac_show_completed_tasks:
+                expandableTodoTaskAdapter.setFilter(ExpandableTodoTaskAdapter.Filter.COMPLETED_TASKS);
+                expandableTodoTaskAdapter.notifyDataSetChanged();
+                mPref.edit().putString("FILTER", "COMPLETED_TASKS").commit();
+                return true;
+            case R.id.ac_group_by_prio:
+                checked = !item.isChecked();
+                item.setChecked(checked);
+                sortType = ExpandableTodoTaskAdapter.SortTypes.PRIORITY;
+                mPref.edit().putBoolean("PRIORITY", checked).commit();
+                break;
+            case R.id.ac_sort_by_deadline:
+                checked = !item.isChecked();
+                item.setChecked(checked);
+                sortType = ExpandableTodoTaskAdapter.SortTypes.DEADLINE;
+                mPref.edit().putBoolean("DEADLINE", checked).commit();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        if (checked) {
+            expandableTodoTaskAdapter.addSortCondition(sortType);
+        } else {
+            expandableTodoTaskAdapter.removeSortCondition(sortType);
+        }
+
+        expandableTodoTaskAdapter.notifyDataSetChanged();
+        return true;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        restore(savedInstanceState);
+    }
 
     @Override
     protected void onRestart() {
         super.onRestart();
     }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("RESUME", "resume");
-        // Check if Pomodoro is installed
-        pomodoroInstalled = checkIfPomodoroInstalled();
-
-        if (this.isInitialized && !this.isUnlocked && (this.unlockUntil == -1 || System.currentTimeMillis() > this.unlockUntil)) {
-            // restart activity to show pin dialog again
-            //Intent intent = new Intent(this, MainActivity.class);
-            //finish();
-            //startActivity(intent);
-            if (reminderService == null)
-                bindToReminderService();
-            guiSetup();
-            if (activeList == -1) {
-                showAllTasks();
-            } else {
-                showTasksOfList(activeList);
-            }
-            return;
-        }
-
-        // isUnlocked might be false when returning from another activity. set to true if the unlock period was not expired:
-        this.isUnlocked = (this.isUnlocked || (this.unlockUntil != -1 && System.currentTimeMillis() <= this.unlockUntil));
-        this.unlockUntil = -1;
-
-        if (reminderService == null) {
-            bindToReminderService();
-        }
-        ;
-
-        Log.i(TAG, "onResume()");
-    }
-
-
-    @Override
-    protected void onDestroy() {
-
-        if (reminderService != null) {
-            unbindService(reminderServiceConnection);
-            reminderService = null;
-            Log.i(TAG, "service is now null");
-        }
-
-        super.onDestroy();
-    }
-
 
     @Override
     protected void onUserLeaveHint() {
@@ -625,402 +501,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.isUnlocked = false;
     }
 
-
-    private void bindToReminderService() {
-
-        Log.i(TAG, "bindToReminderService()");
-
-        Intent intent = new Intent(this, ReminderService.class);
-        bindService(intent, reminderServiceConnection, 0); // no Context.BIND_AUTO_CREATE, because service will be started by startService and thus live longer than this activity
-        startService(intent);
-    }
-
-
     @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else if (inList) {
-            showAllTasks();
-            toolbar.setTitle(R.string.home);
-            inList = false;
-            uncheckNavigationEntries();
-            navigationView.getMenu().getItem(0).setChecked(true);
-        } else {
-//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//            builder.setMessage(R.string.exit_app);
-//            builder.setCancelable(true);
-//            builder.setPositiveButton(R.string.exit_positive, new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    finish();
-//                }
-//            });
-//            builder.setNegativeButton(R.string.exit_negative, new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    dialog.cancel();
-//                }
-//            });
-//            AlertDialog alert = builder.create();
-//            alert.show();
-            super.onBackPressed();
-        }
-    }
-
-
-    public ArrayList<TodoList> getTodoLists(boolean reload) {
-        if (reload) {
-            if (dbHelper != null)
-                todoLists = DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase());
-        }
-        return todoLists;
-    }
-
-
-    public TodoList getTodoTasks() {
-        ArrayList<TodoTask> tasks = new ArrayList<>();
-        if (dbHelper != null) {
-            tasks = DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase());
-            for (int i = 0; i < tasks.size(); i++) {
-                dummyList.setDummyList();
-                dummyList.setName("All tasks");
-                dummyList.setTasks(tasks);
-            }
-        }
-        return dummyList;
-    }
-
-
-    public DatabaseHelper getDbHelper() {
-        return dbHelper;
-    }
-
-
-    public void setDummyList(TodoList dummyList) {
-        this.dummyList = dummyList;
-    }
-
-
-    private ServiceConnection reminderServiceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder binder) {
-            Log.d("ServiceConnection", "connected");
-            reminderService = ((ReminderService.ReminderServiceBinder) binder).getService();
-        }
-        //binder comes from server to communicate with method's of
-
-        public void onServiceDisconnected(ComponentName className) {
-            Log.d("ServiceConnection", "disconnected");
-            reminderService = null;
-        }
-    };
-
-
-    public TodoList getDummyList() {
-        return dummyList;
-    }
-
-
-    public TodoList getClickedList() {
-        return clickedList;
-    }
-
-
-    public void setClickedList(TodoList clickedList) {
-        this.clickedList = clickedList;
-    }
-
-
-    public void notifyReminderService(TodoTask currentTask) {
-
-        // TODO This method is called from other fragments as well (e.g. after opening MainActivity by reminder). In such cases the service is null and alarms cannot be updated. Fix this!
-        if (reminderService != null) {
-
-            // Report changes to the reminder task if the reminder time is prior to the deadline or if no deadline is set at all. The reminder time must always be after the the current time. The task must not be completed.
-            if ((currentTask.getReminderTime() < currentTask.getDeadline() || !currentTask.hasDeadline()) && !currentTask.isDone()) {
-                reminderService.processTask(currentTask);
-                Log.i(TAG, "Reminder is set!");
-            } else {
-                Log.i(TAG, "Reminder service was not informed about the task " + currentTask.getName());
-            }
-
-        } else {
-            Log.i(TAG, "Service is null. Cannot update alarms");
-        }
-    }
-
-
-    // returns true if object was created in the database
-    public boolean sendToDatabase(BaseTodo todo) {
-
-        int databaseID = -5;
-        String errorMessage = "";
-
-        // call appropriate method depending on type
-        if (todo instanceof TodoList) {
-            databaseID = DBQueryHandler.saveTodoListInDb(dbHelper.getWritableDatabase(), (TodoList) todo);
-            errorMessage = getString(R.string.list_to_db_error);
-        } else if (todo instanceof TodoTask) {
-            databaseID = DBQueryHandler.saveTodoTaskInDb(dbHelper.getWritableDatabase(), (TodoTask) todo);
-            notifyReminderService((TodoTask) todo);
-            errorMessage = getString(R.string.task_to_db_error);
-        } else if (todo instanceof TodoSubTask) {
-            databaseID = DBQueryHandler.saveTodoSubTaskInDb(dbHelper.getWritableDatabase(), (TodoSubTask) todo);
-            errorMessage = getString(R.string.subtask_to_db_error);
-        } else {
-            throw new IllegalArgumentException("Cannot save unknown descendant of BaseTodo in the database.");
-        }
-
-        // set unique database id (primary key) to the current object
-        if (databaseID == -1) {
-            Log.e(TAG, errorMessage);
-            return false;
-        } else if (databaseID != DBQueryHandler.NO_CHANGES) {
-            todo.setId(databaseID);
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean sendToDbAndUpdateView(BaseTodo todo, boolean listExists, int listId) {
-        if (todo instanceof TodoTask) {
-            sendToDatabase(todo);
-            hints();
-            //show List if created in certain list, else show all tasks
-            if (listExists) {
-                showTasksOfList(listId);
-            } else
-                showAllTasks();
-            return true;
-        }
-        return false;
-    }
-
-    public boolean sendToDbAndUpdateView(BaseTodo todo) {
-        if (todo instanceof TodoTask)
-            return sendToDbAndUpdateView(todo, true, ((TodoTask) todo).getListId());
-        return false;
-    }
-
-    public TodoList getListByID(int id) {
-        for (TodoList currentList : todoLists) {
-            if (currentList.getId() == id)
-                return currentList;
-        }
-
-        return null;
-    }
-
-
-    //Adds To do-Lists to the navigation-drawer
-    private void addListToNav() {
-        NavigationView nv = (NavigationView) findViewById(R.id.nav_view);
-        Menu navMenu = nv.getMenu();
-        navMenu.clear();
-
-        MenuInflater mf = new MenuInflater(getApplicationContext());
-        mf.inflate(R.menu.nav_content, navMenu);
-
-        ArrayList<TodoList> help = new ArrayList<>();
-        help.addAll(todoLists);
-
-        for (int i = 0; i < help.size(); i++) {
-            String name = help.get(i).getName();
-            int id = help.get(i).getId();
-            MenuItem item = navMenu.add(R.id.drawer_group2, id, 1, name);
-            item.setCheckable(true);
-            item.setIcon(R.drawable.ic_label_black_24dp);
-            ImageButton v = new ImageButton(this, null, R.style.BorderlessButtonStyle);
-            v.setImageResource(R.drawable.ic_delete_black_24dp);
-            v.setOnClickListener(new OnCustomMenuItemClickListener(help.get(i).getId(), name, MainActivity.this));
-            item.setActionView(v);
-
-        }
-    }
-
-
-    // Method to add a new To do-List
-    private void startListDialog() {
-        dbHelper = DatabaseHelper.getInstance(this);
-        todoLists = DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase());
-        adapter = new TodoListAdapter(this, todoLists);
-
-        ProcessTodoListDialog pl = new ProcessTodoListDialog(this);
-        pl.setDialogResult(new TodoCallback() {
-            @Override
-            public void finish(BaseTodo b) {
-                if (b instanceof TodoList) {
-                    todoLists.add((TodoList) b);
-                    adapter.updateList(todoLists); // run filter again
-                    adapter.notifyDataSetChanged();
-                    sendToDatabase(b);
-                    hints();
-                    addListToNav();
-                    Log.i(TAG, "list added");
-                }
-            }
-        });
-        pl.show();
-    }
-
-
-    // Method starting tutorial
-    private void startTut() {
-        Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-    }
-
-
-    //ClickListener to delete a Todo-List
-    public class OnCustomMenuItemClickListener implements View.OnClickListener {
-        private final String name;
-        private int id;
-        private Context context;
-
-
-        OnCustomMenuItemClickListener(int id, String name, Context context) {
-            this.id = id;
-            this.name = name;
-            this.context = context;
-
-        }
-
-        @Override
-        public void onClick(View view) {
-            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-            builder1.setMessage(R.string.alert_listdelete);
-            builder1.setCancelable(true);
-
-            builder1.setPositiveButton(
-                    R.string.alert_delete_yes,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int setId) {
-                            ArrayList<TodoList> todoLists = DBQueryHandler.getAllToDoLists(DatabaseHelper.getInstance(context).getReadableDatabase());
-                            for (TodoList t : todoLists) {
-                                if (t.getId() == id) {
-                                    DBQueryHandler.deleteTodoList(DatabaseHelper.getInstance(context).getWritableDatabase(), t);
-                                }
-                            }
-                            dialog.cancel();
-                            Intent intent = new Intent(context, MainActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(intent);
-                        }
-                    });
-
-            builder1.setNegativeButton(
-                    R.string.alert_delete_no,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-                            dialog.cancel();
-                        }
-                    });
-
-            AlertDialog alert11 = builder1.create();
-            alert11.show();
-            return;
-        }
-    }
-
-
-    private void showAllTasks() {
-        dbHelper = DatabaseHelper.getInstance(this);
-        ArrayList<TodoTask> tasks;
-        tasks = DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase());
-        expandableTodoTaskAdapter = new ExpandableTodoTaskAdapter(this, tasks);
-
-        exLv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                int groupPosition = ExpandableListView.getPackedPositionGroup(id);
-
-                if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-
-                    int childPosition = ExpandableListView.getPackedPositionChild(id);
-                    expandableTodoTaskAdapter.setLongClickedSubTaskByPos(groupPosition, childPosition);
-                } else {
-                    expandableTodoTaskAdapter.setLongClickedTaskByPos(groupPosition);
-                }
-                registerForContextMenu(exLv);
-                return false;
-            }
-        });
-        exLv.setAdapter(expandableTodoTaskAdapter);
-        exLv.setEmptyView(tv);
-        optionFab.setVisibility(View.VISIBLE);
-        initFab(true, 0, false);
-        hints();
-    }
-
-
-    private void showTasksOfList(int id) {
-
-        uncheckNavigationEntries();
-        this.inList = true;
-
-        if (navigationView != null) {
-            for (int i = 0; i < navigationView.getMenu().size(); i++) {
-                MenuItem item = navigationView.getMenu().getItem(i);
-                item.setChecked(item.getItemId() == id);
-                if (item.getItemId() == id) {
-                    toolbar.setTitle(item.getTitle());
-                }
-            }
-            Log.i(TAG, "Navigation entries unchecked.");
-        }
-
-        dbHelper = DatabaseHelper.getInstance(this);
-        ArrayList<TodoList> lists;
-        ArrayList<TodoTask> help = new ArrayList<TodoTask>();
-        lists = DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase());
-
-        activeList = id;
-
-        for (int i = 0; i < lists.size(); i++) {
-            if (id == lists.get(i).getId()) {
-                help.addAll(lists.get(i).getTasks());
-            }
-        }
-        expandableTodoTaskAdapter = new ExpandableTodoTaskAdapter(this, help);
-        exLv.setAdapter(expandableTodoTaskAdapter);
-        exLv.setEmptyView(tv);
-        optionFab.setVisibility(View.VISIBLE);
-        initFab(true, id, true);
-    }
-
-
-    //idExists describes if id is given from list (true) or new task is created in all-tasks (false)
-    private void initFab(boolean showFab, int id, boolean idExists) {
-        dbHelper = DatabaseHelper.getInstance(this);
-        final ArrayList<TodoTask> tasks;
-        tasks = DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase());
-        //final ExpandableTodoTaskAdapter taskAdapter = new ExpandableTodoTaskAdapter(this, tasks);
-        final int helpId = id;
-        final boolean helpExists = idExists;
-
-        optionFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ProcessTodoTaskDialog pt = new ProcessTodoTaskDialog(MainActivity.this);
-                pt.setListSelector(helpId, helpExists);
-                pt.setDialogResult(new TodoCallback() {
-                    @Override
-                    public void finish(BaseTodo b) {
-                        sendToDbAndUpdateView(b, helpExists, helpId);
-                    }
-                });
-                pt.show();
-            }
-        });
-    }
-
-
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 
         ExpandableListView.ExpandableListContextMenuInfo info =
                 (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
@@ -1044,14 +526,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
-
         final Tuple<TodoTask, TodoSubTask> longClickedTodo = expandableTodoTaskAdapter.getLongClickedTodo();
 
         switch (item.getItemId()) {
             case R.id.change_subtask:
-
                 final ProcessTodoSubTaskDialog dialog = new ProcessTodoSubTaskDialog(this, longClickedTodo.getRight());
                 dialog.titleEdit();
                 dialog.setDialogResult(new TodoCallback() {
@@ -1068,7 +548,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.delete_subtask:
-
                 affectedRows = DBQueryHandler.deleteTodoSubTask(this.getDbHelper().getWritableDatabase(), longClickedTodo.getRight());
                 longClickedTodo.getLeft().getSubTasks().remove(longClickedTodo.getRight());
                 if (affectedRows == 1)
@@ -1077,6 +556,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.d(TAG, "Subtask was not removed from the database. Maybe it was not added beforehand (then this is no error)?");
                 expandableTodoTaskAdapter.notifyDataSetChanged();
                 break;
+
             case R.id.change_task:
                 final int listIDold = longClickedTodo.getLeft().getListId();
                 final ProcessTodoTaskDialog editTaskDialog = new ProcessTodoTaskDialog(this, longClickedTodo.getLeft());
@@ -1156,6 +636,514 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onContextItemSelected(item);
     }
 
+    /**
+     * @see AppCompatActivity
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            finish();
+            return;
+        }
+
+        PrefManager prefManager = new PrefManager(this);
+        if (prefManager.isFirstTimeLaunch()) {
+            prefManager.setFirstTimeValues(this);
+            startTut();
+            finish();
+        }
+
+        if (savedInstanceState != null) {
+            restore(savedInstanceState);
+        } else {
+            isUnlocked = false;
+            unlockUntil = -1;
+        }
+
+        setContentView(R.layout.activity_main);
+
+        rl = (RelativeLayout) findViewById(R.id.relative_task);
+        exLv = (ExpandableListView) findViewById(R.id.exlv_tasks);
+        tv = (TextView) findViewById(R.id.tv_empty_view_no_tasks);
+        optionFab = (FloatingActionButton) findViewById(R.id.fab_new_task);
+        initialAlert = (TextView) findViewById(R.id.initial_alert);
+        secondAlert = (TextView) findViewById(R.id.second_alert);
+
+        hints();
+
+        dbHelper = DatabaseHelper.getInstance(this);
+        mPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //Try to snooze the task by notification
+        /*if (savedInstanceState == null) {
+            Bundle b = getIntent().getExtras();
+            if (b != null){
+                notificationDone = b.getInt("snooze");
+                int taskID = b.getInt("taskId");
+                TodoList tasks = getTodoTasks();
+                TodoTask currentTask = tasks.getTasks().get(taskID);
+                currentTask.setReminderTime(System.currentTimeMillis() + notificationDone);
+                sendToDatabase(currentTask);
+
+            }
+        } */
+
+        if (getIntent().getIntExtra(COMMAND, -1) == COMMAND_UPDATE) {
+            updateTodoFromPomodoro();
+        }
+
+        authAndGuiInit(savedInstanceState);
+        TodoList defaultList = new TodoList();
+        defaultList.setDummyList();
+        DBQueryHandler.saveTodoListInDb(dbHelper.getWritableDatabase(), defaultList);
+
+        if (activeList != -1) {
+            showTasksOfList(activeList);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(KEY_TODO_LISTS, todoLists);
+        outState.putParcelable(KEY_CLICKED_LIST, clickedList);
+        outState.putParcelable(KEY_DUMMY_LIST, dummyList);
+        outState.putBoolean(KEY_IS_UNLOCKED, isUnlocked);
+        outState.putLong(KEY_UNLOCK_UNTIL, unlockUntil);
+        outState.putInt(KEY_ACTIVE_LIST, activeList);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        uncheckNavigationEntries();
+        if (navigationView != null) {
+            navigationView.getMenu().getItem(0).setChecked(true);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        this.isUnlocked = false;
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        if (reminderService != null) {
+            unbindService(reminderServiceConnection);
+            reminderService = null;
+            Log.i(TAG, "service is now null");
+        }
+
+        super.onDestroy();
+    }
+
+    /**
+     * @see android.support.v4.app.FragmentActivity
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("RESUME", "resume");
+        // Check if Pomodoro is installed
+        pomodoroInstalled = checkIfPomodoroInstalled();
+
+        if (this.isInitialized && !this.isUnlocked && (this.unlockUntil == -1 || System.currentTimeMillis() > this.unlockUntil)) {
+            // restart activity to show pin dialog again
+            //Intent intent = new Intent(this, MainActivity.class);
+            //finish();
+            //startActivity(intent);
+            if (reminderService == null)
+                bindToReminderService();
+            guiSetup();
+            if (activeList == -1) {
+                showAllTasks();
+            } else {
+                showTasksOfList(activeList);
+            }
+            return;
+        }
+
+        // isUnlocked might be false when returning from another activity. set to true if the unlock period was not expired:
+        this.isUnlocked = (this.isUnlocked || (this.unlockUntil != -1 && System.currentTimeMillis() <= this.unlockUntil));
+        this.unlockUntil = -1;
+
+        if (reminderService == null) {
+            bindToReminderService();
+        }
+        ;
+
+        Log.i(TAG, "onResume()");
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else if (inList) {
+            showAllTasks();
+            toolbar.setTitle(R.string.home);
+            inList = false;
+            uncheckNavigationEntries();
+            navigationView.getMenu().getItem(0).setChecked(true);
+        } else {
+//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//            builder.setMessage(R.string.exit_app);
+//            builder.setCancelable(true);
+//            builder.setPositiveButton(R.string.exit_positive, new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    finish();
+//                }
+//            });
+//            builder.setNegativeButton(R.string.exit_negative, new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    dialog.cancel();
+//                }
+//            });
+//            AlertDialog alert = builder.create();
+//            alert.show();
+            super.onBackPressed();
+        }
+    }
+
+
+    // instance state methods
+    private void restore(Bundle savedInstanceState) {
+        todoLists = savedInstanceState.getParcelableArrayList(KEY_TODO_LISTS);
+        clickedList = savedInstanceState.getParcelable(KEY_CLICKED_LIST);
+        dummyList = savedInstanceState.getParcelable(KEY_DUMMY_LIST);
+        isUnlocked = savedInstanceState.getBoolean(KEY_IS_UNLOCKED);
+        unlockUntil = savedInstanceState.getLong(KEY_UNLOCK_UNTIL);
+        activeList = savedInstanceState.getInt(KEY_ACTIVE_LIST);
+    }
+
+    private void bindToReminderService() {
+        Log.i(TAG, "bindToReminderService()");
+
+        Intent intent = new Intent(this, ReminderService.class);
+        bindService(intent, reminderServiceConnection, 0); // no Context.BIND_AUTO_CREATE, because service will be started by startService and thus live longer than this activity
+        startService(intent);
+    }
+
+
+    // property-like methods
+    private boolean hasPin() {
+        // pin activated?
+        if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_pin_enabled", false))
+            return false;
+        // pin valid?
+        if (PreferenceManager.getDefaultSharedPreferences(this).getString("pref_pin", null) == null || PreferenceManager.getDefaultSharedPreferences(this).getString("pref_pin", "").length() < 4)
+            return false;
+        return true;
+    }
+
+    public DatabaseHelper getDbHelper() {
+        return dbHelper;
+    }
+
+    public TodoList getDummyList() {
+        return dummyList;
+    }
+
+    public void setDummyList(TodoList dummyList) {
+        this.dummyList = dummyList;
+    }
+
+    public TodoList getClickedList() {
+        return clickedList;
+    }
+
+    public void setClickedList(TodoList clickedList) {
+        this.clickedList = clickedList;
+    }
+
+    public TodoList getTodoTasks() {
+        ArrayList<TodoTask> tasks = new ArrayList<>();
+        if (dbHelper != null) {
+            tasks = DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase());
+            for (int i = 0; i < tasks.size(); i++) {
+                dummyList.setDummyList();
+                dummyList.setName("All tasks");
+                dummyList.setTasks(tasks);
+            }
+        }
+        return dummyList;
+    }
+
+    public TodoList getListByID(int id) {
+        for (TodoList currentList : todoLists) {
+            if (currentList.getId() == id)
+                return currentList;
+        }
+
+        return null;
+    }
+
+    private boolean checkIfPomodoroInstalled() {
+        try {
+            getPackageManager().getPackageInfo("org.secuso.privacyfriendlyproductivitytimer", 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+
+    // navigation view methods
+    /**
+     * uncheck all navigation entries
+     */
+    public void uncheckNavigationEntries() {
+        if (navigationView != null) {
+            int size = navigationView.getMenu().size();
+            for (int i = 0; i < size; i++) {
+                navigationView.getMenu().getItem(i).setChecked(false);
+            }
+            Log.i(TAG, "Navigation entries unchecked.");
+        }
+
+        if (navigationBottomView != null) {
+            int size = navigationBottomView.getMenu().size();
+            for (int i = 0; i < size; i++) {
+                navigationBottomView.getMenu().getItem(i).setChecked(false);
+            }
+            Log.i(TAG, "Navigation-Bottom entries unchecked.");
+        }
+    }
+
+    /**
+     * Adds To do-Lists to the navigation-drawer
+     */
+    private void addListToNav() {
+        NavigationView nv = (NavigationView) findViewById(R.id.nav_view);
+        Menu navMenu = nv.getMenu();
+        navMenu.clear();
+
+        MenuInflater mf = new MenuInflater(getApplicationContext());
+        mf.inflate(R.menu.nav_content, navMenu);
+
+        ArrayList<TodoList> help = new ArrayList<>();
+        help.addAll(todoLists);
+
+        for (int i = 0; i < help.size(); i++) {
+            String name = help.get(i).getName();
+            int id = help.get(i).getId();
+            MenuItem item = navMenu.add(R.id.drawer_group2, id, 1, name);
+            item.setCheckable(true);
+            item.setIcon(R.drawable.ic_label_black_24dp);
+            ImageButton v = new ImageButton(this, null, R.style.BorderlessButtonStyle);
+            v.setImageResource(R.drawable.ic_delete_black_24dp);
+            v.setOnClickListener(new OnCustomMenuItemClickListener(help.get(i).getId(), name, MainActivity.this));
+            item.setActionView(v);
+
+        }
+    }
+
+
+    // list related methods
+    private void showAllTasks() {
+        dbHelper = DatabaseHelper.getInstance(this);
+        activeList = -1;
+        ArrayList<TodoTask> tasks;
+        tasks = DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase());
+        expandableTodoTaskAdapter = new ExpandableTodoTaskAdapter(this, tasks);
+
+        exLv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                int groupPosition = ExpandableListView.getPackedPositionGroup(id);
+
+                if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+
+                    int childPosition = ExpandableListView.getPackedPositionChild(id);
+                    expandableTodoTaskAdapter.setLongClickedSubTaskByPos(groupPosition, childPosition);
+                } else {
+                    expandableTodoTaskAdapter.setLongClickedTaskByPos(groupPosition);
+                }
+                registerForContextMenu(exLv);
+                return false;
+            }
+        });
+        exLv.setAdapter(expandableTodoTaskAdapter);
+        exLv.setEmptyView(tv);
+        optionFab.setVisibility(View.VISIBLE);
+        initFab(0, false);
+        hints();
+    }
+
+    private void showTasksOfList(int id) {
+        uncheckNavigationEntries();
+        this.inList = true;
+
+        if (navigationView != null) {
+            for (int i = 0; i < navigationView.getMenu().size(); i++) {
+                MenuItem item = navigationView.getMenu().getItem(i);
+                item.setChecked(item.getItemId() == id);
+                if (item.getItemId() == id) {
+                    toolbar.setTitle(item.getTitle());
+                }
+            }
+            Log.i(TAG, "Navigation entries unchecked.");
+        }
+
+        dbHelper = DatabaseHelper.getInstance(this);
+        ArrayList<TodoList> lists;
+        ArrayList<TodoTask> help = new ArrayList<TodoTask>();
+        lists = DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase());
+
+        activeList = id;
+
+        for (int i = 0; i < lists.size(); i++) {
+            if (id == lists.get(i).getId()) {
+                help.addAll(lists.get(i).getTasks());
+            }
+        }
+        expandableTodoTaskAdapter = new ExpandableTodoTaskAdapter(this, help);
+        exLv.setAdapter(expandableTodoTaskAdapter);
+        exLv.setEmptyView(tv);
+        optionFab.setVisibility(View.VISIBLE);
+        initFab(id, true);
+    }
+
+    /**
+     * Shows instructions to add tasks iff database is empty
+     */
+    public void hints() {
+        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+        dbHelper = DatabaseHelper.getInstance(this);
+        if (DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase()).size() == 0 &&
+                DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase()).size() == 0) {
+
+            initialAlert.setVisibility(View.VISIBLE);
+            anim.setDuration(1500);
+            anim.setStartOffset(20);
+            anim.setRepeatMode(Animation.REVERSE);
+            anim.setRepeatCount(Animation.INFINITE);
+            initialAlert.startAnimation(anim);
+
+        } else /*if (DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase()).size() > 0 ||
+                DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase()).size() > 0) */ {
+            initialAlert.setVisibility(View.GONE);
+            initialAlert.clearAnimation();
+        }
+
+        if (DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase()).size() == 0) {
+            secondAlert.setVisibility(View.VISIBLE);
+            anim.setDuration(1500);
+            anim.setStartOffset(20);
+            anim.setRepeatMode(Animation.REVERSE);
+            anim.setRepeatCount(Animation.INFINITE);
+            secondAlert.startAnimation(anim);
+        } else {
+            secondAlert.setVisibility(View.GONE);
+            secondAlert.clearAnimation();
+        }
+    }
+
+    /**
+     * collapse all elements on view change.
+     * the expandable list view keeps the expanded indices, so other items
+     * get expanded, when they get the old expanded index
+     */
+    private void collapseAll() {
+        int groupCount = expandableTodoTaskAdapter.getGroupCount();
+        for (int i = 0; i < groupCount; i++)
+            exLv.collapseGroup(i);
+    }
+
+
+    // reminder related methods
+    /**
+     * Report changes to the reminder task if the reminder time is prior to the deadline or if no deadline is set at all.
+     * The reminder time must always be after the the current time. The task must not be completed.
+     *
+     * @param task The task to report to the reminder service
+     */
+    public void notifyReminderService(TodoTask task) {
+        // TODO This method is called from other fragments as well (e.g. after opening MainActivity by reminder). In such cases the service is null and alarms cannot be updated. Fix this!
+        if (reminderService != null) {
+
+            if ((task.getReminderTime() < task.getDeadline() || !task.hasDeadline()) && !task.isDone()) {
+                reminderService.processTask(task);
+                Log.i(TAG, "Reminder is set!");
+            } else {
+                Log.i(TAG, "Reminder service was not informed about the task " + task.getName());
+            }
+
+        } else {
+            Log.i(TAG, "Service is null. Cannot update alarms");
+        }
+    }
+
+
+    // Database methods
+    /**
+     * @param todo the todo to send to the database
+     * @return true if object was created in the database
+     */
+    public boolean sendToDatabase(BaseTodo todo) {
+
+        int databaseID = -5;
+        String errorMessage = "";
+
+        // call appropriate method depending on type
+        if (todo instanceof TodoList) {
+            databaseID = DBQueryHandler.saveTodoListInDb(dbHelper.getWritableDatabase(), (TodoList) todo);
+            errorMessage = getString(R.string.list_to_db_error);
+        } else if (todo instanceof TodoTask) {
+            databaseID = DBQueryHandler.saveTodoTaskInDb(dbHelper.getWritableDatabase(), (TodoTask) todo);
+            notifyReminderService((TodoTask) todo);
+            errorMessage = getString(R.string.task_to_db_error);
+        } else if (todo instanceof TodoSubTask) {
+            databaseID = DBQueryHandler.saveTodoSubTaskInDb(dbHelper.getWritableDatabase(), (TodoSubTask) todo);
+            errorMessage = getString(R.string.subtask_to_db_error);
+        } else {
+            throw new IllegalArgumentException("Cannot save unknown descendant of BaseTodo in the database.");
+        }
+
+        // set unique database id (primary key) to the current object
+        if (databaseID == -1) {
+            Log.e(TAG, errorMessage);
+            return false;
+        } else if (databaseID != DBQueryHandler.NO_CHANGES) {
+            todo.setId(databaseID);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean sendToDbAndUpdateView(BaseTodo todo, boolean listExists, int listId) {
+        if (todo instanceof TodoTask) {
+            sendToDatabase(todo);
+            hints();
+            //show List if created in certain list, else show all tasks
+            if (listExists) {
+                if (listId == this.activeList)
+                    expandableTodoTaskAdapter.notifyDataSetChanged();
+                else
+                    showTasksOfList(listId);
+            } else
+                showAllTasks();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean sendToDbAndUpdateView(BaseTodo todo) {
+        if (todo instanceof TodoTask)
+            return sendToDbAndUpdateView(todo, true, ((TodoTask) todo).getListId());
+        return false;
+    }
+
     private void sendToPomodoro(BaseTodo todo) {
         Intent pomodoro = new Intent(POMODORO_ACTION);
         int todoId = todo.getId();
@@ -1200,48 +1188,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //super.onResume();
     }
 
-    public void hints() {
 
-        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+    /**
+     * adds a new To do-List
+     */
+    private void startListDialog() {
         dbHelper = DatabaseHelper.getInstance(this);
-        if (DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase()).size() == 0 &&
-                DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase()).size() == 0) {
+        todoLists = DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase());
+        adapter = new TodoListAdapter(this, todoLists);
 
-            initialAlert.setVisibility(View.VISIBLE);
-            anim.setDuration(1500);
-            anim.setStartOffset(20);
-            anim.setRepeatMode(Animation.REVERSE);
-            anim.setRepeatCount(Animation.INFINITE);
-            initialAlert.startAnimation(anim);
-
-        } else /*if (DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase()).size() > 0 ||
-                DBQueryHandler.getAllToDoLists(dbHelper.getReadableDatabase()).size() > 0) */ {
-            initialAlert.setVisibility(View.GONE);
-            initialAlert.clearAnimation();
-        }
-
-        if (DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase()).size() == 0) {
-            secondAlert.setVisibility(View.VISIBLE);
-            anim.setDuration(1500);
-            anim.setStartOffset(20);
-            anim.setRepeatMode(Animation.REVERSE);
-            anim.setRepeatCount(Animation.INFINITE);
-            secondAlert.startAnimation(anim);
-        } else {
-            secondAlert.setVisibility(View.GONE);
-            secondAlert.clearAnimation();
-        }
-    }
-
-    private boolean checkIfPomodoroInstalled() {
-        try {
-            getPackageManager().getPackageInfo("org.secuso.privacyfriendlyproductivitytimer", 0);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
+        ProcessTodoListDialog pl = new ProcessTodoListDialog(this);
+        pl.setDialogResult(new TodoCallback() {
+            @Override
+            public void finish(BaseTodo b) {
+                if (b instanceof TodoList) {
+                    todoLists.add((TodoList) b);
+                    adapter.updateList(todoLists); // run filter again
+                    adapter.notifyDataSetChanged();
+                    sendToDatabase(b);
+                    hints();
+                    addListToNav();
+                    Log.i(TAG, "list added");
+                }
+            }
+        });
+        pl.show();
     }
 
 
+    // Method starting tutorial
+    private void startTut() {
+        Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    /**
+     * initialize FloatingActionButton
+     * @param id        ID of the list to add to
+     * @param idExists  states whether id is given from list (true) or new task is created in all-tasks (false)
+     */
+    private void initFab(int id, boolean idExists) {
+        dbHelper = DatabaseHelper.getInstance(this);
+        final ArrayList<TodoTask> tasks;
+        tasks = DBQueryHandler.getAllToDoTasks(dbHelper.getReadableDatabase());
+        //final ExpandableTodoTaskAdapter taskAdapter = new ExpandableTodoTaskAdapter(this, tasks);
+        final int helpId = id;
+        final boolean helpExists = idExists;
+
+        optionFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ProcessTodoTaskDialog pt = new ProcessTodoTaskDialog(MainActivity.this);
+                pt.setListSelector(helpId, helpExists);
+                pt.setDialogResult(new TodoCallback() {
+                    @Override
+                    public void finish(BaseTodo b) {
+                        sendToDbAndUpdateView(b, helpExists, helpId);
+                    }
+                });
+                pt.show();
+            }
+        });
+    }
 }
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import org.secuso.privacyfriendlytodolist.R;
 
@@ -104,15 +105,8 @@ public class Recurrence implements Parcelable {
     protected long endDate;
 
     // Constructors
-    public Recurrence() {
-        this.type = Type.NONE;
-        this.increment = 1;
-        this.selection = new TreeSet<>();
-        this.startDate = Helper.getCurrentTimestamp();
-        this.endDate = Long.MAX_VALUE;
-    }
-
     public Recurrence(Type type, int increment, Set<Integer> selection, long startDate, long endDate) {
+        super();
         this.type = type;
         setIncrement(increment);
         setSelection(selection);
@@ -120,20 +114,22 @@ public class Recurrence implements Parcelable {
         setEndDate(endDate);
     }
 
+    public Recurrence() {
+        this(Type.NONE, 1, new TreeSet<Integer>(), Helper.getCurrentTimestamp(), Long.MAX_VALUE);
+    }
+
     public Recurrence(Recurrence recurrence) {
-        this.type = recurrence.type;
-        setIncrement(recurrence.increment);
-        setSelection(recurrence.selection);
-        setStartDate(recurrence.startDate);
-        setEndDate(recurrence.endDate);
+        this(recurrence.type, recurrence.increment, recurrence.selection, recurrence.startDate, recurrence.endDate);
     }
 
     public Recurrence(Parcel parcel) {
-        type = Type.fromInt(parcel.readInt());
-        setIncrement(parcel.readInt());
-        setSelection(decodeSelection(parcel.readInt()));
-        startDate = parcel.readLong();
-        endDate = parcel.readLong();
+        this(
+                Type.fromInt(parcel.readInt()),
+                parcel.readInt(),
+                decodeSelection(parcel.readInt()),
+                parcel.readLong(),
+                parcel.readLong()
+        );
     }
 
     // Overrides
@@ -196,8 +192,14 @@ public class Recurrence implements Parcelable {
                     return context.getResources().getString(R.string.no_recurrence);
                 StringBuilder selectedOptionsBuilder = new StringBuilder();
                 for (int i : selection) {
-                    RecurrenceSelectionOption thisOption = recurrenceSelectionOptionFromInt(i);
-                    selectedOptionsBuilder.append(thisOption.toString(context)).append(", ");
+                    try {
+                        RecurrenceSelectionOption thisOption = recurrenceSelectionOptionFromInt(i);
+                        selectedOptionsBuilder.append(thisOption.toString(context)).append(", ");
+                    } catch (IllegalArgumentException iae) {
+                        if (iae.getMessage().equals("No such weekday defined.")) {
+                            Log.e("Recurrence", "illegal option", iae);
+                        } else throw iae;
+                    }
                 }
                 String selectedOptions = selectedOptionsBuilder.toString();
                 unit = selectedOptions.substring(0, selectedOptions.length() - 2);

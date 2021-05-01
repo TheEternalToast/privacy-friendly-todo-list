@@ -46,7 +46,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
@@ -325,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     // Overrides
+
     /**
      * @see NavigationView
      */
@@ -529,102 +529,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         final Tuple<TodoTask, TodoSubTask> longClickedTodo = expandableTodoTaskAdapter.getLongClickedTodo();
-
         switch (item.getItemId()) {
             case R.id.change_subtask:
-                final ProcessTodoSubTaskDialog dialog = new ProcessTodoSubTaskDialog(this, longClickedTodo.getRight());
-                dialog.titleEdit();
-                dialog.setDialogResult(new TodoCallback() {
-                    @Override
-                    public void finish(BaseTodo b) {
-                        if (b instanceof TodoSubTask) {
-                            sendToDatabase(b);
-                            expandableTodoTaskAdapter.notifyDataSetChanged();
-                            Log.i(TAG, "subtask altered");
-                        }
-                    }
-                });
-                dialog.show();
+                startEditSubtaskDialog(longClickedTodo.getRight());
                 break;
-
             case R.id.delete_subtask:
-                affectedRows = DBQueryHandler.deleteTodoSubTask(this.getDbHelper().getWritableDatabase(), longClickedTodo.getRight());
-                longClickedTodo.getLeft().getSubTasks().remove(longClickedTodo.getRight());
-                if (affectedRows == 1)
-                    Toast.makeText(getBaseContext(), getString(R.string.subtask_removed), Toast.LENGTH_SHORT).show();
-                else
-                    Log.d(TAG, "Subtask was not removed from the database. Maybe it was not added beforehand (then this is no error)?");
-                expandableTodoTaskAdapter.notifyDataSetChanged();
+                deleteSubtask(longClickedTodo.getLeft(), longClickedTodo.getRight());
                 break;
-
             case R.id.change_task:
-                final int listIDold = longClickedTodo.getLeft().getListId();
-                final ProcessTodoTaskDialog editTaskDialog = new ProcessTodoTaskDialog(this, longClickedTodo.getLeft());
-                editTaskDialog.titleEdit();
-                editTaskDialog.setListSelector(longClickedTodo.getLeft().getListId(), true);
-
-                editTaskDialog.setDialogResult(new TodoCallback() {
-                    @Override
-                    public void finish(BaseTodo alteredTask) {
-                        if (alteredTask instanceof TodoTask) {
-                            sendToDatabase(alteredTask);
-                            expandableTodoTaskAdapter.notifyDataSetChanged();
-                            if (inList && listIDold != -3) {
-                                showTasksOfList(listIDold);
-                            } else {
-                                showAllTasks();
-                            }
-                        }
-                    }
-                });
-                editTaskDialog.show();
+                startEditTaskDialog(longClickedTodo.getLeft());
                 break;
             case R.id.delete_task:
-                Snackbar snackbar = Snackbar.make(optionFab, R.string.task_removed, Snackbar.LENGTH_LONG);
-                ArrayList<TodoSubTask> subTasks = longClickedTodo.getLeft().getSubTasks();
-                for (TodoSubTask ts : subTasks) {
-                    DBQueryHandler.putSubtaskInTrash(dbHelper.getWritableDatabase(), ts);
-                }
-                affectedRows = DBQueryHandler.putTaskInTrash(dbHelper.getWritableDatabase(), longClickedTodo.getLeft());
-                if (affectedRows == 1) {
-                    hints();
-                } else
-                    Log.d(TAG, "Task was not removed from the database. Maybe it was not added beforehand (then this is no error)?");
-
-                // Dependent on the current View, update All-tasks or a certain List
-                if (this.inList && longClickedTodo.getLeft().getListId() != -3) {
-                    showTasksOfList(longClickedTodo.getLeft().getListId());
-                } else {
-                    showAllTasks();
-                }
-
-                snackbar.setAction(R.string.snack_undo, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ArrayList<TodoSubTask> subTasks = longClickedTodo.getLeft().getSubTasks();
-                        DBQueryHandler.recoverTasks(dbHelper.getWritableDatabase(), longClickedTodo.getLeft());
-                        for (TodoSubTask ts : subTasks) {
-                            DBQueryHandler.recoverSubtasks(dbHelper.getWritableDatabase(), ts);
-                        }
-                        if (inList && longClickedTodo.getLeft().getListId() != -3) {
-                            showTasksOfList(longClickedTodo.getLeft().getListId());
-                        } else {
-                            showAllTasks();
-                        }
-                        hints();
-                    }
-                });
-                snackbar.show();
+                deleteTask(longClickedTodo.getLeft());
                 break;
 
             case R.id.work_task:
-
                 Log.i(MainActivity.class.getSimpleName(), "START TASK");
                 sendToPomodoro(longClickedTodo.getLeft());
                 break;
 
             case R.id.work_subtask:
-
                 Log.i(MainActivity.class.getSimpleName(), "START SUBTASK");
                 sendToPomodoro(longClickedTodo.getRight());
                 break;
@@ -898,6 +822,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     // navigation view methods
+
     /**
      * uncheck all navigation entries
      */
@@ -1061,6 +986,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     // reminder related methods
+
     /**
      * Report changes to the reminder task if the reminder time is prior to the deadline or if no deadline is set at all.
      * The reminder time must always be after the the current time. The task must not be completed.
@@ -1085,6 +1011,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     // Database methods
+
     /**
      * @param todo the todo to send to the database
      * @return true if object was created in the database
@@ -1215,6 +1142,92 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         pl.show();
     }
 
+    public void startEditTaskDialog(TodoTask task) {
+        final int listIDold = task.getListId();
+        final ProcessTodoTaskDialog editTaskDialog = new ProcessTodoTaskDialog(this, task);
+        editTaskDialog.titleEdit();
+        editTaskDialog.setListSelector(task.getListId(), true);
+
+        editTaskDialog.setDialogResult(new TodoCallback() {
+            @Override
+            public void finish(BaseTodo alteredTask) {
+                if (alteredTask instanceof TodoTask) {
+                    sendToDatabase(alteredTask);
+                    expandableTodoTaskAdapter.notifyDataSetChanged();
+                    if (inList && listIDold != -3) {
+                        showTasksOfList(listIDold);
+                    } else {
+                        showAllTasks();
+                    }
+                }
+            }
+        });
+        editTaskDialog.show();
+    }
+
+    public void startEditSubtaskDialog(TodoSubTask subTask) {
+        final ProcessTodoSubTaskDialog dialog = new ProcessTodoSubTaskDialog(this, subTask);
+        dialog.titleEdit();
+        dialog.setDialogResult(new TodoCallback() {
+            @Override
+            public void finish(BaseTodo b) {
+                if (b instanceof TodoSubTask) {
+                    sendToDatabase(b);
+                    expandableTodoTaskAdapter.notifyDataSetChanged();
+                    Log.i(TAG, "subtask altered");
+                }
+            }
+        });
+        dialog.show();
+    }
+
+    public void deleteTask(final TodoTask task) {
+        Snackbar snackbar = Snackbar.make(optionFab, R.string.task_removed, Snackbar.LENGTH_LONG);
+        ArrayList<TodoSubTask> subTasks = task.getSubTasks();
+        for (TodoSubTask ts : subTasks) {
+            DBQueryHandler.putSubtaskInTrash(dbHelper.getWritableDatabase(), ts);
+        }
+        affectedRows = DBQueryHandler.putTaskInTrash(dbHelper.getWritableDatabase(), task);
+        if (affectedRows == 1) {
+            hints();
+        } else
+            Log.d(TAG, "Task was not removed from the database. Maybe it was not added beforehand (then this is no error)?");
+
+        // Dependent on the current View, update All-tasks or a certain List
+        if (this.inList && task.getListId() != -3) {
+            showTasksOfList(task.getListId());
+        } else {
+            showAllTasks();
+        }
+
+        snackbar.setAction(R.string.snack_undo, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<TodoSubTask> subTasks = task.getSubTasks();
+                DBQueryHandler.recoverTasks(dbHelper.getWritableDatabase(), task);
+                for (TodoSubTask ts : subTasks) {
+                    DBQueryHandler.recoverSubtasks(dbHelper.getWritableDatabase(), ts);
+                }
+                if (inList && task.getListId() != -3) {
+                    showTasksOfList(task.getListId());
+                } else {
+                    showAllTasks();
+                }
+                hints();
+            }
+        });
+        snackbar.show();
+    }
+
+    public void deleteSubtask(TodoTask task, TodoSubTask subTask) {
+        affectedRows = DBQueryHandler.deleteTodoSubTask(this.getDbHelper().getWritableDatabase(), subTask);
+        task.getSubTasks().remove(subTask);
+        if (affectedRows == 1)
+            Toast.makeText(getBaseContext(), getString(R.string.subtask_removed), Toast.LENGTH_SHORT).show();
+        else
+            Log.d(TAG, "Subtask was not removed from the database. Maybe it was not added beforehand (then this is no error)?");
+        expandableTodoTaskAdapter.notifyDataSetChanged();
+    }
 
     // Method starting tutorial
     private void startTut() {
@@ -1225,8 +1238,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /**
      * initialize FloatingActionButton
-     * @param id        ID of the list to add to
-     * @param idExists  states whether id is given from list (true) or new task is created in all-tasks (false)
+     *
+     * @param id       ID of the list to add to
+     * @param idExists states whether id is given from list (true) or new task is created in all-tasks (false)
      */
     private void initFab(int id, boolean idExists) {
         dbHelper = DatabaseHelper.getInstance(this);

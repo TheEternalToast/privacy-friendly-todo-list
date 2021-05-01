@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rl_subtask_row_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_gravity="center">
 
     <RelativeLayout
         android:id="@+id/rl_subtask_row"
@@ -12,9 +13,9 @@
         android:layout_toEndOf="@id/bt_exlv_edit_subtask">
 
         <View
-            android:id="@+id/v_subtask_deadline_color_bar"
-            android:layout_width="5dp"
-            android:layout_height="0px"
+            android:id="@+id/v_urgency_subtask"
+            android:layout_width="@dimen/urgency_width"
+            android:layout_height="0dp"
             android:layout_alignBottom="@+id/v_exlv_subtask_align_anchor"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
@@ -26,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/subtask_indent">
+            android:layout_marginStart="@dimen/subtask_checkbox_indent">
 
             <CheckBox
                 android:id="@+id/cb_subtask_done"
@@ -52,7 +53,7 @@
             android:layout_height="0px"
             android:layout_below="@+id/tv_subtask_name"
             android:layout_marginTop="7dp"
-            android:layout_toEndOf="@+id/v_urgency_task" />
+            android:layout_toEndOf="@+id/v_urgency_subtask" />
 
     </RelativeLayout>
 
@@ -60,24 +61,24 @@
         android:id="@+id/bt_exlv_edit_subtask"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_alignTop="@id/rl_subtask_row"
+        android:layout_alignBottom="@id/rl_subtask_row"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
         android:background="@color/edit_blue"
-        android:src="@android:drawable/ic_menu_edit"
+        android:contentDescription="@string/edit_subtask"
         android:gravity="center"
-        android:contentDescription="@string/edit_subtask" />
+        android:src="@android:drawable/ic_menu_edit" />
 
     <ImageButton
         android:id="@+id/bt_exlv_delete_subtask"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_alignTop="@id/rl_subtask_row"
+        android:layout_alignBottom="@id/rl_subtask_row"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
         android:background="@color/delete_red"
-        android:src="@android:drawable/ic_menu_delete"
+        android:contentDescription="@string/delete_subtask"
         android:gravity="center"
-        android:contentDescription="@string/delete_subtask"/>
+        android:src="@android:drawable/ic_menu_delete" />
 
 </RelativeLayout>

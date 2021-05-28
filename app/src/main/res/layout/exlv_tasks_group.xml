@@ -4,6 +4,12 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center">
 
+    <TextView
+        android:id="@+id/tv_task_pos"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"/>
+
     <RelativeLayout
         android:id="@+id/rl_exlv_task_group"
         android:layout_width="wrap_content"

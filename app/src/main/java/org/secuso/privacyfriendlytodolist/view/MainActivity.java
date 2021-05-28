@@ -17,6 +17,7 @@
 
 package org.secuso.privacyfriendlytodolist.view;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -45,7 +46,9 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
@@ -75,7 +78,6 @@ import org.secuso.privacyfriendlytodolist.view.dialog.ProcessTodoSubTaskDialog;
 import org.secuso.privacyfriendlytodolist.view.dialog.ProcessTodoTaskDialog;
 
 import java.util.ArrayList;
-
 /**
  * Created by Sebastian Lutz on 12.03.2018.
  * Altered by Ben Westerath on 25.04.2021.
@@ -136,6 +138,207 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    public class OnItemSwipeListener extends OnSwipeListener {
+        private int groupPosition;
+        private int childPosition;
+        protected boolean doubleSwipeLeft = false;
+        protected boolean doubleSwipeRight = false;
+        private boolean vertical = false;
+
+        private View active;
+
+        public OnItemSwipeListener(Context context) {
+            super(context);
+        }
+
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) active = getActiveChild(event);
+            if (active == null) return false;
+            boolean childRes = super.onTouch(active, event);
+            return exLv.onTouchEvent(event) || childRes;
+        }
+
+        @Override
+        protected boolean onDownEvent(View view, MotionEvent event) {
+            updateSelectedPosition(active);
+            return super.onDownEvent(view, event);
+        }
+
+        @Override
+        protected boolean onMoveEvent(View view, MotionEvent event) {
+            if (vertical || Math.abs(distY) > Math.abs(distX)) {
+                if (Math.abs(distY) >= swipeThreshold) vertical = true;
+                onCancel(view, event);
+                return true;
+            }
+            return super.onMoveEvent(view, event);
+        }
+
+        @Override
+        protected boolean onUpEvent(View view, MotionEvent event) {
+            if (isClick(event)) {
+                if (groupPosition >= 0) {
+                    long id;
+                    if (childPosition >= 0)
+                        id = expandableTodoTaskAdapter.getChildId(groupPosition, childPosition);
+                    else
+                        id = expandableTodoTaskAdapter.getGroupId(groupPosition);
+                    if (clickIsLong()) {
+                        // exLv.performLongClick(event.getX(), event.getY());
+                    } else exLv.performItemClick(active, groupPosition, id);
+                }
+                if (clickIsLong()) view.performLongClick();
+                else view.performClick();
+            } else if (!vertical && Math.abs(distX) >= Math.abs(distY)) {
+                if (dragX) move(snap(distX), true);
+                if (dragY) move(snap(distY), false);
+                triggerSwipeAction(view);
+            } else {
+                onCancel(view, event);
+                triggerSwipeAction(view);
+            }
+            active = null;
+            centerView = null;
+            vertical = false;
+            return true;
+        }
+
+        @Override
+        public void onTinySwipe(View view) {
+            doubleSwipeLeft = false;
+            doubleSwipeRight = false;
+        }
+
+        @Override
+        public void onSwipeUp(View view) {
+            onTinySwipe(view);
+        }
+
+        @Override
+        public void onSwipeDown(View view) {
+            onTinySwipe(view);
+        }
+
+        @Override
+        public void onSwipeLeft(final View view) {
+            if (doubleSwipeRight) doubleSwipeRight = false;
+            else if (!vertical && (doubleSwipeLeft || distX <= -3 * swipeThreshold))
+                deleteSelected();
+            else if (!vertical) doubleSwipeLeft = true;
+            if (doubleSwipeLeft)
+                getRightView().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.getWidth() >= swipeThreshold) {
+                            deleteSelected();
+                        }
+                    }
+                });
+        }
+
+        @Override
+        public void onSwipeRight(final View view) {
+            if (doubleSwipeLeft) doubleSwipeLeft = false;
+            else if (!vertical && (doubleSwipeRight || distX >= 3 * swipeThreshold))
+                startSelectedEditDialog();
+            else if (!vertical) doubleSwipeRight = true;
+            if (doubleSwipeRight)
+                getLeftView().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.getWidth() >= swipeThreshold) {
+                            startSelectedEditDialog();
+                        }
+                    }
+                });
+        }
+
+        private View getActiveChild(MotionEvent event) {
+            for (int i = 0; i < exLv.getChildCount(); i++) {
+                View child = exLv.getChildAt(i);
+                if (child.getLeft() < event.getX() && event.getX() < child.getRight() &&
+                        child.getTop() < event.getY() && event.getY() < child.getBottom())
+                    return child;
+            }
+            return null;
+        }
+
+        private void updateSelectedPosition(View view) {
+            TextView posText = view.findViewById(R.id.tv_task_pos);
+            String[] pos = posText.getText().toString().split("/");
+            groupPosition = Integer.parseInt(pos[0]);
+            childPosition = Integer.parseInt(pos[1]);
+        }
+
+        private Tuple<Integer, Integer> getInListPos(View view) {
+            int g = 0;
+            int gOffset = 0;
+            int cOffset = 0;
+            while (g < expandableTodoTaskAdapter.getGroupCount()) {
+                ViewGroup group = (ViewGroup) exLv.getChildAt(g);
+                if (group.getId() != R.id.rl_exlv_task_root) {
+                    gOffset--;
+                    g++;
+                    continue;
+                }
+                if (group.equals(view))
+                    return new Tuple<>(g + gOffset, -1);
+
+                int c = 0;
+                while (c < expandableTodoTaskAdapter.getChildrenCount(g)) {
+                    View child = group.getChildAt(c);
+                    if (child.getId() != R.id.rl_subtask_row_root) {
+                        cOffset--;
+                        c++;
+                        continue;
+                    }
+                    if (child.equals(view))
+                        return new Tuple<>(g + gOffset, c + cOffset);
+                    c++;
+                }
+                g++;
+            }
+            return new Tuple<>(-1, -1);
+        }
+
+        private BaseTodo getData() {
+            Tuple<Integer, Integer> pos = getInListPos(active);
+            if (pos.getLeft() >= 0) {
+                if (pos.getRight() >= 0)
+                    return (BaseTodo) expandableTodoTaskAdapter.getChild(pos.getLeft(), pos.getRight());
+                return (BaseTodo) expandableTodoTaskAdapter.getGroup(pos.getLeft());
+            }
+            return null;
+        }
+
+        private void deleteSelected() {
+            BaseTodo data = getData();
+            if (data != null) {
+                if (data instanceof TodoTask) deleteTask((TodoTask) data);
+                else if (data instanceof TodoSubTask) {
+                    Tuple<TodoTask, TodoSubTask> tuple =
+                            expandableTodoTaskAdapter.getSubtask(groupPosition, childPosition);
+                    deleteSubtask(tuple.getLeft(), tuple.getRight());
+                }
+            }
+        }
+
+        private void startSelectedEditDialog() {
+            BaseTodo data = getData();
+            if (data != null) {
+                if (data instanceof TodoTask) startEditTaskDialog((TodoTask) data);
+                else if (data instanceof TodoSubTask) {
+                    startEditSubtaskDialog(
+                            expandableTodoTaskAdapter.getSubtask(groupPosition, childPosition)
+                                    .getRight()
+                    );
+                }
+            }
+        }
+
+    }
 
     public static final String COMMAND = "command";
     public static final int COMMAND_UPDATE = 3;
@@ -874,6 +1077,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     // list related methods
+    @SuppressLint("ClickableViewAccessibility")
     private void showAllTasks() {
         dbHelper = DatabaseHelper.getInstance(this);
         activeList = -1;
@@ -897,6 +1101,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return false;
             }
         });
+        exLv.setOnTouchListener(new OnItemSwipeListener(this));
+
         exLv.setAdapter(expandableTodoTaskAdapter);
         exLv.setEmptyView(tv);
         optionFab.setVisibility(View.VISIBLE);
@@ -1049,26 +1255,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public boolean sendToDbAndUpdateView(BaseTodo todo, boolean listExists, int listId) {
-        if (todo instanceof TodoTask) {
-            sendToDatabase(todo);
-            hints();
-            //show List if created in certain list, else show all tasks
-            if (listExists) {
-                if (listId == this.activeList)
-                    expandableTodoTaskAdapter.notifyDataSetChanged();
-                else
-                    showTasksOfList(listId);
-            } else
-                showAllTasks();
-            return true;
-        }
-        return false;
+        boolean res = sendToDatabase(todo);
+        hints();
+        //show List if created in certain list, else show all tasks
+        if (listExists) {
+            if (listId == this.activeList)
+                expandableTodoTaskAdapter.notifyDataSetChanged();
+            else
+                showTasksOfList(listId);
+        } else
+            showAllTasks();
+        return res;
     }
 
     public boolean sendToDbAndUpdateView(BaseTodo todo) {
         if (todo instanceof TodoTask)
             return sendToDbAndUpdateView(todo, true, ((TodoTask) todo).getListId());
-        return false;
+        if (todo instanceof TodoSubTask)
+            return sendToDbAndUpdateView(todo, true, this.activeList);
+        return sendToDatabase(todo);
     }
 
     private void sendToPomodoro(BaseTodo todo) {

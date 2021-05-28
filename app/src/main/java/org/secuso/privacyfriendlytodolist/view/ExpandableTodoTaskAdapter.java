@@ -22,7 +22,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
@@ -60,72 +59,7 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
 
     // Internal classes
     //  ViewHolders
-    public class ListeningViewHolder {
-        public View root;
-        public View left = null;
-        public View right = null;
-        public View top = null;
-        public View bottom = null;
-
-        public void setOnTouchListener(View.OnTouchListener listener) {
-            root.setOnTouchListener(listener);
-        }
-
-        public void setSwipeListener(final View parent) {
-            root.setOnTouchListener(new SwipeListener(context, left, right, top, bottom) {
-                private Boolean isLeft = null;
-
-                @Override
-                public boolean onTouch(View view, MotionEvent event) {
-                    boolean res = super.onTouch(view, event);
-                    if (view.getLeft() == getViewLeft()) {
-                        if (view.getRight() == getViewRight()) isLeft = null;
-                        else isLeft = true;
-                    } else if (view.getRight() == getViewRight()) isLeft = false;
-                    else isLeft = null;
-                    return res;
-                }
-
-                @Override
-                public void onSwipeLeft(View view) {
-                    if (isLeft != null && isLeft) {
-                        // TODO: open edit dialog
-                    }
-                    left.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (isLeft != null && isLeft) {
-                                // TODO: open edit dialog
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onSwipeRight(View view) {
-                    if (isLeft != null && !isLeft) {
-                        // TODO: delete task
-                    }
-                    right.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (isLeft != null && !isLeft) {
-                                // TODO: delete task
-                            }
-                        }
-                    });
-                }
-            });
-            root.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    parent.callOnClick();
-                }
-            });
-        }
-    }
-
-    public class GroupTaskViewHolder extends ListeningViewHolder {
+    public class GroupTaskViewHolder {
         public TextView name;
         public RelativeLayout deadline;
         public RelativeLayout recurrence;
@@ -135,16 +69,18 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         public View deadlineColorBar;
         public View seperator;
         public ProgressBar progressBar;
+        public TextView position;
     }
 
     public class GroupPrioViewHolder {
         public TextView prioFlag;
     }
 
-    private class SubTaskViewHolder extends ListeningViewHolder {
+    private class SubTaskViewHolder {
         public TextView subtaskName;
         public CheckBox done;
         public View deadlineColorBar;
+        public TextView position;
     }
 
     private class TaskDescriptionViewHolder {
@@ -337,9 +273,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                     convertView = LayoutInflater.from(context).inflate(R.layout.exlv_tasks_group, parent, false);
 
                     vh2 = new GroupTaskViewHolder();
-                    vh2.root = convertView.findViewById(R.id.rl_exlv_task_group);
-                    vh2.left = convertView.findViewById(R.id.bt_exlv_edit_task);
-                    vh2.right = convertView.findViewById(R.id.bt_exlv_delete_task);
                     vh2.name = (TextView) convertView.findViewById(R.id.tv_exlv_task_name);
                     vh2.done = (CheckBox) convertView.findViewById(R.id.cb_task_done);
                     vh2.deadline = (RelativeLayout) convertView.findViewById(R.id.rl_exlv_task_deadline);
@@ -349,7 +282,8 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                     vh2.progressBar = (ProgressBar) convertView.findViewById(R.id.pb_task_progress);
                     vh2.seperator = convertView.findViewById(R.id.v_exlv_header_separator);
                     vh2.deadlineColorBar = convertView.findViewById(R.id.v_urgency_task);
-                    if (currentTask != null){
+                    vh2.position = convertView.findViewById(R.id.tv_task_pos);
+                    if (currentTask != null) {
                         vh2.done.setTag(currentTask.getId());
                         vh2.done.setChecked(currentTask.isDone());
                     }
@@ -360,20 +294,18 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                     vh2 = (GroupTaskViewHolder) convertView.getTag();
                 }
 
-                updateTaskInfo(currentTask == null ? new TodoTask() :currentTask, vh2);
-                vh2.setSwipeListener(convertView);
+                vh2.position.setText(String.format("%d/-1", groupPosition));
+                updateTaskInfo(currentTask == null ? new TodoTask() : currentTask, vh2);
                 vh2.done.setOnCheckedChangeListener(new ToggleTodoListener(currentTask));
                 break;
             default:
                 // TODO Exception
         }
-//        convertView.setOnTouchListener(new SwipeListener(context));
         return convertView;
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-
         int type = getChildType(groupPosition, childPosition);
         final TodoTask currentTask = getTaskByPosition(groupPosition);
 
@@ -441,19 +373,16 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                 SubTaskViewHolder vh3 = new SubTaskViewHolder();
                 if (convertView == null) {
                     convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.exlv_subtask_row, parent, false);
-                    vh3.root = convertView.findViewById(R.id.rl_subtask_row);
-                    vh3.left = convertView.findViewById(R.id.bt_exlv_edit_subtask);
-                    vh3.right = convertView.findViewById(R.id.bt_exlv_delete_subtask);
                     vh3.subtaskName = (TextView) convertView.findViewById(R.id.tv_subtask_name);
-                    vh3.deadlineColorBar = convertView.findViewById(R.id.v_urgency_task);
+                    vh3.deadlineColorBar = convertView.findViewById(R.id.v_urgency_subtask);
                     vh3.done = (CheckBox) convertView.findViewById(R.id.cb_subtask_done);
+                    vh3.position = convertView.findViewById(R.id.tv_task_pos);
                     convertView.setTag(vh3);
                 } else {
                     vh3 = (SubTaskViewHolder) convertView.getTag();
                 }
 
-                vh3.setSwipeListener(convertView);
-
+                vh3.position.setText(String.format("%d/%d", groupPosition, childPosition));
                 vh3.done.setChecked(currentSubTask.isDone());
                 vh3.done.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -471,9 +400,7 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
                 });
                 vh3.subtaskName.setText(currentSubTask.getName());
                 vh3.deadlineColorBar.setBackgroundColor(Helper.getDeadlineColor(context, currentTask.getDeadlineColor(getDefaultReminderTime())));
-
         }
-        convertView.setOnTouchListener(new SwipeListener(context));
         return convertView;
     }
 
@@ -528,7 +455,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
      */
     @Override
     public int getGroupType(int groupPosition) {
-
         if (isPriorityGroupingEnabled() && prioBarPositions.values().contains(groupPosition))
             return GR_PRIO_ROW;
         return GR_TASK_ROW;
@@ -630,6 +556,11 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
         return longClickedTodo;
     }
 
+    public Tuple<TodoTask, TodoSubTask> getSubtask(int groupPosition, int childPosition) {
+        TodoTask task = filteredTasks.get(groupPosition);
+        return new Tuple<>(task, task.getSubTasks().get(childPosition));
+    }
+
     public void setFilter(Filter filter) {
         this.filterMeasure = filter;
     }
@@ -687,7 +618,6 @@ public class ExpandableTodoTaskAdapter extends BaseExpandableListAdapter {
             }
         }
     }
-
 
     /**
      * Updates the task view to contain the info contained in task

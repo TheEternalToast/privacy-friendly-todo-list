@@ -1,16 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rl_subtask_row_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_gravity="center">
+
+    <TextView
+        android:id="@+id/tv_task_pos"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"/>
 
     <RelativeLayout
         android:id="@+id/rl_subtask_row"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_toStartOf="@id/bt_exlv_delete_subtask"
-        android:layout_toEndOf="@id/bt_exlv_edit_subtask">
+        android:layout_toEndOf="@id/bt_exlv_edit_subtask"
+        android:orientation="vertical">
 
         <View
             android:id="@+id/v_urgency_subtask"
@@ -75,7 +81,7 @@
         android:layout_height="match_parent"
         android:layout_alignTop="@id/rl_subtask_row"
         android:layout_alignBottom="@id/rl_subtask_row"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:background="@color/delete_red"
         android:contentDescription="@string/delete_subtask"
         android:gravity="center"
